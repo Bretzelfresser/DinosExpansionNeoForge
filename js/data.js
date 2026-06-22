@@ -10,7 +10,7 @@ const DINOSAURS_DATA = [
     image: "assets/images/trex.png",
     description: "Tyrannosaurus dominum is a massive, aggressive predator that dominates the Island's jungles and mountains. Taming a Rex is a rite of passage for any tribe, transforming them from prey into rulers of the wilderness. They possess high health, terrifying melee damage, and an intimidating roar that can stun smaller creatures.",
     baseStats: {
-      health: 1100,
+      health: 1500,
       stamina: 420,
       oxygen: 150,
       food: 3000,
