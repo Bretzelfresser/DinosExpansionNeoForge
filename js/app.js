@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initDetailPage();
   } else if (document.getElementById("taming-calc-container")) {
     initCalculatorPage();
+  } else if (document.getElementById("biomes-page-container")) {
+    initBiomesPage();
   }
 });
 
@@ -414,4 +416,100 @@ function formatTime(totalSeconds) {
   result += `${s}s`;
   
   return result;
+}
+
+// ----------------------------------------------------
+// 4. BIOMES PAGE LOGIC
+// ----------------------------------------------------
+function initBiomesPage() {
+  const dimensionName = document.getElementById("dimension-name");
+  const dimensionSector = document.getElementById("dimension-sector");
+  const dimensionDesc = document.getElementById("dimension-description");
+  const biomeLayout = document.getElementById("biome-layout");
+
+  // Populate Dimension Info
+  if (dimensionName) dimensionName.textContent = `Dimension: ${window.DIMENSION_DATA.name}`;
+  if (dimensionSector) dimensionSector.textContent = `Sector Telemetry: ${window.DIMENSION_DATA.sectorId} // SIGNAL: ON`;
+  if (dimensionDesc) dimensionDesc.textContent = window.DIMENSION_DATA.description;
+
+  // Populate Biomes Cards
+  if (biomeLayout) {
+    biomeLayout.innerHTML = "";
+    
+    window.DIMENSION_DATA.biomes.forEach(biome => {
+      const card = document.createElement("section");
+      card.className = "biome-card";
+      card.id = `biome-${biome.id}`;
+
+      // Build features list
+      let featuresHtml = "";
+      biome.features.forEach(f => {
+        featuresHtml += `
+          <div class="feature-item">
+            <div class="feature-name">${f.name}</div>
+            <div class="feature-desc">${f.detail}</div>
+          </div>
+        `;
+      });
+
+      // Build spawn table rows
+      let spawnRows = "";
+      biome.spawns.forEach(s => {
+        spawnRows += `
+          <tr>
+            <td class="highlight-cyan">${s.name}</td>
+            <td class="highlight-green">${s.spawnRate}</td>
+            <td style="color: var(--text-muted);">${s.role}</td>
+          </tr>
+        `;
+      });
+
+      const hazardClass = biome.hazardLevel.toLowerCase().includes("medium") ? "hazard-medium" : "hazard-high";
+
+      card.innerHTML = `
+        <!-- Left Side: Visuals & Spawns -->
+        <div>
+          <div class="biome-img-box">
+            <img src="${biome.image}" alt="${biome.name}">
+            <div class="hazard-badge ${hazardClass}">HAZARD: ${biome.hazardLevel}</div>
+          </div>
+          
+          <h3 class="highlight-cyan" style="font-family: var(--font-title); font-size: 1.2rem; margin-top: 1.5rem; text-transform: uppercase;">Creature Spawn Log</h3>
+          <table class="spawns-table">
+            <thead>
+              <tr>
+                <th>Creature</th>
+                <th>Spawn Rate</th>
+                <th>Role Profile</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${spawnRows}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right Side: Description & Features -->
+        <div style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h2 class="highlight-cyan" style="font-family: var(--font-title); font-size: 1.7rem; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.5rem;">
+              ${biome.name}
+            </h2>
+            <p style="font-size: 0.98rem; line-height: 1.6; color: #c4d7d2; margin-bottom: 1.5rem;">
+              ${biome.description}
+            </p>
+          </div>
+          
+          <div>
+            <h3 class="highlight-cyan" style="font-family: var(--font-title); font-size: 1.2rem; text-transform: uppercase; margin-bottom: 0.5rem;">Environmental Features</h3>
+            <div class="features-list">
+              ${featuresHtml}
+            </div>
+          </div>
+        </div>
+      `;
+
+      biomeLayout.appendChild(card);
+    });
+  }
 }
