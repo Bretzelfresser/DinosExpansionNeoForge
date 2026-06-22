@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.server.SurfaceRuleHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -17,14 +18,26 @@ public class ModNoiseGeneratorSettings {
     );
 
     public static void bootstrap(BootstrapContext<NoiseGeneratorSettings> context) {
+        var densityLookup = context.lookup(Registries.DENSITY_FUNCTION);
+
         NoiseSettings noiseSettings = new NoiseSettings(-64, 384, 1, 2);
         DensityFunction zero = DensityFunctions.zero();
         NoiseRouter noiseRouter = new NoiseRouter(
-                zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero, zero
-        );
-        SurfaceRules.RuleSource surfaceRule = SurfaceRules.sequence(
-                SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
-                SurfaceRules.state(Blocks.DIRT.defaultBlockState())
+                zero,
+                zero,
+                zero,
+                zero,
+                zero,
+                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CONTINENTS)),
+                zero,
+                zero,
+                zero,
+                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.FINAL_DENSITY)),
+                zero,
+                zero,
+                zero
         );
 
         context.register(DINO_NOISE_SETTINGS_KEY, new NoiseGeneratorSettings(
@@ -32,11 +45,11 @@ public class ModNoiseGeneratorSettings {
                 Blocks.STONE.defaultBlockState(), // defaultBlock
                 Blocks.WATER.defaultBlockState(), // defaultFluid
                 noiseRouter,
-                surfaceRule,
+                SurfaceRuleHelper.generateDinoSurfaceRules(),
                 List.of(), // spawnTarget
                 63, // seaLevel
                 false, // disableMobGeneration
-                false, // aquifersEnabled
+                true, // aquifersEnabled
                 false, // oreVeinsEnabled
                 false // useLegacyRandomSource
         ));

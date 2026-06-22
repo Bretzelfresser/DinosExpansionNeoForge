@@ -10,11 +10,12 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class ModNoiseParameters {
 
+    public static final ResourceKey<NormalNoise.NoiseParameters> CONTINENTS = create("continents");
     public static final ResourceKey<NormalNoise.NoiseParameters> DINO_NOISE_KEY = create("dino_noise");
 
 
     public static void bootstrap(BootstrapContext<NormalNoise.NoiseParameters> context) {
-        context.register(DINO_NOISE_KEY, new NormalNoise.NoiseParameters(-4, 1.0, 1.0, 1.0));
+        context.register(CONTINENTS, new NormalNoise.NoiseParameters(-10, 1.0, 1.0, 0, 0.75, 0, 0.25));
     }
 
 

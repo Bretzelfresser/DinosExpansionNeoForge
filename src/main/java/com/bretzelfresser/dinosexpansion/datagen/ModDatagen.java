@@ -19,7 +19,8 @@ public class ModDatagen {
             .add(Registries.NOISE_SETTINGS, ModNoiseGeneratorSettings::bootstrap)
             .add(Registries.LEVEL_STEM, ModLevelStems::bootstrap)
             .add(Registries.DENSITY_FUNCTION, ModDensityFunctions::bootstrap)
-            .add(Registries.NOISE, ModNoiseParameters::bootstrap);
+            .add(Registries.NOISE, ModNoiseParameters::bootstrap)
+            .add(Registries.BIOME, ModBiomes::bootstrap);
 
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

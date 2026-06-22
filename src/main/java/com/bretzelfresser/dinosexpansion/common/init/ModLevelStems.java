@@ -28,11 +28,10 @@ public class ModLevelStems {
         HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
-        HolderGetter<MultiNoiseBiomeSourceParameterList> biomeParams = context.lookup(Registries.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST);
 
         context.register(DINO_LEVEL_STEM_KEY, new LevelStem(
                 dimTypes.getOrThrow(ModDimensionTypes.DINO_DIM_TYPE_KEY),
-                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(Biomes.PLAINS)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
+                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(ModBiomes.DINO_DEFAULT_KEY)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
         ));
     }
 }
