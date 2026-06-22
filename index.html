@@ -1,2 +1,86 @@
-<h1>Welcome to the Mod Wiki</h1>
-<h1>Welcome to the Mod Wiki</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DinosExpansion Wiki | Island Telemetry HUD</title>
+  <meta name="description" content="Ultimate tactical dossier and taming guides for DinosExpansion. Learn how to tame, feed, and ride dinosaurs like T-Rex, Spinosaurus, Raptors, and more.">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- SEO Heading Structure unique ID -->
+  <link rel="icon" type="image/png" href="assets/images/trex.png">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="header-logo">
+        <span class="logo-implant"></span>
+        DinosExpansion
+      </a>
+      <nav id="main-navigation">
+        <a href="index.html" class="nav-link active">Catalog</a>
+        <a href="calculator.html" class="nav-link">Taming Calculator</a>
+        <a href="guides.html" class="nav-link">Guides</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="primary-content">
+    
+    <!-- Hero Banner -->
+    <section class="hero" id="dashboard-hero">
+      <h1>Tactical Dossier Link</h1>
+      <p>Local Biometric Ecosystem & Neural Taming Database</p>
+    </section>
+
+    <!-- Search & Filters Panel -->
+    <section class="hud-panel" id="catalog-controls">
+      <h2 class="hud-title">
+        <span>Neural Scan Telemetry</span>
+        <span style="font-size: 0.8rem; color: var(--color-cyan); text-shadow: none;">SCANNING... OK</span>
+      </h2>
+      <div class="controls-bar">
+        <!-- Search Input -->
+        <div class="search-wrapper">
+          <input type="text" id="search-input" class="hud-input" placeholder="ENTER CREATURE IDENTIFIER (e.g. Rex, Raptor)...">
+        </div>
+        
+        <!-- Filters -->
+        <div class="filter-wrapper">
+          <select id="diet-filter" class="hud-select">
+            <option value="all">Diet: All Biomes</option>
+            <option value="carnivore">Diet: Carnivores</option>
+            <option value="herbivore">Diet: Herbivores</option>
+          </select>
+          
+          <select id="class-filter" class="hud-select">
+            <option value="all">Class: All Roles</option>
+            <option value="fighter">Class: Fighters</option>
+            <option value="harvester">Class: Harvesters</option>
+            <option value="flyer">Class: Flyers</option>
+            <option value="utility">Class: Utility</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dinosaur Grid (Populated dynamically) -->
+    <section class="dino-grid" id="dino-grid" aria-label="Dinosaur Catalog">
+      <!-- Grid items loaded from js/app.js -->
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="main-footer">
+    <p>NEURAL LINK SECURED // SYSTEM: <span>ACTIVE</span> // NODE LAT: 35.2 LON: 88.4</p>
+    <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.6;">&copy; 2026 Bretzelfresser. Designed for DinosExpansion. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

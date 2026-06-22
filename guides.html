@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taming Manual & Guides | DinosExpansion Wiki</title>
+  <meta name="description" content="Learn the core taming mechanics of ARK, including knockout taming, passive taming, the kibble system hierarchy, and torpor management.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="assets/images/trex.png">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="header-logo">
+        <span class="logo-implant"></span>
+        DinosExpansion
+      </a>
+      <nav id="main-navigation">
+        <a href="index.html" class="nav-link">Catalog</a>
+        <a href="calculator.html" class="nav-link">Taming Calculator</a>
+        <a href="guides.html" class="nav-link active">Guides</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="guides-container">
+    
+    <!-- Page Header -->
+    <section class="hud-panel" style="margin-bottom: 2rem; padding: 1.5rem 2rem;">
+      <h1 style="font-family: var(--font-title); font-size: 2.2rem; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); text-transform: uppercase;">Survival Taming Manual</h1>
+      <p style="font-family: var(--font-hud); font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Standard operating procedures for taming prehistoric beasts</p>
+    </section>
+
+    <!-- Guide: Core Methods -->
+    <section class="hud-panel">
+      <h2 class="hud-title">Core Taming Methodologies</h2>
+      
+      <div class="guide-card-layout">
+        
+        <!-- Knockout Taming -->
+        <div class="guide-box">
+          <h3>1. Violent / Knockout Taming</h3>
+          <p>The most common taming method. Requires rendering the creature unconscious before feeding it. You must deplete its torpidity pool using tranquilizers without killing it.</p>
+          <ul style="color: #a0b5b0; font-size: 0.95rem; padding-left: 1.2rem; line-height: 1.7;">
+            <li>Use <strong class="highlight-cyan">Bolas</strong>, <strong class="highlight-cyan">Bear Traps</strong>, or stone traps to immobilize target.</li>
+            <li>Shoot with a Slingshot, Bow (Tranq Arrows), or Longneck Rifle (Tranq Darts).</li>
+            <li>Aim for high-damage/high-torpor multipliers (e.g. headshots on Raptors and Pteranodons).</li>
+            <li>Maintain unconsciousness by feeding <strong class="highlight-cyan">Narcotics</strong> or <strong class="highlight-cyan">Narcoberries</strong> remotely.</li>
+          </ul>
+        </div>
+
+        <!-- Passive Taming -->
+        <div class="guide-box">
+          <h3>2. Non-Violent / Passive Taming</h3>
+          <p>Used for taming docile or highly specialized creatures. Instead of shooting them, you feed them while they are awake, moving, and conscious.</p>
+          <ul style="color: #a0b5b0; font-size: 0.95rem; padding-left: 1.2rem; line-height: 1.7;">
+            <li>Place preferred taming food in your <strong class="highlight-green">last hotbar slot</strong> (slot 0).</li>
+            <li>Approach the creature from behind slowly to avoid alerting or scaring it.</li>
+            <li>When prompted (e.g., "Feed food to tame"), press the action key.</li>
+            <li>Back away immediately to avoid aggroing or crowding the creature. Wait until it is hungry again.</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Guide: Kibble System -->
+    <section class="hud-panel">
+      <h2 class="hud-title">The Kibble Hierarchy</h2>
+      <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; line-height: 1.5;">
+        Kibble is the most effective taming food in the game. Using the correct tier of kibble guarantees maximum taming speed, preserves taming effectiveness (yielding maximum bonus levels), and prevents food-based taming decay.
+      </p>
+
+      <div class="kibble-grid">
+        
+        <!-- Simple Kibble -->
+        <div class="kibble-item simple">
+          <div class="kibble-egg">🟢</div>
+          <div class="kibble-name">Simple Kibble</div>
+          <div class="kibble-tier">Green Tier</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Preferred by: Raptor, Triceratops, Pteranodon</p>
+        </div>
+
+        <!-- Regular Kibble -->
+        <div class="kibble-item regular">
+          <div class="kibble-egg">🔵</div>
+          <div class="kibble-name">Regular Kibble</div>
+          <div class="kibble-tier">Blue Tier</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Preferred by: Ankylosaurus, Carno, Ichthyornis</p>
+        </div>
+
+        <!-- Exceptional Kibble -->
+        <div class="kibble-item exceptional">
+          <div class="kibble-egg">🟡</div>
+          <div class="kibble-name">Exceptional Kibble</div>
+          <div class="kibble-tier">Yellow Tier</div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Preferred by: Tyrannosaurus, Spinosaurus, Giganotosaurus</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Guide: Torpor Management -->
+    <section class="hud-panel">
+      <h2 class="hud-title">Tactical Torpor Management</h2>
+      <div class="guide-box" style="margin-bottom: 0;">
+        <p style="font-size: 1.05rem; line-height: 1.7; margin-bottom: 1.5rem;">
+          When a creature is knocked out, its torpor bar begins draining immediately. If it hits zero, the creature wakes up, and all taming progress is reset. To prevent this, you must feed them Narcotics or Narcoberries.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; flex-wrap: wrap;">
+          <div>
+            <h4 style="font-family: var(--font-title); font-size: 1.1rem; color: var(--color-cyan); margin-bottom: 0.5rem;">💊 Narcotics (Processed)</h4>
+            <p style="font-size: 0.9rem; color: #a0b5b0; line-height: 1.6;">
+              Restores <strong>40 Torpor</strong> over 8 seconds. Narcotics do not spoil, stack up to 100, and are lightweight. Excellent for keeping large, slow-draining predators asleep.
+            </p>
+          </div>
+          <div>
+            <h4 style="font-family: var(--font-title); font-size: 1.1rem; color: var(--color-orange); margin-bottom: 0.5rem;">🍇 Narcoberries (Raw)</h4>
+            <p style="font-size: 0.9rem; color: #a0b5b0; line-height: 1.6;">
+              Restores <strong>7.5 Torpor</strong> over 3 seconds. While Narcoberries have a spoil timer, they are actually <strong>superior</strong> for fast-decaying creatures (like Spinos and Pteranodons). Because the torpor is added slowly, it halts the natural torpor decay of the creature for a longer total duration!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="main-footer">
+    <p>NEURAL LINK SECURED // SYSTEM: <span>ACTIVE</span> // NODE LAT: 35.2 LON: 88.4</p>
+    <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.6;">&copy; 2026 Bretzelfresser. Designed for DinosExpansion. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

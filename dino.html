@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creature Dossier | DinosExpansion Wiki</title>
+  <meta name="description" content="View detailed statistics, taming foods, taming strategies, and combat utility for this dinosaur.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" href="assets/images/trex.png">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="logo" id="header-logo">
+        <span class="logo-implant"></span>
+        DinosExpansion
+      </a>
+      <nav id="main-navigation">
+        <a href="index.html" class="nav-link">Catalog</a>
+        <a href="calculator.html" class="nav-link">Taming Calculator</a>
+        <a href="guides.html" class="nav-link">Guides</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="dino-detail-container">
+    
+    <!-- Title & Tagline -->
+    <section class="hud-panel" style="margin-bottom: 2rem; padding: 1.5rem 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1 id="dino-title" style="font-family: var(--font-title); font-size: 2.2rem; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); text-transform: uppercase;">Dinosaur Name</h1>
+          <p id="dino-tagline" style="font-family: var(--font-hud); font-size: 1.1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">CREATURE TAGLINE</p>
+        </div>
+        <div id="dino-diet-badge" class="dino-badge">CARNIVORE</div>
+      </div>
+    </section>
+
+    <!-- Layout Grid -->
+    <div class="dino-detail-layout">
+
+      <!-- Left Column: Media & Dossier Text -->
+      <section class="detail-visuals" aria-label="Creature Visuals">
+        <!-- AI Portrait -->
+        <div class="detail-img-box">
+          <img id="dino-portrait" src="assets/images/trex.png" alt="Dino Portrait">
+        </div>
+
+        <!-- Wild Dossier Text -->
+        <div class="hud-panel dossier-panel">
+          <h2 class="hud-title">Wild Behavior Dossier</h2>
+          <p id="dino-description">Creature dossier wild description goes here...</p>
+          <a id="calc-link-btn" href="calculator.html" class="hud-input" style="display: block; text-align: center; text-decoration: none; margin-top: 1.5rem; border-color: var(--color-cyan); color: var(--color-cyan); font-family: var(--font-title); font-size: 0.95rem; text-shadow: 0 0 5px var(--color-cyan-glow); cursor: pointer; transition: var(--transition-fast);">
+            🚀 OPEN TAMING CALCULATOR FOR THIS SPECIES
+          </a>
+        </div>
+      </section>
+
+      <!-- Right Column: Biometrics & Taming Specs -->
+      <section class="detail-specs" aria-label="Creature Specifications">
+        
+        <!-- Biometrics HUD -->
+        <div class="hud-panel">
+          <h2 class="hud-title">Biometric Telemetry</h2>
+          <div class="stats-hud">
+            <!-- Health -->
+            <div class="stat-row">
+              <span class="stat-label">Health</span>
+              <span class="stat-val" id="stat-val-health">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill health" id="stat-bar-health"></div></div>
+            </div>
+            <!-- Stamina -->
+            <div class="stat-row">
+              <span class="stat-label">Stamina</span>
+              <span class="stat-val" id="stat-val-stamina">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill stamina" id="stat-bar-stamina"></div></div>
+            </div>
+            <!-- Oxygen -->
+            <div class="stat-row">
+              <span class="stat-label">Oxygen</span>
+              <span class="stat-val" id="stat-val-oxygen">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill" id="stat-bar-oxygen"></div></div>
+            </div>
+            <!-- Food -->
+            <div class="stat-row">
+              <span class="stat-label">Food</span>
+              <span class="stat-val" id="stat-val-food">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill" id="stat-bar-food"></div></div>
+            </div>
+            <!-- Weight -->
+            <div class="stat-row">
+              <span class="stat-label">Weight</span>
+              <span class="stat-val" id="stat-val-weight">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill weight" id="stat-bar-weight"></div></div>
+            </div>
+            <!-- Melee -->
+            <div class="stat-row">
+              <span class="stat-label">Melee</span>
+              <span class="stat-val" id="stat-val-melee">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill" id="stat-bar-melee" style="background: var(--color-red);"></div></div>
+            </div>
+            <!-- Speed -->
+            <div class="stat-row">
+              <span class="stat-label">Speed</span>
+              <span class="stat-val" id="stat-val-speed">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill" id="stat-bar-speed" style="background: var(--color-green);"></div></div>
+            </div>
+            <!-- Torpor -->
+            <div class="stat-row" style="margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">
+              <span class="stat-label" style="color: #9b51e0;">Torpidity</span>
+              <span class="stat-val" id="stat-val-torpidity" style="color: #c5a3e8;">0</span>
+              <div class="stat-bar-container"><div class="stat-bar-fill torpor" id="stat-bar-torpidity"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Taming Dossier Panel -->
+        <div class="hud-panel">
+          <h2 class="hud-title">Taming & Utility Telemetry</h2>
+          
+          <!-- Tab Links -->
+          <div class="tab-controls">
+            <button class="tab-btn active" data-tab="foods">Food Tiers</button>
+            <button class="tab-btn" data-tab="items">Required Gear</button>
+            <button class="tab-btn" data-tab="strategy">Taming Strategy</button>
+            <button class="tab-btn" data-tab="utility">Utility Role</button>
+          </div>
+
+          <!-- Tab Panes -->
+          <div class="tab-panes">
+            
+            <!-- Food Preferences -->
+            <div class="tab-pane active" id="tab-pane-foods">
+              <div class="food-list" id="food-preferences-list">
+                <!-- Loaded Dynamically -->
+              </div>
+            </div>
+
+            <!-- Taming Items -->
+            <div class="tab-pane" id="tab-pane-items">
+              <div class="food-list" id="taming-items-list">
+                <!-- Loaded Dynamically -->
+              </div>
+            </div>
+
+            <!-- Taming Strategy -->
+            <div class="tab-pane" id="tab-pane-strategy">
+              <ol class="strategy-steps" id="taming-strategy-steps">
+                <!-- Loaded Dynamically -->
+              </ol>
+            </div>
+
+            <!-- Utility Roles -->
+            <div class="tab-pane" id="tab-pane-utility">
+              <ul class="strategy-steps" id="utility-roles-list">
+                <!-- Loaded Dynamically -->
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer id="main-footer">
+    <p>NEURAL LINK SECURED // SYSTEM: <span>ACTIVE</span> // NODE LAT: 35.2 LON: 88.4</p>
+    <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.6;">&copy; 2026 Bretzelfresser. Designed for DinosExpansion. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
