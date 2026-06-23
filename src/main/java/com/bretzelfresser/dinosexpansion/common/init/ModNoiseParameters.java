@@ -17,6 +17,9 @@ public class ModNoiseParameters {
     public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_NOISE = create("noodle_noise");
     public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_THICKNESS_NOISE = create("noodle_thickness_noise");
 
+
+    public static final ResourceKey<NormalNoise.NoiseParameters> DEEPSLATE_NOISE = create("deepslate_noise");
+
     public static final ResourceKey<NormalNoise.NoiseParameters> DINO_NOISE_KEY = create("dino_noise");
 
 
@@ -28,6 +31,7 @@ public class ModNoiseParameters {
         context.register(UNDERGROUND_CAVE_SIZE, new NormalNoise.NoiseParameters(-6, 1.0, 1));
         context.register(NOODLE_NOISE, new NormalNoise.NoiseParameters(-5, 1.0, 1));
         context.register(NOODLE_THICKNESS_NOISE, new NormalNoise.NoiseParameters(-5, 1.0, 1, 1));
+        context.register(DEEPSLATE_NOISE, new NormalNoise.NoiseParameters(-2, 1.0, 1));
     }
 
 
