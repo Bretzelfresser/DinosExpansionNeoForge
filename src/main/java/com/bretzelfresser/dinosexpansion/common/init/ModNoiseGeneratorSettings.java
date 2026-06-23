@@ -33,7 +33,7 @@ public class ModNoiseGeneratorSettings {
                 zero,
                 zero,
                 zero,
-                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.SURFACE_DENSITY_AQUAFIER)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.FINAL_DENSITY)),
                 zero,
                 zero,

@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -9,16 +10,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
 public class ModDensityFunctions {
 
     public static final ResourceKey<DensityFunction> ZERO_DENSITY_KEY = create("zero");
     public static final ResourceKey<DensityFunction> CONTINENTS = create("continents");
     public static final ResourceKey<DensityFunction> FINAL_DENSITY = create("final_density");
+    public static final ResourceKey<DensityFunction> SURFACE_DENSITY_AQUAFIER = create("surface_density_aquafier");
 
 
-
-    public static ResourceKey<DensityFunction> create(String name){
+    public static ResourceKey<DensityFunction> create(String name) {
         return ResourceKey.create(Registries.DENSITY_FUNCTION, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
     }
 
@@ -32,7 +34,7 @@ public class ModDensityFunctions {
         var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f));
         var continents = wrap(refContinents);
 
-         //make it got a bit bigger so it doesnt completely crash when a noise is slightly over 1
+        //make it got a bit bigger so it doesnt completely crash when a noise is slightly over 1
         var depthSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.yClampedGradient(-36, 156, -1.2d, 1.2d))))
                 .addPoint(-1.2f, 1.2f, -1f)
                 .addPoint(-1f, 1f, 0f)
@@ -45,10 +47,41 @@ public class ModDensityFunctions {
                 .addPoint(-1f, -1f, 0)
                 .addPoint(0f, 0f, 2)
                 .addPoint(1f, 1f, 0f)
-
                 .build());
 
-        context.register(FINAL_DENSITY, DensityFunctions.add(depthSpline, surfaceSpline));
+        context.register(SURFACE_DENSITY_AQUAFIER, DensityFunctions.add(DensityFunctions.constant(0.3f), DensityFunctions.add(depthSpline, surfaceSpline)));
+        var surfaceWithoutCaves = DensityFunctions.add(depthSpline, surfaceSpline);
+        var caves = makeCaves(noiseLookup, densityLookup);
+        context.register(FINAL_DENSITY, DensityFunctions.min(surfaceWithoutCaves, caves));
+    }
+
+
+    private static DensityFunction makeCaves(HolderGetter<NormalNoise.NoiseParameters> noiseGetter, HolderGetter<DensityFunction> densityFunctionLookup) {
+        var undergroundCaveNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.DEEP_UNDERGROUND_CAVES), 1, 1);
+        //controls the size of the cave
+        var undergroundCaveSizeNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.DEEP_UNDERGROUND_CAVE_SIZE), 1, 1);
+        var deepUndergroundCaveSizeSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(undergroundCaveSizeNoise)))
+                .addPoint(-1f, -1f, 0)
+                .addPoint(1f, 0f, 0)
+                .build();
+
+
+        var undergroundCaveSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(undergroundCaveNoise)))
+                .addPoint(-1f, deepUndergroundCaveSizeSpline)
+                .addPoint(1f, 1f, 0)
+                .build());
+
+
+        var depthDeepUndergroundCavesSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.yClampedGradient(-63, 0, -1d, 1d))))
+                .addPoint(-1f, 0.5f, -2f)
+                .addPoint(-0.3f, 0f, 0f)
+                .addPoint(1f, 1.1f, .6f)
+                .build());
+
+        var caves = DensityFunctions.add(depthDeepUndergroundCavesSpline, undergroundCaveSpline);
+        return DensityFunctions.rangeChoice(caves, -2, 0, caves, DensityFunctions.constant(10e5));
+
+
     }
 
     private static DensityFunction wrap(Holder<DensityFunction> holder) {
