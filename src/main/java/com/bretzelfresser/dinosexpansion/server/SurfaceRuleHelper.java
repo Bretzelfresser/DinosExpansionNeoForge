@@ -25,6 +25,7 @@ public class SurfaceRuleHelper {
         var surfaceRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
 
+
         var stoneDeepslateRule =  SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(63), 0),
                         SurfaceRules.sequence(
                                 andConditions(SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()),

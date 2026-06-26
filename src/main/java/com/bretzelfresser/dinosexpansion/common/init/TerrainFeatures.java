@@ -16,37 +16,40 @@ public class TerrainFeatures {
 
         // 2. Amplify the warp intensity (e.g. 25.0 blocks of shift)
         // Higher values make the turns sharper and more chaotic; lower values keep it smoother.
-        var warpX = DensityFunctions.mul(warpXRaw, DensityFunctions.constant(25.0d));
-        var warpZ = DensityFunctions.mul(warpZRaw, DensityFunctions.constant(25.0d));
+        var warpX = DensityFunctions.mul(warpXRaw, DensityFunctions.constant(6.0d));
+        var warpZ = DensityFunctions.mul(warpZRaw, DensityFunctions.constant(6.0d));
 
         // 3. Evaluate the river noise using the warped coordinates
         // shiftedNoise2d shifts X by warpX and Z by warpZ
         var riverNoise = DensityFunctions.shiftedNoise2d(
                 warpX,
                 warpZ,
-                0.005d, // xzScale of the river noise (controls frequency/size of bends)
+                1d, // xzScale of the river noise (controls frequency/size of bends)
                 noiseGetter.getOrThrow(ModNoiseParameters.RIVER_NOISE)
         );
 
         var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
         var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1, 0);
 
+
+        //less means bigger rivers
+        float riverThicknessModulator = 1f;
         // Modulate river width
-        var widthModulator = DensityFunctions.add(DensityFunctions.constant(1.5d), riverThicknessNoise);
+        var widthModulator = DensityFunctions.add(DensityFunctions.constant(riverThicknessModulator), riverThicknessNoise);
         var adjustedThickness = DensityFunctions.mul(riverNoise.abs(), widthModulator);
 
         // Sub-spline to vary depth depending on riverDepthNoise
         var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
-                .addPoint(-1.0f, -0.3f, 0.0f) // deep parts
-                .addPoint(1.0f, -0.1f, 0.0f)  // shallow parts
+                .addPoint(-1.0f, -0.35f, 0.0f) // deep parts
+                .addPoint(1.0f, -0.15f, 0.0f)  // shallow parts
                 .build();
 
         // Main spline to model the river cross-section profile
         var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(adjustedThickness)))
                 .addPoint(0.0f, depthModulationSpline)  // center of the river (carved deepest)
-                .addPoint(0.08f, -0.1f, 0.0f)           // river bed slope
                 .addPoint(0.15f, 0.0f, 0.0f)            // river banks (no carving)
                 .addPoint(1.0f, 0.0f, 0.0f)             // outside river
+                .addPoint(10.0f, 0.0f, 0.0f)
                 .build();
 
         return DensityFunctions.spline(riverSpline);

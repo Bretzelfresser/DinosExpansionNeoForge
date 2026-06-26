@@ -84,7 +84,7 @@ public class ModDensityFunctions {
                 .build());
 
         var caves = DensityFunctions.add(depthDeepUndergroundCavesSpline, undergroundCaveSpline);
-        caves = DensityFunctions.min(caves, noodlesAndCaves(noiseGetter, densityFunctionLookup));
+        //caves = DensityFunctions.min(caves, noodlesAndCaves(noiseGetter, densityFunctionLookup));
         return DensityFunctions.rangeChoice(caves, -20, 0, caves, DensityFunctions.constant(10e5));
 
 
