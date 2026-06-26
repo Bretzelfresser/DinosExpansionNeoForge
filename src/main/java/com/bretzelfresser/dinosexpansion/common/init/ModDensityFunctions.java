@@ -67,8 +67,11 @@ public class ModDensityFunctions {
         var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
         var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1, 0);
 
-        // Combine river path noise and thickness noise
-        var riverThicknessAdded = DensityFunctions.add(riverNoise.abs(), riverThicknessNoise.abs());
+        // Modulate river width by multiplying riverNoise.abs() by a positive factor.
+        // When riverNoise.abs() is 0 (the center of the river), the coordinate remains 0, preserving connectivity.
+        // riverThicknessNoise ranges from -1.0 to 1.0. The widthModulator will range from 0.5 (wide river) to 2.5 (narrow river).
+        var widthModulator = DensityFunctions.add(DensityFunctions.constant(1.5d), riverThicknessNoise);
+        var adjustedThickness = DensityFunctions.mul(riverNoise.abs(), widthModulator);
 
         // Sub-spline to vary depth depending on riverDepthNoise
         var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
@@ -77,7 +80,7 @@ public class ModDensityFunctions {
                 .build();
 
         // Main spline to model the river cross-section profile
-        var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverThicknessAdded)))
+        var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(adjustedThickness)))
                 .addPoint(0.0f, depthModulationSpline)  // center of the river (carved deepest)
                 .addPoint(0.08f, -0.1f, 0.0f)           // river bed slope
                 .addPoint(0.15f, 0.0f, 0.0f)            // river banks (no carving)
