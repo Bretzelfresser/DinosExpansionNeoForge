@@ -43,11 +43,17 @@ public class ModDensityFunctions {
                 .addPoint(1.2f, -1.2f, -1f)
                 .build());
 
-        var surfaceSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
+        var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
                 .addPoint(-1f, -1f, 0)
-                .addPoint(0f, 0f, 2)
+                .addPoint(-0.1f, -0.7f, 0)
+                .addPoint(0.1f, 0.7f, 0)
                 .addPoint(1f, 1f, 0f)
-                .build());
+                .build();
+
+        var surfaceContinentalSplineFunction = DensityFunctions.spline(surfaceContinentalSpline);
+
+        var surfaceSpline = DensityFunctions.add(surfaceContinentalSplineFunction, makeRiver(noiseLookup, densityLookup));
+
 
         context.register(SURFACE_DENSITY_AQUAFIER, DensityFunctions.add(DensityFunctions.constant(0.3f), DensityFunctions.add(depthSpline, surfaceSpline)));
         var surfaceWithoutCaves = DensityFunctions.add(depthSpline, surfaceSpline);
@@ -55,6 +61,31 @@ public class ModDensityFunctions {
         context.register(FINAL_DENSITY, DensityFunctions.min(surfaceWithoutCaves, caves));
     }
 
+
+    private static DensityFunction makeRiver(HolderGetter<NormalNoise.NoiseParameters> noiseGetter, HolderGetter<DensityFunction> densityFunctionLookup) {
+        var riverNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_NOISE), 1, 0);
+        var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
+        var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1, 0);
+
+        // Combine river path noise and thickness noise
+        var riverThicknessAdded = DensityFunctions.add(riverNoise.abs(), riverThicknessNoise.abs());
+
+        // Sub-spline to vary depth depending on riverDepthNoise
+        var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
+                .addPoint(-1.0f, -0.3f, 0.0f) // deep parts
+                .addPoint(1.0f, -0.1f, 0.0f)  // shallow parts
+                .build();
+
+        // Main spline to model the river cross-section profile
+        var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverThicknessAdded)))
+                .addPoint(0.0f, depthModulationSpline)  // center of the river (carved deepest)
+                .addPoint(0.08f, -0.1f, 0.0f)           // river bed slope
+                .addPoint(0.15f, 0.0f, 0.0f)            // river banks (no carving)
+                .addPoint(1.0f, 0.0f, 0.0f)             // outside river
+                .build();
+
+        return DensityFunctions.spline(riverSpline);
+    }
 
     private static DensityFunction makeCaves(HolderGetter<NormalNoise.NoiseParameters> noiseGetter, HolderGetter<DensityFunction> densityFunctionLookup) {
         var undergroundCaveNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.DEEP_UNDERGROUND_CAVES), 1, 1);
@@ -96,7 +127,7 @@ public class ModDensityFunctions {
 
         var noodleNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_NOISE), 1, 1);
 
-        var noodleSizeSpline =  DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_THICKNESS_NOISE)))))
+        var noodleSizeSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_THICKNESS_NOISE)))))
                 .addPoint(-1f, 0f, 0)
                 .addPoint(0, maxNoodleSize, 0f)
                 .addPoint(1f, 0f, 0f)

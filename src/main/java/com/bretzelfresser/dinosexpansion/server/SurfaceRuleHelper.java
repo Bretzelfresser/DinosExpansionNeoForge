@@ -12,6 +12,16 @@ public class SurfaceRuleHelper {
 
     public static SurfaceRules.RuleSource generateDinoSurfaceRules(){
 
+        var waterSandGlassRule = andConditions(
+                ifElse(
+                        SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.3f),
+                        SurfaceRules.state(Blocks.SAND.defaultBlockState()),
+                        SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
+                SurfaceRules.not(SurfaceRules.waterBlockCheck(-10,1)),
+                SurfaceRules.ON_FLOOR,
+                SurfaceRules.abovePreliminarySurface()
+        );
+
         var surfaceRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
 
@@ -25,11 +35,19 @@ public class SurfaceRuleHelper {
                 SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
 
         return SurfaceRules.sequence(
+                waterSandGlassRule,
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  surfaceRule),
                 stoneDeepslateRule
         );
     }
 
+
+    public static SurfaceRules.RuleSource ifElse(SurfaceRules.ConditionSource condition, SurfaceRules.RuleSource whenTrue, SurfaceRules.RuleSource whenFalse) {
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(condition, whenTrue),
+                whenFalse
+        );
+    }
 
     private static SurfaceRules.RuleSource andConditions(SurfaceRules.RuleSource ifTrue, SurfaceRules.ConditionSource... conditions){
         if (conditions == null || conditions.length == 0){
