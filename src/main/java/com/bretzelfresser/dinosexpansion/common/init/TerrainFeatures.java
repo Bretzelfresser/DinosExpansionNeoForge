@@ -29,7 +29,7 @@ public class TerrainFeatures {
         );
 
         var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
-        var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), .7f, 0);
+        var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1f, 0);
 
 
         //less means bigger rivers
@@ -40,14 +40,14 @@ public class TerrainFeatures {
 
         // Sub-spline to vary depth depending on riverDepthNoise
         var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
-                .addPoint(-1.0f, -0.35f, 0.0f) // deep parts
-                .addPoint(1.0f, -0.15f, 0.0f)  // shallow parts
+                .addPoint(-1.0f, -0.2f, 0.0f) // deep parts
+                .addPoint(1.0f, -0.05f, 0.0f)  // shallow parts
                 .build();
 
         // Main spline to model the river cross-section profile
         var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(adjustedThickness)))
                 .addPoint(0.0f, depthModulationSpline)  // center of the river (carved deepest)
-                .addPoint(0.15f, 0.0f, 0.0f)            // river banks (no carving)
+                .addPoint(0.25f, 0.0f, 0.0f)            // river banks (no carving)
                 .addPoint(1.0f, 0.0f, 0.0f)             // outside river
                 .addPoint(10.0f, 0.0f, 0.0f)
                 .build();
@@ -84,6 +84,22 @@ public class TerrainFeatures {
                 .build();
         var heightOffset = DensityFunctions.spline(heightControllerSpline);
 
-        return DensityFunctions.add(noodleCaveDensity, heightOffset);
+        // 5. Entrance noise gate (2D noise, yScale = 0.0d)
+        var entranceNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.CAVE_ENTRANCE_NOISE), 1.0d, 0.0d);
+
+        // Spline that outputs 1.0 (keep caves underground) most of the time,
+        // but drops to 0.0 (let caves break through) when entranceNoise is high.
+        var entranceMaskSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(entranceNoise)))
+                .addPoint(-1.0f, 1.0f, 0.0f) // Keep underground
+                .addPoint(0.4f, 1.0f, 0.0f)  // Keep underground
+                .addPoint(1.0f, 0.0f, 0.0f)  // Create entrance
+                .build();
+        var entranceMask = DensityFunctions.spline(entranceMaskSpline);
+
+        // Multiply the height offset by the mask.
+        // If entranceMask is 0.0, the heightOffset is bypassed, letting caves carve up to Y = 80.
+        var gatedHeightOffset = DensityFunctions.mul(heightOffset, entranceMask);
+
+        return DensityFunctions.add(noodleCaveDensity, gatedHeightOffset);
     }
 }
