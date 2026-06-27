@@ -21,33 +21,28 @@ public class TerrainFeatures {
 
         // 3. Evaluate the river noise using the warped coordinates
         // shiftedNoise2d shifts X by warpX and Z by warpZ
-        var riverNoise = DensityFunctions.shiftedNoise2d(
-                warpX,
-                warpZ,
-                1d, // xzScale of the river noise (controls frequency/size of bends)
-                noiseGetter.getOrThrow(ModNoiseParameters.RIVER_NOISE)
-        );
+        var riverNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_NOISE), 1, 0);
 
         var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
         var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1f, 0);
 
 
         //less means bigger rivers
-        float riverThicknessModulator = 1.2f;
+        float riverThicknessModulator = 1f;
         // Modulate river width
         var widthModulator = DensityFunctions.add(DensityFunctions.constant(riverThicknessModulator), riverThicknessNoise);
         var adjustedThickness = DensityFunctions.mul(riverNoise.abs(), widthModulator);
 
         // Sub-spline to vary depth depending on riverDepthNoise
         var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
-                .addPoint(-1.0f, -0.2f, 0.0f) // deep parts
-                .addPoint(1.0f, -0.05f, 0.0f)  // shallow parts
+                .addPoint(-1.0f, -0.25f, 0.0f) // deep parts
+                .addPoint(1.0f, -0.15f, 0.0f)  // shallow parts
                 .build();
 
         // Main spline to model the river cross-section profile
         var riverSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(adjustedThickness)))
                 .addPoint(0.0f, depthModulationSpline)  // center of the river (carved deepest)
-                .addPoint(0.25f, 0.0f, 0.0f)            // river banks (no carving)
+                .addPoint(0.15f, 0.0f, 0.0f)            // river banks (no carving)
                 .addPoint(1.0f, 0.0f, 0.0f)             // outside river
                 .addPoint(10.0f, 0.0f, 0.0f)
                 .build();
