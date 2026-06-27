@@ -29,11 +29,11 @@ public class TerrainFeatures {
         );
 
         var riverThicknessNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_THICKNESS_NOISE), 1, 0);
-        var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), 1, 0);
+        var riverDepthNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.RIVER_DEPTH), .7f, 0);
 
 
         //less means bigger rivers
-        float riverThicknessModulator = 1f;
+        float riverThicknessModulator = 1.2f;
         // Modulate river width
         var widthModulator = DensityFunctions.add(DensityFunctions.constant(riverThicknessModulator), riverThicknessNoise);
         var adjustedThickness = DensityFunctions.mul(riverNoise.abs(), widthModulator);
@@ -53,5 +53,37 @@ public class TerrainFeatures {
                 .build();
 
         return DensityFunctions.spline(riverSpline);
+    }
+
+    public static DensityFunction makeNoodleCave(HolderGetter<NormalNoise.NoiseParameters> noiseGetter, HolderGetter<DensityFunction> densityFunctionLookup) {
+        // 1. Evaluate two independent 3D noises (yScale = 1.0d makes it fully 3D)
+        var noiseA = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_CAVE_A), 1.0d, 1.0d);
+        var noiseB = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_CAVE_B), 1.0d, 1.0d);
+
+        // 2. Noodle coordinate is the maximum of absolute values: max(|A|, |B|).
+        // This value is 0.0 exactly along the intersection line (the center of the cave tube).
+        var noodleDistance = DensityFunctions.max(noiseA.abs(), noiseB.abs());
+
+        // 3. Model the cave profile. Inside the tube (< 0.08) we output a negative carving density.
+        // Outside the tube (>= 0.08) we output 1.0 (positive) so it is ignored by min().
+        var caveSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(noodleDistance)))
+                .addPoint(0.0f, -1.5f, 0.0f)  // center of the cave (fully hollow)
+                .addPoint(0.05f, -0.8f, 0.0f) // sloped cave walls
+                .addPoint(0.08f, 1.0f, 0.0f)  // cave boundary (solid stone)
+                .addPoint(1.0f, 1.0f, 0.0f)   // outside the cave
+                .build();
+
+        var noodleCaveDensity = DensityFunctions.spline(caveSpline);
+
+        // 4. Height controller: Prevents caves from carving above Y = 80 (surface/sky).
+        // Outputs 0.0 offset below Y = 50, transitioning to 2.5 offset at Y = 80.
+        // Adding 2.5 to -1.5 center density results in +1.0 (solid), stopping all carving.
+        var heightControllerSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.yClampedGradient(50, 80, 0.0d, 1.0d))))
+                .addPoint(0.0f, 0.0f, 0.0f)  // deep underground: no height offset (full carving)
+                .addPoint(1.0f, 2.5f, 0.0f)  // near surface / above ground: add 2.5 to prevent carving
+                .build();
+        var heightOffset = DensityFunctions.spline(heightControllerSpline);
+
+        return DensityFunctions.add(noodleCaveDensity, heightOffset);
     }
 }

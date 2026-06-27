@@ -84,33 +84,8 @@ public class ModDensityFunctions {
                 .build());
 
         var caves = DensityFunctions.add(depthDeepUndergroundCavesSpline, undergroundCaveSpline);
-        //caves = DensityFunctions.min(caves, noodlesAndCaves(noiseGetter, densityFunctionLookup));
+        caves = DensityFunctions.min(caves, TerrainFeatures.makeNoodleCave(noiseGetter, densityFunctionLookup));
         return DensityFunctions.rangeChoice(caves, -20, 0, caves, DensityFunctions.constant(10e5));
-
-
-    }
-
-    private static DensityFunction noodlesAndCaves(HolderGetter<NormalNoise.NoiseParameters> noiseGetter, HolderGetter<DensityFunction> densityFunctionLookup) {
-        float maxNoodleSize = 0.1f;
-
-        var noodleGenerationSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.yClampedGradient(-60, 100, -1, 1))))
-                .addPoint(-1f, maxNoodleSize * .9f, 0)
-                .addPoint(0, 0f, 0f)
-                .addPoint(1f, maxNoodleSize * 1.6f, 0f)
-                .build());
-
-        var noodleNoise = DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_NOISE), 1, 1);
-
-        var noodleSizeSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.noise(noiseGetter.getOrThrow(ModNoiseParameters.NOODLE_THICKNESS_NOISE)))))
-                .addPoint(-1f, 0f, 0)
-                .addPoint(0, maxNoodleSize, 0f)
-                .addPoint(1f, 0f, 0f)
-                .build());
-
-        var noodleSize = DensityFunctions.rangeChoice(DensityFunctions.add(noodleNoise, DensityFunctions.add(DensityFunctions.mul(DensityFunctions.constant(-1), noodleSizeSpline), noodleGenerationSpline)), -1.2 - maxNoodleSize * 1.2f, -0.4f, DensityFunctions.constant(-1f), DensityFunctions.constant(1f));
-
-        return DensityFunctions.add(noodleSize, noodleGenerationSpline);
-
     }
 
 

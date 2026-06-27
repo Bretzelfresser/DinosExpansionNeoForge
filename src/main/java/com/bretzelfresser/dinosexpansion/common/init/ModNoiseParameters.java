@@ -23,6 +23,8 @@ public class ModNoiseParameters {
     public static final ResourceKey<NormalNoise.NoiseParameters> RIVER_DEPTH = create("river_depth");
     public static final ResourceKey<NormalNoise.NoiseParameters> RIVER_WARP_X = create("river_warp_x");
     public static final ResourceKey<NormalNoise.NoiseParameters> RIVER_WARP_Z = create("river_warp_z");
+    public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_CAVE_A = create("noodle_cave_a");
+    public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_CAVE_B = create("noodle_cave_b");
 
 
     public static final ResourceKey<NormalNoise.NoiseParameters> DEEPSLATE_NOISE = create("deepslate_noise");
@@ -41,11 +43,13 @@ public class ModNoiseParameters {
         context.register(DEEPSLATE_NOISE, new NormalNoise.NoiseParameters(-2, 1.0, 1));
 
 
-        context.register(RIVER_NOISE, new NormalNoise.NoiseParameters(-8, 1.0, 1));
-        context.register(RIVER_DEPTH, new NormalNoise.NoiseParameters(-8, 1.0, 1));
-        context.register(RIVER_THICKNESS_NOISE, new NormalNoise.NoiseParameters(-9, 1.0, 1));
+        context.register(RIVER_NOISE, new NormalNoise.NoiseParameters(-7, 1.0));
+        context.register(RIVER_DEPTH, new NormalNoise.NoiseParameters(-6, 1.0));
+        context.register(RIVER_THICKNESS_NOISE, new NormalNoise.NoiseParameters(-7, 1.0));
         context.register(RIVER_WARP_X, new NormalNoise.NoiseParameters(-5, 1.0, 1.0));
         context.register(RIVER_WARP_Z, new NormalNoise.NoiseParameters(-5, 1.0, 1.0));
+        context.register(NOODLE_CAVE_A, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
+        context.register(NOODLE_CAVE_B, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
     }
 
 
