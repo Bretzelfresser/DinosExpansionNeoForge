@@ -53,10 +53,10 @@ public class ModDensityFunctions {
                 .build();
 
         //make it got a bit bigger so it doesnt completely crash when a noise is slightly over 1
-        var depthSpline = DensityFunctions.yClampedGradient(3, 156, -1d, 1d);
+        var depthSpline = DensityFunctions.yClampedGradient(3, 156, 1d, -1d);
 
         var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
-                .addPoint(-1.0f, -0.1f, 0.0f)     // Deep Ocean (Y ~ 3)
+                .addPoint(-1.0f, -1f, 0.0f)     // Deep Ocean (Y ~ 3)
                 .addPoint(-0.15f, -0.35f, 0.0f)  // Ocean rising (Y ~ 26)
                 .addPoint(-0.05f, pointAtNeg05)   // Dynamic beach starting point
                 .addPoint(0.05f, pointAtPos05)    // Dynamic beach ending point
