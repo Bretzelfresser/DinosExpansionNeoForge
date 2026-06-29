@@ -34,29 +34,44 @@ public class ModDensityFunctions {
         var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f));
         var continents = wrap(refContinents);
 
+        var refVariance = DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.BEACH_CLIFF_VARIANCE), 1f, 0f);
+
+        // Spline for C = -0.05 point:
+        // If variance is low (< -0.2f), we want beach profile (0.0f).
+        // If variance is high (> 0.2f), we want cliff profile (-0.31f).
+        var pointAtNeg05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(refVariance)))
+                .addPoint(-0.2f, 0.0f, 0.0f)
+                .addPoint(0.2f, -0.31f, 0.0f)
+                .build();
+
+        // Spline for C = 0.05 point:
+        // If variance is low (< -0.2f), we want beach profile (0.04f).
+        // If variance is high (> 0.2f), we want cliff profile (0.52f).
+        var pointAtPos05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(refVariance)))
+                .addPoint(-0.2f, 0.04f, 0.0f)
+                .addPoint(0.2f, 0.52f, 0.0f)
+                .build();
+
         //make it got a bit bigger so it doesnt completely crash when a noise is slightly over 1
-        var depthSpline = DensityFunctions.spline(CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(DensityFunctions.yClampedGradient(-36, 156, -1.2d, 1.2d))))
-                .addPoint(-1.2f, 1.2f, -1f)
-                .addPoint(-1f, 1f, 0f)
-                .addPoint(0f, 0f, -1f)
-                .addPoint(1f, -1f, 0f)
-                .addPoint(1.2f, -1.2f, -1f)
-                .build());
+        var depthSpline = DensityFunctions.yClampedGradient(3, 156, -1d, 1d);
 
         var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
-                .addPoint(-1f, -1f, 0)
-                .addPoint(-0.1f, -0.7f, 0)
-                .addPoint(0.1f, 0.7f, 0)
-                .addPoint(1f, 1f, 0f)
+                .addPoint(-1.0f, -0.1f, 0.0f)     // Deep Ocean (Y ~ 3)
+                .addPoint(-0.15f, -0.35f, 0.0f)  // Ocean rising (Y ~ 26)
+                .addPoint(-0.05f, pointAtNeg05)   // Dynamic beach starting point
+                .addPoint(0.05f, pointAtPos05)    // Dynamic beach ending point
+                .addPoint(0.15f, 0.52f, 0.0f)    // Steep cliff top (Y = 110)
+                .addPoint(0.4f, 0.55f, 0.0f)     // Wide flat plateau/plains (Y = 113)
+                .addPoint(1.0f, 1f, 0.0f)      // Towering prehistoric mountains (Y ~ 233)
                 .build();
 
         var surfaceContinentalSplineFunction = DensityFunctions.spline(surfaceContinentalSpline);
 
-        var surfaceSpline = DensityFunctions.add(surfaceContinentalSplineFunction, TerrainFeatures.makeRiver(noiseLookup, densityLookup));
+        //var surfaceSpline = DensityFunctions.add(surfaceContinentalSplineFunction, TerrainFeatures.makeRiver(noiseLookup, densityLookup));
 
 
-        context.register(SURFACE_DENSITY_AQUAFIER, DensityFunctions.add(DensityFunctions.constant(0.3f), DensityFunctions.add(depthSpline, surfaceSpline)));
-        var surfaceWithoutCaves = DensityFunctions.add(depthSpline, surfaceSpline);
+        context.register(SURFACE_DENSITY_AQUAFIER, DensityFunctions.add(DensityFunctions.constant(0.3f), DensityFunctions.add(depthSpline, surfaceContinentalSplineFunction)));
+        var surfaceWithoutCaves = DensityFunctions.add(depthSpline, surfaceContinentalSplineFunction);
         var caves = makeCaves(noiseLookup, densityLookup);
         context.register(FINAL_DENSITY, DensityFunctions.min(surfaceWithoutCaves, caves));
     }

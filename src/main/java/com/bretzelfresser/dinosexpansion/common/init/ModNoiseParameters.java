@@ -26,6 +26,7 @@ public class ModNoiseParameters {
     public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_CAVE_A = create("noodle_cave_a");
     public static final ResourceKey<NormalNoise.NoiseParameters> NOODLE_CAVE_B = create("noodle_cave_b");
     public static final ResourceKey<NormalNoise.NoiseParameters> CAVE_ENTRANCE_NOISE = create("cave_entrance_noise");
+    public static final ResourceKey<NormalNoise.NoiseParameters> BEACH_CLIFF_VARIANCE = create("beach_cliff_variance");
 
 
     public static final ResourceKey<NormalNoise.NoiseParameters> DEEPSLATE_NOISE = create("deepslate_noise");
@@ -52,6 +53,7 @@ public class ModNoiseParameters {
         context.register(NOODLE_CAVE_A, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
         context.register(NOODLE_CAVE_B, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
         context.register(CAVE_ENTRANCE_NOISE, new NormalNoise.NoiseParameters(-7, 1.0));
+        context.register(BEACH_CLIFF_VARIANCE, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
     }
 
 
