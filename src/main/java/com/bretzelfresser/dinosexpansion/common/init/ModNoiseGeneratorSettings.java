@@ -19,6 +19,7 @@ public class ModNoiseGeneratorSettings {
 
     public static void bootstrap(BootstrapContext<NoiseGeneratorSettings> context) {
         var densityLookup = context.lookup(Registries.DENSITY_FUNCTION);
+        var noiseLookup = context.lookup(Registries.NOISE);
 
         NoiseSettings noiseSettings = new NoiseSettings(-64, 384, 1, 2);
         DensityFunction zero = DensityFunctions.zero();
@@ -28,7 +29,7 @@ public class ModNoiseGeneratorSettings {
                 zero,
                 zero,
                 zero,
-                zero,
+                DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.RIVER_NOISE), 1, 0),
                 zero,
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CONTINENTS)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CLIFF_VARIANCE)),

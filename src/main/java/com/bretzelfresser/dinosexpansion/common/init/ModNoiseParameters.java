@@ -45,7 +45,7 @@ public class ModNoiseParameters {
         context.register(DEEPSLATE_NOISE, new NormalNoise.NoiseParameters(-2, 1.0, 1));
 
 
-        context.register(RIVER_NOISE, new NormalNoise.NoiseParameters(-7, 1.0, 1));
+        context.register(RIVER_NOISE, new NormalNoise.NoiseParameters(-9, 1.0, 1));
         context.register(RIVER_DEPTH, new NormalNoise.NoiseParameters(-5, 1.0, 1));
         context.register(RIVER_THICKNESS_NOISE, new NormalNoise.NoiseParameters(-8, 1.0, 1));
         context.register(RIVER_WARP_X, new NormalNoise.NoiseParameters(-5, 1.0, 1.0));
@@ -53,7 +53,7 @@ public class ModNoiseParameters {
         context.register(NOODLE_CAVE_A, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
         context.register(NOODLE_CAVE_B, new NormalNoise.NoiseParameters(-6, 1.0, 1.0));
         context.register(CAVE_ENTRANCE_NOISE, new NormalNoise.NoiseParameters(-7, 1.0));
-        context.register(BEACH_CLIFF_VARIANCE, new NormalNoise.NoiseParameters(-8, 1.0, 1.0));
+        context.register(BEACH_CLIFF_VARIANCE, new NormalNoise.NoiseParameters(-7, 1.0));
     }
 
 

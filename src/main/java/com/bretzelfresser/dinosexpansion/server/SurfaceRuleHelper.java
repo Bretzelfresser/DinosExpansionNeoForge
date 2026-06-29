@@ -14,7 +14,7 @@ public class SurfaceRuleHelper {
 
         var waterSandGlassRule = andConditions(
                 ifElse(
-                        SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.3f),
+                        SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.2f),
                         SurfaceRules.state(Blocks.SAND.defaultBlockState()),
                         SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
                 SurfaceRules.not(SurfaceRules.waterBlockCheck(0,1)),
