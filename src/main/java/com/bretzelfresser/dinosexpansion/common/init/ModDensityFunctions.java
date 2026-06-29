@@ -16,6 +16,7 @@ public class ModDensityFunctions {
 
     public static final ResourceKey<DensityFunction> ZERO_DENSITY_KEY = create("zero");
     public static final ResourceKey<DensityFunction> CONTINENTS = create("continents");
+    public static final ResourceKey<DensityFunction> CLIFF_VARIANCE = create("cliff_variance");
     public static final ResourceKey<DensityFunction> FINAL_DENSITY = create("final_density");
     public static final ResourceKey<DensityFunction> SURFACE_DENSITY_AQUAFIER = create("surface_density_aquafier");
 
@@ -34,34 +35,39 @@ public class ModDensityFunctions {
         var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f));
         var continents = wrap(refContinents);
 
-        var refVariance = DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.BEACH_CLIFF_VARIANCE), 1f, 0f);
+        var refCliffVariance = context.register(CLIFF_VARIANCE, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.BEACH_CLIFF_VARIANCE), 1f, 0f));
+        var cliffVariance = wrap(refCliffVariance);
 
         // Spline for C = -0.05 point:
         // If variance is low (< -0.2f), we want beach profile (0.0f).
         // If variance is high (> 0.2f), we want cliff profile (-0.31f).
-        var pointAtNeg05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(refVariance)))
-                .addPoint(-0.2f, 0.0f, 0.0f)
-                .addPoint(0.2f, -0.31f, 0.0f)
+        var pointAtNeg05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refCliffVariance))
+                .addPoint(-1f, 0.0f, 0.0f)
+                .addPoint(0f, 0.0f, 0.0f)
+                .addPoint(1f, -0.45f, 0.0f)
                 .build();
 
         // Spline for C = 0.05 point:
         // If variance is low (< -0.2f), we want beach profile (0.04f).
         // If variance is high (> 0.2f), we want cliff profile (0.52f).
-        var pointAtPos05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(refVariance)))
-                .addPoint(-0.2f, 0.04f, 0.0f)
-                .addPoint(0.2f, 0.52f, 0.0f)
+        var pointAtPos05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refCliffVariance))
+                .addPoint(-1f, 0.001f, 0.0f)
+                .addPoint(0f, 0.001f, 0.0f)
+                .addPoint(1f, 0.52f, 0.0f)
                 .build();
+
+
 
         //make it got a bit bigger so it doesnt completely crash when a noise is slightly over 1
         var depthSpline = DensityFunctions.yClampedGradient(3, 156, 1d, -1d);
 
         var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
                 .addPoint(-1.0f, -1f, 0.0f)     // Deep Ocean (Y ~ 3)
-                .addPoint(-0.15f, -0.35f, 0.0f)  // Ocean rising (Y ~ 26)
+                .addPoint(-0.15f, -0.45f, 0.0f)  // Ocean rising (Y ~ 26)
                 .addPoint(-0.05f, pointAtNeg05)   // Dynamic beach starting point
                 .addPoint(0.05f, pointAtPos05)    // Dynamic beach ending point
                 .addPoint(0.15f, 0.52f, 0.0f)    // Steep cliff top (Y = 110)
-                .addPoint(0.4f, 0.55f, 0.0f)     // Wide flat plateau/plains (Y = 113)
+                .addPoint(0.4f, 0.65f, 0.0f)     // Wide flat plateau/plains (Y = 113)
                 .addPoint(1.0f, 1f, 0.0f)      // Towering prehistoric mountains (Y ~ 233)
                 .build();
 

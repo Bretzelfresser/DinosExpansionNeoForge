@@ -22,6 +22,7 @@ public class ModNoiseGeneratorSettings {
 
         NoiseSettings noiseSettings = new NoiseSettings(-64, 384, 1, 2);
         DensityFunction zero = DensityFunctions.zero();
+
         NoiseRouter noiseRouter = new NoiseRouter(
                 zero,
                 zero,
@@ -30,7 +31,7 @@ public class ModNoiseGeneratorSettings {
                 zero,
                 zero,
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CONTINENTS)),
-                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CLIFF_VARIANCE)),
                 zero,
                 zero,
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.SURFACE_DENSITY_AQUAFIER)),

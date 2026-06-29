@@ -17,7 +17,7 @@ public class SurfaceRuleHelper {
                         SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.3f),
                         SurfaceRules.state(Blocks.SAND.defaultBlockState()),
                         SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
-                SurfaceRules.not(SurfaceRules.waterBlockCheck(-10,1)),
+                SurfaceRules.not(SurfaceRules.waterBlockCheck(0,1)),
                 SurfaceRules.ON_FLOOR,
                 SurfaceRules.abovePreliminarySurface()
         );
