@@ -25,7 +25,7 @@ public class ModConfiguredFeatures {
         var featureLookup = context.lookup(Registries.FEATURE);
         var placedFeatureLookup = context.lookup(Registries.FEATURE);
 
-        context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(400, 10, 2,
+        context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(4000, 20, 5,
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))
         ));
 
