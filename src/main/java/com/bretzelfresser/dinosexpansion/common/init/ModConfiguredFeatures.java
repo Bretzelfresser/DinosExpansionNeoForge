@@ -8,18 +8,28 @@ import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaPineFoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.PineFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.GiantTrunkPlacer;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 
 public class ModConfiguredFeatures {
 
     public static final ResourceKey<ConfiguredFeature<?, ?>> FERN_PATCH = create("fern_patch");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> TALL_PREHISTORIC_PINE = create("tall_prehistoric_pine");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> MEGA_PREHISTORIC_REDWOOD = create("mega_prehistoric_redwood");
 
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         var featureLookup = context.lookup(Registries.FEATURE);
@@ -29,6 +39,21 @@ public class ModConfiguredFeatures {
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))
         ));
 
+        context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
+                BlockStateProvider.simple(Blocks.SPRUCE_LOG),
+                new StraightTrunkPlacer(12, 5, 0),
+                BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
+                new PineFoliagePlacer(ConstantInt.of(2), ConstantInt.of(1), UniformInt.of(3, 5)),
+                new TwoLayersFeatureSize(1, 0, 1)
+        ).build()));
+
+        context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
+                BlockStateProvider.simple(Blocks.SPRUCE_LOG),
+                new GiantTrunkPlacer(20, 8, 4),
+                BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
+                new MegaPineFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0), UniformInt.of(4, 8)),
+                new TwoLayersFeatureSize(1, 1, 2)
+        ).build()));
     }
 
 
