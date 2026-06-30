@@ -16,7 +16,8 @@ public class ModDensityFunctions {
 
     public static final ResourceKey<DensityFunction> ZERO_DENSITY_KEY = create("zero");
     public static final ResourceKey<DensityFunction> CONTINENTS = create("continents");
-    public static final ResourceKey<DensityFunction> CLIFF_VARIANCE = create("cliff_variance");
+    public static final ResourceKey<DensityFunction> EROSION = create("erosion");
+    public static final ResourceKey<DensityFunction> DEPTH = create("depth");
     public static final ResourceKey<DensityFunction> FINAL_DENSITY = create("final_density");
     public static final ResourceKey<DensityFunction> SURFACE_DENSITY_AQUAFIER = create("surface_density_aquafier");
 
@@ -31,17 +32,18 @@ public class ModDensityFunctions {
         var densityLookup = context.lookup(Registries.DENSITY_FUNCTION);
 
         context.register(ZERO_DENSITY_KEY, DensityFunctions.zero());
+        var refDepth = context.register(DEPTH, DensityFunctions.yClampedGradient(-64, 320, (double)1.5F, (double)-1.5F));
 
         var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f));
         var continents = wrap(refContinents);
 
-        var refCliffVariance = context.register(CLIFF_VARIANCE, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.BEACH_CLIFF_VARIANCE), 1f, 0f));
-        var cliffVariance = wrap(refCliffVariance);
+        var refErosion = context.register(EROSION, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.EROSION), 1f, 0f));
+        var erosion = wrap(refErosion);
 
         // Spline for C = -0.05 point:
         // If variance is low (< -0.2f), we want beach profile (0.0f).
         // If variance is high (> 0.2f), we want cliff profile (-0.31f).
-        var pointAtNeg05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refCliffVariance))
+        var pointAtNeg05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
                 .addPoint(-1f, -0.01f, 0.0f)
                 .addPoint(1f, -0.45f, 0.0f)
                 .build();
@@ -56,9 +58,9 @@ public class ModDensityFunctions {
 
         var riverNegativeCliffSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverNoise)))
                 .addPoint(-1f, erosionMin, 0.0f)
-                .addPoint(-.2f, erosionMin, 0.0f)
+                .addPoint(-.1f, erosionMin, 0.0f)
                 .addPoint(0f, -.2f, 0.0f)
-                .addPoint(0.2f, erosionMin, 0.0f)
+                .addPoint(0.1f, erosionMin, 0.0f)
                 .addPoint(1f, erosionMin, 0.0f)
                 .build();
 
@@ -73,10 +75,23 @@ public class ModDensityFunctions {
         // Spline for C = 0.05 point:
         // If variance is low (< -0.2f), we want beach profile (0.04f).
         // If variance is high (> 0.2f), we want cliff profile (0.52f).
-        var pointAtPos05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refCliffVariance))
+        var pointAtPos05 = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
                 .addPoint(-1f, riverNegativeCliffSpline)
                 .addPoint(-.4f, riverNegativeCliffSpline)
                 .addPoint(1f, riverPositiveCliffSpline)
+                .build();
+
+
+        var erosionInlandSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
+                .addPoint(-1f, riverNegativeCliffSpline)
+                .addPoint(-.4f, riverNegativeCliffSpline)
+                .addPoint(1f, 0.8f)
+                .build();
+
+
+        var erosionMountainSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
+                .addPoint(-1f, 0.1f)
+                .addPoint(1f, 1f)
                 .build();
 
         // depthSpline = 0.0 at Y = 63 (sea level).
@@ -90,8 +105,8 @@ public class ModDensityFunctions {
                 .addPoint(-0.05f, pointAtNeg05)   // Dynamic beach starting point
                 .addPoint(0.05f, pointAtPos05)    // Dynamic beach ending point
                 .addPoint(0.2f, pointAtPos05)    // Steep cliff top (Y = 110)
-                .addPoint(0.7f, 0.65f, 0.0f)     // Wide flat plateau/plains (Y = 113)
-                .addPoint(1.0f, 1f, 0.0f)      // Towering prehistoric mountains (Y ~ 233)
+                .addPoint(0.7f, erosionInlandSpline)     // Wide flat plateau/plains (Y = 113)
+                .addPoint(1.0f, erosionMountainSpline)      // Towering prehistoric mountains (Y ~ 233)
                 .build();
 
         var surfaceContinentalSplineFunction = DensityFunctions.spline(surfaceContinentalSpline);

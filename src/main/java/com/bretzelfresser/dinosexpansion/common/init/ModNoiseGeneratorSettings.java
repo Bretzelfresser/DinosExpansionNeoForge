@@ -29,12 +29,12 @@ public class ModNoiseGeneratorSettings {
                 zero,
                 zero,
                 zero,
-                DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.RIVER_NOISE), 1, 0),
+                zero,
                 zero,
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CONTINENTS)),
-                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CLIFF_VARIANCE)),
-                zero,
-                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.EROSION)),
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.DEPTH)),//depth to stick biomes within depth ranges
+                DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.RIVER_NOISE), 1, 0),//ridges will be misused for river detection
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.SURFACE_DENSITY_AQUAFIER)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.FINAL_DENSITY)),
                 zero,
