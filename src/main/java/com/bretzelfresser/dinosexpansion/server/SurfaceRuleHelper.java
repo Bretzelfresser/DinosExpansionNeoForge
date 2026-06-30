@@ -8,8 +8,6 @@ import net.minecraft.world.level.levelgen.placement.CaveSurface;
 
 public class SurfaceRuleHelper {
 
-
-
     public static SurfaceRules.RuleSource generateDinoSurfaceRules(){
 
         var waterSandGlassRule = andConditions(
