@@ -20,7 +20,9 @@ public class ModDatagen {
             .add(Registries.LEVEL_STEM, ModLevelStems::bootstrap)
             .add(Registries.DENSITY_FUNCTION, ModDensityFunctions::bootstrap)
             .add(Registries.NOISE, ModNoiseParameters::bootstrap)
-            .add(Registries.BIOME, ModBiomes::bootstrap);
+            .add(Registries.BIOME, ModBiomes::bootstrap)
+            .add(Registries.PLACED_FEATURE, ModPlacedFeatures::generate)
+            .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::generate);
 
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

@@ -11,10 +11,8 @@ import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class ModBiomes {
-    public static final ResourceKey<Biome> DINO_DEFAULT_KEY = ResourceKey.create(
-            Registries.BIOME,
-            ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "dino_default")
-    );
+    public static final ResourceKey<Biome> DINO_DEFAULT_KEY = create("dino_default");
+    public static final ResourceKey<Biome> FERN_PLAINS = create("fern_plains");
 
     public static void bootstrap(BootstrapContext<Biome> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -40,5 +38,11 @@ public class ModBiomes {
                 .build();
 
         context.register(DINO_DEFAULT_KEY, biome);
+        context.register(FERN_PLAINS, DinoBiomes.makeFernPlains(placedFeatures, configuredCarvers));
+    }
+
+
+    public static ResourceKey<Biome> create(String name) {
+        return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
     }
 }
