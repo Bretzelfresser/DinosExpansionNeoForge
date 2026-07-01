@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer;
+import com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -41,17 +43,17 @@ public class ModConfiguredFeatures {
 
         context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer(12, 5, 0, false),
+                new PrehistoricTrunkPlacer(12, 5, 0, false),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), UniformInt.of(4, 6), ConstantInt.of(2)),
+                new PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), UniformInt.of(4, 6), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 0, 1)
         ).build()));
 
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer(20, 8, 4, true),
+                new PrehistoricTrunkPlacer(20, 8, 4, true),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), UniformInt.of(6, 9), ConstantInt.of(2)),
+                new PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), UniformInt.of(6, 9), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
     }
