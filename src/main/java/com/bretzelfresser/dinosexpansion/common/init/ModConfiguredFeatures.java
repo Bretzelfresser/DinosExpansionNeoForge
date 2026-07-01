@@ -49,7 +49,9 @@ public class ModConfiguredFeatures {
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
                 new PineTrunkPlacer.Builder(20, 8, 4)
-                        .constantRadius(1)
+                        .bottomRadius(1)
+                        .topRadius(0)
+                        .thicknessSpline(0.7f)
                         .startPercentage(0.5f)
                         .form(PineTrunkPlacer.TrunkForm.CIRCLE)
                         .build(),

@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.worldgen.tree;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers;
+import com.bretzelfresser.dinosexpansion.util.CodecUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,7 +20,8 @@ import java.util.function.BiConsumer;
 
 public class PineTrunkPlacer extends TrunkPlacer {
 
-    public record TrunkConfig(IntProvider bottomRadius, IntProvider topRadius, TrunkForm form){}
+    public record TrunkConfig(IntProvider bottomRadius, IntProvider topRadius, TrunkForm form) {
+    }
 
     public static final Codec<TrunkConfig> TRUNK_CONFIG_CODEC = RecordCodecBuilder.create(objectInstance -> objectInstance.group(
             IntProvider.CODEC.fieldOf("bottomRadius").orElse(ConstantInt.of(2)).forGetter(TrunkConfig::bottomRadius),
@@ -31,6 +33,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
             instance -> trunkPlacerParts(instance)
                     .and(FloatProvider.CODEC.fieldOf("startPercentage").orElse(ConstantFloat.of(0.4f)).forGetter(tp -> tp.startPercentage))
                     .and(FloatProvider.CODEC.fieldOf("branchPercentage").orElse(ConstantFloat.of(0.4f)).forGetter(tp -> tp.branchPercentage))
+                    .and(CodecUtils.FLOAT_SPLINE_CODEC.optionalFieldOf("trunk_thickness_spline").forGetter(tp -> Optional.ofNullable(tp.trunkThicknessSpline)))
                     .and(TRUNK_CONFIG_CODEC.fieldOf("trunk_config").orElse(new TrunkConfig(ConstantInt.of(2), ConstantInt.of(0), TrunkForm.SQUARE_WITH_CUTOUT_EDGES)).forGetter(tp -> tp.cfg))
                     .apply(instance, PineTrunkPlacer::new)
     );
@@ -84,13 +87,15 @@ public class PineTrunkPlacer extends TrunkPlacer {
     }
 
     protected final FloatProvider startPercentage, branchPercentage;
+    protected final CubicSpline<Float, ToFloatFunction<Float>> trunkThicknessSpline;
     protected final TrunkConfig cfg;
 
 
-    public PineTrunkPlacer(int minHeight, int additionalHeightRandA, int additionalHeightRandB, FloatProvider startPercentage, FloatProvider branchPercentage, TrunkConfig cfg) {
+    public PineTrunkPlacer(int minHeight, int additionalHeightRandA, int additionalHeightRandB, FloatProvider startPercentage, FloatProvider branchPercentage, Optional<CubicSpline<Float, ToFloatFunction<Float>>> trunkThicknessSpline, TrunkConfig cfg) {
         super(minHeight, additionalHeightRandA, additionalHeightRandB);
         this.startPercentage = startPercentage;
         this.branchPercentage = branchPercentage;
+        this.trunkThicknessSpline = trunkThicknessSpline.orElse(null);
         this.cfg = cfg;
     }
 
@@ -109,6 +114,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
             TreeConfiguration config
     ) {
 
+
         int radiusBottom = Math.max(0, cfg.bottomRadius.sample(random));
         int radiusTop = Math.max(0, cfg.topRadius.sample(random));
         var basePositions = cfg.form.calculateBase(pos, radiusBottom);
@@ -119,11 +125,11 @@ public class PineTrunkPlacer extends TrunkPlacer {
         List<FoliagePlacer.FoliageAttachment> foliageNodes = new ArrayList<>();
         var mutablePos = pos.mutable();
         //spline defining the radius curve depedning on the height
-        var densitySpline = CubicSpline.builder(ToFloatFunction.IDENTITY)
+        var densitySpline = this.trunkThicknessSpline == null ? CubicSpline.builder(ToFloatFunction.IDENTITY)
                 .addPoint(0, 0, 0)
                 .addPoint(heightBranchStartPercentage, 0, 0)
                 .addPoint(1, 1, 0)
-                .build();
+                .build() : this.trunkThicknessSpline;
         for (int y = 0; y < freeSteps; y++) {
             int radius = Math.round(Mth.lerp(densitySpline.apply((float) y / (float) freeSteps), (float) radiusBottom, (float) radiusTop));
             var positions = cfg.form().calculateBase(mutablePos.offset(0, y, 0), radius);
@@ -145,6 +151,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
         private IntProvider bottomRadius = ConstantInt.of(2);
         private IntProvider topRadius = ConstantInt.of(0);
         private TrunkForm form = TrunkForm.SQUARE_WITH_CUTOUT_EDGES;
+        private CubicSpline<Float, ToFloatFunction<Float>> trunkThicknessSpline = null;
 
         public Builder(int minHeight, int additionalHeightRandA, int additionalHeightRandB) {
             this.minHeight = minHeight;
@@ -152,11 +159,11 @@ public class PineTrunkPlacer extends TrunkPlacer {
             this.additionalHeightRandB = additionalHeightRandB;
         }
 
-        public Builder constantRadius(int radius){
+        public Builder constantRadius(int radius) {
             return constantRadius(ConstantInt.of(radius));
         }
 
-        public Builder constantRadius(IntProvider radius){
+        public Builder constantRadius(IntProvider radius) {
             bottomRadius(radius);
             topRadius(radius);
             return this;
@@ -168,6 +175,27 @@ public class PineTrunkPlacer extends TrunkPlacer {
 
         public Builder startPercentage(FloatProvider startPercentage) {
             this.startPercentage = startPercentage;
+            return this;
+        }
+
+        public Builder thicknessSpline(float beginSmaller) {
+            var clamped = Mth.clamp(beginSmaller, 0.01f, 0.99f);
+            return thicknessSpline(CubicSpline.builder(ToFloatFunction.IDENTITY)
+                    .addPoint(0, 0, 0)
+                    .addPoint(clamped, 0, 0)
+                    .addPoint(1, 1, 0)
+                    .build());
+        }
+
+        public Builder thicknessSplineLinear() {
+            return thicknessSpline(CubicSpline.builder(ToFloatFunction.IDENTITY)
+                    .addPoint(0, 0, 1)
+                    .addPoint(1, 1, 1)
+                    .build());
+        }
+
+        public Builder thicknessSpline(CubicSpline<Float, ToFloatFunction<Float>> spline) {
+            this.trunkThicknessSpline = spline;
             return this;
         }
 
@@ -210,6 +238,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
                     this.additionalHeightRandB,
                     this.startPercentage,
                     this.branchPercentage,
+                    Optional.ofNullable(this.trunkThicknessSpline),
                     new TrunkConfig(this.bottomRadius, this.topRadius, this.form)
             );
         }
