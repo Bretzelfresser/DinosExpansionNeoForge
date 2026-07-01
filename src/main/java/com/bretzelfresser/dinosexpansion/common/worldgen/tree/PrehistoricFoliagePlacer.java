@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.worldgen;
+package com.bretzelfresser.dinosexpansion.common.worldgen.tree;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers;
 import com.mojang.serialization.MapCodec;

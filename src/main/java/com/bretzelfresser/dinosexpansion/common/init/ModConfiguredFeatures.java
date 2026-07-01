@@ -1,17 +1,15 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer;
-import com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer;
-import com.google.common.collect.ImmutableList;
+import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineTrunkPlacer;
+import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PrehistoricFoliagePlacer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.valueproviders.ConstantInt;
-import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.util.valueproviders.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -20,12 +18,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConf
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.MegaPineFoliagePlacer;
-import net.minecraft.world.level.levelgen.feature.foliageplacers.PineFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.GiantTrunkPlacer;
-import net.minecraft.world.level.levelgen.feature.trunkplacers.StraightTrunkPlacer;
 
 public class ModConfiguredFeatures {
 
@@ -43,18 +37,25 @@ public class ModConfiguredFeatures {
 
         context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new PrehistoricTrunkPlacer(12, 5, 0, false),
+                new PineTrunkPlacer.Builder(12, 5, 0)
+                        .branchPercentage(0.5f)
+                        .constantRadius(0)
+                        .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
                 new PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), UniformInt.of(4, 6), ConstantInt.of(2)),
-                new TwoLayersFeatureSize(1, 0, 1)
+                new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
 
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new PrehistoricTrunkPlacer(20, 8, 4, true),
+                new PineTrunkPlacer.Builder(20, 8, 4)
+                        .constantRadius(1)
+                        .startPercentage(0.5f)
+                        .form(PineTrunkPlacer.TrunkForm.CIRCLE)
+                        .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
                 new PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), UniformInt.of(6, 9), ConstantInt.of(2)),
-                new TwoLayersFeatureSize(1, 1, 2)
+                new TwoLayersFeatureSize(1, 2, 4)
         ).build()));
     }
 
