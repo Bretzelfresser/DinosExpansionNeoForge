@@ -42,7 +42,7 @@ public class ModConfiguredFeatures {
                         .constantRadius(0)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), UniformInt.of(4, 6), ConstantInt.of(2)),
+                new PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), ConstantFloat.of(0.4f), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
 
@@ -54,7 +54,7 @@ public class ModConfiguredFeatures {
                         .form(PineTrunkPlacer.TrunkForm.CIRCLE)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), UniformInt.of(6, 9), ConstantInt.of(2)),
+                new PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), ConstantFloat.of(0.5f), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 2, 4)
         ).build()));
     }

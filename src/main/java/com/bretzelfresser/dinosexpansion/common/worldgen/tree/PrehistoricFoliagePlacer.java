@@ -4,7 +4,11 @@ import com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.FloatProvider;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -14,17 +18,17 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerTy
 public class PrehistoricFoliagePlacer extends FoliagePlacer {
     public static final MapCodec<PrehistoricFoliagePlacer> CODEC = RecordCodecBuilder.mapCodec(
             instance -> foliagePlacerParts(instance)
-                    .and(IntProvider.CODEC.fieldOf("tier_count").forGetter(fp -> fp.tierCount))
-                    .and(IntProvider.CODEC.fieldOf("tier_spacing").forGetter(fp -> fp.tierSpacing))
+                    .and(FloatProvider.CODEC.fieldOf("start_percentage").orElse(ConstantFloat.of(0.4f)).forGetter(fp -> fp.startPercentage))
+                    .and(IntProvider.CODEC.fieldOf("tier_spacing").orElse(ConstantInt.of(2)).forGetter(fp -> fp.tierSpacing))
                     .apply(instance, PrehistoricFoliagePlacer::new)
     );
 
-    private final IntProvider tierCount;
+    private final FloatProvider startPercentage;
     private final IntProvider tierSpacing;
 
-    public PrehistoricFoliagePlacer(IntProvider radius, IntProvider offset, IntProvider tierCount, IntProvider tierSpacing) {
+    public PrehistoricFoliagePlacer(IntProvider radius, IntProvider offset, FloatProvider startPercentage, IntProvider tierSpacing) {
         super(radius, offset);
-        this.tierCount = tierCount;
+        this.startPercentage = startPercentage;
         this.tierSpacing = tierSpacing;
     }
 
@@ -46,37 +50,42 @@ public class PrehistoricFoliagePlacer extends FoliagePlacer {
             int offset
     ) {
         BlockPos topPos = attachment.pos();
-        int count = this.tierCount.sample(random);
         int spacing = this.tierSpacing.sample(random);
 
-        // 1. Place a small cap at the very top (Tier 0)
-        placeLeavesRow(level, blockSetter, random, config, topPos, 1, 0, attachment.doubleTrunk());
+        // 1. Generate the pointed pyramid top (upper 3 blocks of the canopy)
+        // At the very top (Y = topPos): radius 0 (1 leaf block)
+        placeLeavesRow(level, blockSetter, random, config, topPos, 0, 0, attachment.doubleTrunk());
+        // At Y = topPos - 1: radius 1
+        placeLeavesRow(level, blockSetter, random, config, topPos.below(1), 1, 0, attachment.doubleTrunk());
+        // At Y = topPos - 2: radius 1
+        placeLeavesRow(level, blockSetter, random, config, topPos.below(2), 1, 0, attachment.doubleTrunk());
 
-        // 2. Loop down and place each horizontal tier of leaves
-        for (int i = 0; i < count; i++) {
-            // Y-coordinate of this tier
-            int yOffset = -(1 + i * spacing);
-            BlockPos tierCenter = topPos.above(yOffset);
+        // 2. Generate the horizontal tiers starting from 3 blocks below the topPos down to the canopy bottom
+        int yStart = 3;
+        for (int yOffset = yStart; yOffset < foliageHeight; yOffset += spacing) {
+            BlockPos tierCenter = topPos.below(yOffset);
 
-            // Radius increases as we go down:
-            int radius = 2 + i;
-            if (radius > foliageRadius) {
-                radius = foliageRadius; // Cap at max foliageRadius configured
-            }
+            // Relative progress from yStart to foliageHeight
+            float progress = (float) (yOffset - yStart) / (float) (foliageHeight - yStart);
+            progress = Mth.clamp(progress, 0.0f, 1.0f);
 
-            // Place a flat horizontal disc of leaves of thickness 1 at this Y
+            // Interpolate radius from 2 (near top) to foliageRadius (at bottom)
+            int radius = Math.round(Mth.lerp(progress, 2.0f, (float) foliageRadius));
+
+            // Place main disc of leaves at tierCenter
             placeLeavesRow(level, blockSetter, random, config, tierCenter, radius, 0, attachment.doubleTrunk());
 
-            // Add a cross-shape of leaves just below the disc to make it look organic
+            // Place a slightly smaller disc directly above it (tapering upwards)
             if (radius > 1) {
-                placeLeavesRow(level, blockSetter, random, config, tierCenter.below(), radius - 1, 0, attachment.doubleTrunk());
+                placeLeavesRow(level, blockSetter, random, config, tierCenter.above(1), radius - 1, 0, attachment.doubleTrunk());
             }
         }
     }
 
     @Override
     public int foliageHeight(RandomSource random, int height, TreeConfiguration config) {
-        return 0; // We handle the height internally based on tiers
+        float startPercent = this.startPercentage.sample(random);
+        return Math.max(4, Math.round(height * (1.0f - startPercent)));
     }
 
     @Override

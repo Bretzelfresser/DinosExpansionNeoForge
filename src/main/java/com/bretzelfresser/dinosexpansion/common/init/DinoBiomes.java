@@ -16,7 +16,7 @@ public class DinoBiomes {
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
         genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.FERN_PLAINS_FERN);
-        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.TALL_PREHISTORIC_PINE_PLACED);
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.PREHISTORIC_PINE_PLACED);
         genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.MEGA_PREHISTORIC_REDWOOD_PLACED);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
