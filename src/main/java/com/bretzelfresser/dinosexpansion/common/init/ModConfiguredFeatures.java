@@ -41,17 +41,17 @@ public class ModConfiguredFeatures {
 
         context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new StraightTrunkPlacer(12, 5, 0),
+                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer(12, 5, 0, false),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PineFoliagePlacer(ConstantInt.of(2), ConstantInt.of(1), UniformInt.of(3, 5)),
+                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), UniformInt.of(4, 6), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 0, 1)
         ).build()));
 
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new GiantTrunkPlacer(20, 8, 4),
+                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricTrunkPlacer(20, 8, 4, true),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new MegaPineFoliagePlacer(ConstantInt.of(0), ConstantInt.of(0), UniformInt.of(4, 8)),
+                new com.bretzelfresser.dinosexpansion.common.worldgen.PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), UniformInt.of(6, 9), ConstantInt.of(2)),
                 new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
     }

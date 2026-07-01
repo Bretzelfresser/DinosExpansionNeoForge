@@ -45,6 +45,9 @@ public class DinosExpansion {
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public DinosExpansion(IEventBus modEventBus, ModContainer modContainer) {
+        // Register custom tree placers
+        com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers.register(modEventBus);
+
         // Register the commonSetup method for modloading
         modEventBus.addListener(ModDatagen::gatherData);
 
