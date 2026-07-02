@@ -5,6 +5,7 @@ import com.bretzelfresser.dinosexpansion.util.CodecUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.util.Constant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.*;
 import net.minecraft.util.valueproviders.*;
@@ -31,8 +32,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
 
     public static final MapCodec<PineTrunkPlacer> CODEC = RecordCodecBuilder.mapCodec(
             instance -> trunkPlacerParts(instance)
-                    .and(FloatProvider.CODEC.fieldOf("startPercentage").orElse(ConstantFloat.of(0.4f)).forGetter(tp -> tp.startPercentage))
-                    .and(FloatProvider.CODEC.fieldOf("branchPercentage").orElse(ConstantFloat.of(0.4f)).forGetter(tp -> tp.branchPercentage))
                     .and(CodecUtils.FLOAT_SPLINE_CODEC.optionalFieldOf("trunk_thickness_spline").forGetter(tp -> Optional.ofNullable(tp.trunkThicknessSpline)))
                     .and(TRUNK_CONFIG_CODEC.fieldOf("trunk_config").orElse(new TrunkConfig(ConstantInt.of(2), ConstantInt.of(0), TrunkForm.SQUARE_WITH_CUTOUT_EDGES)).forGetter(tp -> tp.cfg))
                     .apply(instance, PineTrunkPlacer::new)
@@ -86,15 +85,12 @@ public class PineTrunkPlacer extends TrunkPlacer {
         }
     }
 
-    protected final FloatProvider startPercentage, branchPercentage;
     protected final CubicSpline<Float, ToFloatFunction<Float>> trunkThicknessSpline;
     protected final TrunkConfig cfg;
 
 
-    public PineTrunkPlacer(int minHeight, int additionalHeightRandA, int additionalHeightRandB, FloatProvider startPercentage, FloatProvider branchPercentage, Optional<CubicSpline<Float, ToFloatFunction<Float>>> trunkThicknessSpline, TrunkConfig cfg) {
+    public PineTrunkPlacer(int minHeight, int additionalHeightRandA, int additionalHeightRandB, Optional<CubicSpline<Float, ToFloatFunction<Float>>> trunkThicknessSpline, TrunkConfig cfg) {
         super(minHeight, additionalHeightRandA, additionalHeightRandB);
-        this.startPercentage = startPercentage;
-        this.branchPercentage = branchPercentage;
         this.trunkThicknessSpline = trunkThicknessSpline.orElse(null);
         this.cfg = cfg;
     }
@@ -119,15 +115,13 @@ public class PineTrunkPlacer extends TrunkPlacer {
         int radiusTop = Math.max(0, cfg.topRadius.sample(random));
         var basePositions = cfg.form.calculateBase(pos, radiusBottom);
         basePositions.forEach(p -> setDirtAt(level, blockSetter, random, p.below(), config));
-        float heightBranchStartPercentage = Mth.clamp(startPercentage.sample(random), 0f, 1f);
-        int startBranchesY = Math.round((float) freeSteps * heightBranchStartPercentage);
 
         List<FoliagePlacer.FoliageAttachment> foliageNodes = new ArrayList<>();
         var mutablePos = pos.mutable();
         //spline defining the radius curve depedning on the height
         var densitySpline = this.trunkThicknessSpline == null ? CubicSpline.builder(ToFloatFunction.IDENTITY)
                 .addPoint(0, 0, 0)
-                .addPoint(heightBranchStartPercentage, 0, 0)
+                .addPoint(0.8f, 0, 0)
                 .addPoint(1, 1, 0)
                 .build() : this.trunkThicknessSpline;
         for (int y = 0; y < freeSteps; y++) {
@@ -139,6 +133,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
         }
         foliageNodes.add(new FoliagePlacer.FoliageAttachment(mutablePos.offset(0, freeSteps, 0), 0, false));
 
+
         return foliageNodes;
     }
 
@@ -146,8 +141,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
         private final int minHeight;
         private final int additionalHeightRandA;
         private final int additionalHeightRandB;
-        private FloatProvider startPercentage = ConstantFloat.of(0.4f);
-        private FloatProvider branchPercentage = ConstantFloat.of(0.4f);
         private IntProvider bottomRadius = ConstantInt.of(2);
         private IntProvider topRadius = ConstantInt.of(0);
         private TrunkForm form = TrunkForm.SQUARE_WITH_CUTOUT_EDGES;
@@ -169,14 +162,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
             return this;
         }
 
-        public Builder startPercentage(float startPercentage) {
-            return startPercentage(ConstantFloat.of(startPercentage));
-        }
-
-        public Builder startPercentage(FloatProvider startPercentage) {
-            this.startPercentage = startPercentage;
-            return this;
-        }
 
         public Builder thicknessSpline(float beginSmaller) {
             var clamped = Mth.clamp(beginSmaller, 0.01f, 0.99f);
@@ -196,15 +181,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
 
         public Builder thicknessSpline(CubicSpline<Float, ToFloatFunction<Float>> spline) {
             this.trunkThicknessSpline = spline;
-            return this;
-        }
-
-        public Builder branchPercentage(float branchPercentage) {
-            return branchPercentage(ConstantFloat.of(branchPercentage));
-        }
-
-        public Builder branchPercentage(FloatProvider branchPercentage) {
-            this.branchPercentage = branchPercentage;
             return this;
         }
 
@@ -236,8 +212,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
                     this.minHeight,
                     this.additionalHeightRandA,
                     this.additionalHeightRandB,
-                    this.startPercentage,
-                    this.branchPercentage,
                     Optional.ofNullable(this.trunkThicknessSpline),
                     new TrunkConfig(this.bottomRadius, this.topRadius, this.form)
             );

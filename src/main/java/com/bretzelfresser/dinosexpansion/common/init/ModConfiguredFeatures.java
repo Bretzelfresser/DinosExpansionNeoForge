@@ -2,7 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineTrunkPlacer;
-import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PrehistoricFoliagePlacer;
+import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineFoliagePlacer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -38,25 +38,25 @@ public class ModConfiguredFeatures {
         context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
                 new PineTrunkPlacer.Builder(12, 5, 0)
-                        .branchPercentage(0.5f)
                         .constantRadius(0)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PrehistoricFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), ConstantFloat.of(0.4f), ConstantInt.of(2)),
+                new PineFoliagePlacer(UniformFloat.of(0.4f, 0.6f), ConstantFloat.of(0.1f), ConstantInt.of(1), ConstantInt.of(3), ConstantInt.of(5)),
+
                 new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
 
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
+
                 new PineTrunkPlacer.Builder(20, 8, 4)
                         .bottomRadius(1)
                         .topRadius(0)
                         .thicknessSpline(0.7f)
-                        .startPercentage(0.5f)
                         .form(PineTrunkPlacer.TrunkForm.CIRCLE)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PrehistoricFoliagePlacer(ConstantInt.of(6), ConstantInt.of(0), ConstantFloat.of(0.5f), ConstantInt.of(2)),
+                new PineFoliagePlacer(UniformFloat.of(0.4f, 0.6f), ConstantFloat.of(0.1f), ConstantInt.of(1), ConstantInt.of(5), ConstantInt.of(5)),
                 new TwoLayersFeatureSize(1, 2, 4)
         ).build()));
     }
