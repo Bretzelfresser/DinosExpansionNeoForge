@@ -77,7 +77,7 @@ public class PineFoliagePlacer extends FoliagePlacer {
 
         for (int y = 0; y <= foliageHeigh; y += foliageDistance) {
 
-            int radius = Mth.lerpInt((float) y / (float) foliageHeigh, minRadius, maxRadius);
+            int radius = Math.round(Mth.lerp((float) y / (float) foliageHeigh, (float)minRadius, (float)maxRadius));
 
             //at pos disk
             placeLeavesRow(level, blockSetter, random, config, topPosTree.offset(0, -y, 0), radius, 0, false);

@@ -131,7 +131,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
                 this.placeLog(level, blockSetter, random, p, config);
             });
         }
-        foliageNodes.add(new FoliagePlacer.FoliageAttachment(mutablePos.offset(0, freeSteps, 0), 0, false));
+        //foliageNodes.add(new FoliagePlacer.FoliageAttachment(mutablePos.offset(0, freeSteps, 0), 0, false));
 
 
         return foliageNodes;
