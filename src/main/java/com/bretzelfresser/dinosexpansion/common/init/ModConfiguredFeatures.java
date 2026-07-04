@@ -32,6 +32,7 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> TALL_PREHISTORIC_PINE = create("tall_prehistoric_pine");
     public static final ResourceKey<ConfiguredFeature<?, ?>> MEGA_PREHISTORIC_REDWOOD = create("mega_prehistoric_redwood");
     public static final ResourceKey<ConfiguredFeature<?, ?>> GIANT_JUNGLE_TREE = create("giant_jungle_tree");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> SMALL_JUNGLE_TREE = create("small_jungle_tree");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TEST_TREE = create("test_tree");
 
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -85,8 +86,19 @@ public class ModConfiguredFeatures {
         ).build()));
 
         context.register(GIANT_JUNGLE_TREE, new ConfiguredFeature<>(ModFeatures.GIANT_JUNGLE_TREE_FEATURE.get(), new GiantJungleTreeConfiguration(
-                UniformInt.of(1, 3),
-                UniformFloat.of(10, 12),
+                UniformInt.of(2, 4),
+                UniformFloat.of(15, 20),
+                BlockStateProvider.simple(Blocks.JUNGLE_LOG),
+                BlockStateProvider.simple(Blocks.JUNGLE_LEAVES),
+                UniformFloat.of(0.4f, 0.7f),
+                UniformInt.of(5, 7),
+                UniformInt.of(8, 14),
+                UniformInt.of(4, 6),
+                UniformFloat.of(0.05f, 0.15f)
+        )));
+        context.register(SMALL_JUNGLE_TREE, new ConfiguredFeature<>(ModFeatures.GIANT_JUNGLE_TREE_FEATURE.get(), new GiantJungleTreeConfiguration(
+                UniformInt.of(1, 2),
+                UniformFloat.of(8, 11),
                 BlockStateProvider.simple(Blocks.JUNGLE_LOG),
                 BlockStateProvider.simple(Blocks.JUNGLE_LEAVES)
         )));

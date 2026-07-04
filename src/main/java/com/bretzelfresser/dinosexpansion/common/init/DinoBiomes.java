@@ -20,6 +20,7 @@ public class DinoBiomes {
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
         genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.GIANT_JUNGLE_TREE);
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.SMALL_JUNGLE_TREE);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 

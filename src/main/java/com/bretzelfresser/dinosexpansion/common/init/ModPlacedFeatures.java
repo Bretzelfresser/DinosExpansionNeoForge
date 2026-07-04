@@ -16,6 +16,8 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> PREHISTORIC_PINE_PLACED = create("prehistoric_pine_placed");
     public static final ResourceKey<PlacedFeature> MEGA_PREHISTORIC_REDWOOD_PLACED = create("mega_prehistoric_redwood_placed");
     public static final ResourceKey<PlacedFeature> GIANT_JUNGLE_TREE = create("giant_jungle_tree");
+    public static final ResourceKey<PlacedFeature> SMALL_JUNGLE_TREE = create("small_jungle_tree");
+
     public static final ResourceKey<PlacedFeature> TEST_TREE_PLACED = create("test_tree_placed");
 
     public static void generate(BootstrapContext<PlacedFeature> ctx){
@@ -56,6 +58,14 @@ public class ModPlacedFeatures {
 
         PlacementUtils.register(ctx, GIANT_JUNGLE_TREE, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.GIANT_JUNGLE_TREE),
                 RarityFilter.onAverageOnceEvery(20),
+                InSquarePlacement.spread(),
+                SurfaceWaterDepthFilter.forMaxDepth(0),
+                PlacementUtils.HEIGHTMAP,
+                PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING),
+                BiomeFilter.biome()
+        );
+        PlacementUtils.register(ctx, SMALL_JUNGLE_TREE, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.SMALL_JUNGLE_TREE),
+                RarityFilter.onAverageOnceEvery(3),
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),
                 PlacementUtils.HEIGHTMAP,
