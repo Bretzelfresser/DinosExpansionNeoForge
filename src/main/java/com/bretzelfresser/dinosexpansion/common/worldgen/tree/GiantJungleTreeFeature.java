@@ -77,15 +77,18 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
             }
         }
 
-        // 3. Tapered Trunk
+        // 3. Tapered Trunk along 3D DDA Line segments
         for (int y = 0; y < totalHeight; y++) {
-            double progress = (double) y / totalHeight;
-            int radiusAtY = (int) Math.round(radius * Math.pow(1.0 - progress, 1.3));
-            BlockPos centerAtY = getTrunkCenter(pos, y, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
-            var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(centerAtY, radiusAtY);
-            positions.forEach(p -> {
-                placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
-            });
+            BlockPos startCenter = getTrunkCenter(pos, y, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
+            BlockPos endCenter = getTrunkCenter(pos, y + 1, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
+
+            double progressStart = (double) y / totalHeight;
+            double progressEnd = (double) (y + 1) / totalHeight;
+
+            int rStart = (int) Math.round(radius * Math.pow(1.0 - progressStart, 1.3));
+            int rEnd = (int) Math.round(radius * Math.pow(1.0 - progressEnd, 1.3));
+
+            drawTrunkSegment(level, blockSetter, random, startCenter, endCenter, rStart, rEnd, config);
         }
 
         // 4. 3D Branching Math
@@ -222,6 +225,61 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
         double wx = Math.sin(progress * Math.PI * freq) * wiggleAmpX * factor;
         double wz = Math.sin(progress * Math.PI * freq) * wiggleAmpZ * factor;
         return origin.offset((int) Math.round(lx + wx), y, (int) Math.round(lz + wz));
+    }
+
+    private void drawTrunkSegment(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int radiusStart, int radiusEnd, GiantJungleTreeConfiguration config) {
+        int x1 = start.getX();
+        int y1 = start.getY();
+        int z1 = start.getZ();
+
+        int x2 = end.getX();
+        int y2 = end.getY();
+        int z2 = end.getZ();
+
+        int dx = Math.abs(x2 - x1);
+        int dy = Math.abs(y2 - y1);
+        int dz = Math.abs(z2 - z1);
+
+        int sx = x1 < x2 ? 1 : -1;
+        int sy = y1 < y2 ? 1 : -1;
+        int sz = z1 < z2 ? 1 : -1;
+
+        int x = x1;
+        int y = y1;
+        int z = z1;
+
+        int totalSteps = dx + dy + dz;
+        int step = 0;
+
+        placeTrunkSlice(level, blockSetter, random, new BlockPos(x, y, z), step, totalSteps, radiusStart, radiusEnd, config);
+
+        while (x != x2 || y != y2 || z != z2) {
+            // Step along each coordinate to ensure a 6-connected (face-sharing) path
+            if (x != x2) {
+                x += sx;
+                step++;
+                placeTrunkSlice(level, blockSetter, random, new BlockPos(x, y, z), step, totalSteps, radiusStart, radiusEnd, config);
+            }
+            if (y != y2) {
+                y += sy;
+                step++;
+                placeTrunkSlice(level, blockSetter, random, new BlockPos(x, y, z), step, totalSteps, radiusStart, radiusEnd, config);
+            }
+            if (z != z2) {
+                z += sz;
+                step++;
+                placeTrunkSlice(level, blockSetter, random, new BlockPos(x, y, z), step, totalSteps, radiusStart, radiusEnd, config);
+            }
+        }
+    }
+
+    private void placeTrunkSlice(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos center, int step, int totalSteps, int radiusStart, int radiusEnd, GiantJungleTreeConfiguration config) {
+        double t = totalSteps > 0 ? (double) step / totalSteps : 0.0;
+        int radius = (int) Math.round(Mth.lerp(t, (float) radiusStart, (float) radiusEnd));
+        var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(center, radius);
+        positions.forEach(p -> {
+            placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
+        });
     }
 
     private void drawBranch(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int baseRadius, GiantJungleTreeConfiguration config) {
