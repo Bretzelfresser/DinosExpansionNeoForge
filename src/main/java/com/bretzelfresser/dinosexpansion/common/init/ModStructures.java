@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
@@ -48,13 +49,16 @@ public class ModStructures {
 
     public static void bootstrapStructures(BootstrapContext<Structure> context) {
         var biomes = context.lookup(Registries.BIOME);
+        var noises = context.lookup(Registries.NOISE);
+
+
 
         context.register(CAVE_DUNGEON_STRUCTURE, new CaveDungeonStructure(
                 new Structure.StructureSettings(
                         biomes.getOrThrow(Tags.Biomes.HAS_CAVE_DUNGEON),
                         Map.of(),
                         GenerationStep.Decoration.UNDERGROUND_STRUCTURES,
-                        TerrainAdjustment.BEARD_THIN
+                        TerrainAdjustment.NONE
                 )
         ));
     }
@@ -67,7 +71,7 @@ public class ModStructures {
                 new RandomSpreadStructurePlacement(
                         32,
                         8,
-                        RandomSpreadType.LINEAR,
+                        RandomSpreadType.TRIANGULAR,
                         14357892
                 )
         ));

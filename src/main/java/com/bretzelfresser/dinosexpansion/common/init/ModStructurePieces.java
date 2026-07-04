@@ -13,5 +13,5 @@ public class ModStructurePieces {
 
 
     public static final DeferredHolder<StructurePieceType, StructurePieceType> CAVE_DUNGEON_PIECE =
-            STRUCTURE_PIECE_TYPES.register("cave_dungeon_piece", () -> CaveDungeonPieces.CaveDungeonPiece::new);
+            STRUCTURE_PIECE_TYPES.register("cave_dungeon_piece", () -> CaveDungeonPieces.CaveDungeonEntrancePiece::new);
 }
