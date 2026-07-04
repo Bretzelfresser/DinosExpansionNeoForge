@@ -47,6 +47,8 @@ public class DinosExpansion {
     public DinosExpansion(IEventBus modEventBus, ModContainer modContainer) {
         // Register custom tree placers
         com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers.register(modEventBus);
+        // Register custom structures
+        com.bretzelfresser.dinosexpansion.common.init.ModStructures.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(ModDatagen::gatherData);

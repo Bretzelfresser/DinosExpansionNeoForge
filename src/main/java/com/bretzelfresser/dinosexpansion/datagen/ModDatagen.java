@@ -22,7 +22,9 @@ public class ModDatagen {
             .add(Registries.NOISE, ModNoiseParameters::bootstrap)
             .add(Registries.BIOME, ModBiomes::bootstrap)
             .add(Registries.PLACED_FEATURE, ModPlacedFeatures::generate)
-            .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::generate);
+            .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::generate)
+            .add(Registries.STRUCTURE, ModStructures::bootstrapStructures)
+            .add(Registries.STRUCTURE_SET, ModStructures::bootstrapStructureSets);
 
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
@@ -32,6 +34,11 @@ public class ModDatagen {
         generator.addProvider(
                 event.includeServer(),
                 new DatapackBuiltinEntriesProvider(packOutput, lookupProvider, BUILDER, Set.of(DinosExpansion.MODID))
+        );
+
+        generator.addProvider(
+                event.includeServer(),
+                new ModBiomeTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
         );
     }
 }
