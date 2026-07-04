@@ -40,6 +40,13 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
         int radius = Math.max(0, config.radius().sample(random));
         int totalHeight = Math.round((float) radius * config.radiusToHeightFactor().sample(random));
 
+        // Size-scaled lean and wiggle configuration
+        double leanX = (random.nextDouble() - 0.5) * 2 * (totalHeight * 0.1); // max lean is 10% of height
+        double leanZ = (random.nextDouble() - 0.5) * 2 * (totalHeight * 0.1);
+        double wiggleAmpX = random.nextDouble() * (radius * 0.5); // max wiggle amplitude is 50% of radius
+        double wiggleAmpZ = random.nextDouble() * (radius * 0.5);
+        double wiggleFreq = random.nextDouble() * 0.3 + 0.5; // 0.5 to 0.8 cycles (gradual sweep)
+
         BiConsumer<BlockPos, BlockState> blockSetter = (p, state) -> {
             level.setBlock(p, state, 19);
         };
@@ -58,8 +65,10 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
             int dz = diag[1];
             for (int y = 0; y <= 3; y++) {
                 int flareLength = radius + 2 - y;
-                for (int i = radius; i <= flareLength; i++) {
-                    BlockPos flarePos = pos.offset(dx * i, y, dz * i);
+                // Start from center to guarantee seamless connection
+                for (int i = 1; i <= flareLength; i++) {
+                    BlockPos centerAtY = getTrunkCenter(pos, y, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
+                    BlockPos flarePos = centerAtY.offset(dx * i, 0, dz * i);
                     placeBlock(level, blockSetter, flarePos, config.woodProvider().getState(random, flarePos), true);
                     if (y == 0) {
                         setDirtAt(blockSetter, flarePos.below());
@@ -69,11 +78,11 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
         }
 
         // 3. Tapered Trunk
-        var mutablePos = pos.mutable();
         for (int y = 0; y < totalHeight; y++) {
             double progress = (double) y / totalHeight;
             int radiusAtY = (int) Math.round(radius * Math.pow(1.0 - progress, 1.3));
-            var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(mutablePos.offset(0, y, 0), radiusAtY);
+            BlockPos centerAtY = getTrunkCenter(pos, y, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
+            var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(centerAtY, radiusAtY);
             positions.forEach(p -> {
                 placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
             });
@@ -109,8 +118,8 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
             // Upward slope: 30% to 60% of length
             double dy = length * (0.3 + random.nextDouble() * 0.3);
 
-            BlockPos start = pos.offset(0, branchY, 0);
-            BlockPos end = pos.offset((int) Math.round(dx), branchY + (int) Math.round(dy), (int) Math.round(dz));
+            BlockPos start = getTrunkCenter(pos, branchY, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
+            BlockPos end = start.offset((int) Math.round(dx), (int) Math.round(dy), (int) Math.round(dz));
 
             branchTips.add(end);
 
@@ -126,7 +135,7 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
         }
 
         // Top crown foliage
-        BlockPos crownCenter = pos.offset(0, totalHeight, 0);
+        BlockPos crownCenter = getTrunkCenter(pos, totalHeight, totalHeight, leanX, leanZ, wiggleAmpX, wiggleAmpZ, wiggleFreq);
         int crownRadius = config.foliageRadius().sample(random) + 1;
         placeLeafBlob(level, blockSetter, random, crownCenter, crownRadius, config);
         // Overlapping blobs for organic crown look
@@ -201,6 +210,18 @@ public class GiantJungleTreeFeature extends Feature<GiantJungleTreeConfiguration
 
     protected static void setDirtAt(BiConsumer<BlockPos, BlockState> blockSetter, BlockPos pos) {
         blockSetter.accept(pos, Blocks.DIRT.defaultBlockState());
+    }
+
+    private BlockPos getTrunkCenter(BlockPos origin, int y, int totalHeight, double leanX, double leanZ, double wiggleAmpX, double wiggleAmpZ, double freq) {
+        if (totalHeight <= 0) return origin.offset(0, y, 0);
+        double progress = (double) y / totalHeight;
+        // Quadratic factor to keep the base straight and sweep near the top
+        double factor = progress * progress;
+        double lx = factor * leanX;
+        double lz = factor * leanZ;
+        double wx = Math.sin(progress * Math.PI * freq) * wiggleAmpX * factor;
+        double wz = Math.sin(progress * Math.PI * freq) * wiggleAmpZ * factor;
+        return origin.offset((int) Math.round(lx + wx), y, (int) Math.round(lz + wz));
     }
 
     private void drawBranch(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int baseRadius, GiantJungleTreeConfiguration config) {
