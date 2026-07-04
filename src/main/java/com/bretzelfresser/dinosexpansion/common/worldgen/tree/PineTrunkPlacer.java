@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.worldgen.tree;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModTreePlacers;
 import com.bretzelfresser.dinosexpansion.util.CodecUtils;
+import com.bretzelfresser.dinosexpansion.util.TrunkForm;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -27,7 +28,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
     public static final Codec<TrunkConfig> TRUNK_CONFIG_CODEC = RecordCodecBuilder.create(objectInstance -> objectInstance.group(
             IntProvider.CODEC.fieldOf("bottomRadius").orElse(ConstantInt.of(2)).forGetter(TrunkConfig::bottomRadius),
             IntProvider.CODEC.fieldOf("topRadius").orElse(ConstantInt.of(0)).forGetter(TrunkConfig::topRadius),
-            StringRepresentable.fromEnum(TrunkForm::values).fieldOf("form").orElse(TrunkForm.SQUARE_WITH_CUTOUT_EDGES).forGetter(TrunkConfig::form)
+            TrunkForm.CODEC.fieldOf("form").orElse(TrunkForm.SQUARE_WITH_CUTOUT_EDGES).forGetter(TrunkConfig::form)
     ).apply(objectInstance, TrunkConfig::new));
 
     public static final MapCodec<PineTrunkPlacer> CODEC = RecordCodecBuilder.mapCodec(
@@ -36,54 +37,6 @@ public class PineTrunkPlacer extends TrunkPlacer {
                     .and(TRUNK_CONFIG_CODEC.fieldOf("trunk_config").orElse(new TrunkConfig(ConstantInt.of(2), ConstantInt.of(0), TrunkForm.SQUARE_WITH_CUTOUT_EDGES)).forGetter(tp -> tp.cfg))
                     .apply(instance, PineTrunkPlacer::new)
     );
-
-    public enum TrunkForm implements StringRepresentable {
-        SQUARE,
-        CIRCLE {
-            @Override
-            Set<BlockPos> calculateBase(BlockPos start, int radius) {
-                var posSet = new HashSet<BlockPos>();
-                for (int x = -radius; x <= radius; x++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        if (z * z + x * x <= radius * radius) {
-                            posSet.add(start.offset(x, 0, z));
-                        }
-                    }
-                }
-                return posSet;
-            }
-        },
-        SQUARE_WITH_CUTOUT_EDGES {
-            @Override
-            Set<BlockPos> calculateBase(BlockPos start, int radius) {
-                var posSet = new HashSet<BlockPos>();
-                for (int x = -radius; x <= radius; x++) {
-                    for (int z = -radius; z <= radius; z++) {
-                        if (radius > 0 && Math.abs(x) == radius && Math.abs(z) == radius) {
-                            continue;
-                        }
-                        posSet.add(start.offset(x, 0, z));
-                    }
-                }
-                return posSet;
-            }
-        };
-
-        Set<BlockPos> calculateBase(BlockPos start, int radius) {
-            var posSet = new HashSet<BlockPos>();
-            for (int x = -radius; x <= radius; x++) {
-                for (int z = -radius; z <= radius; z++) {
-                    posSet.add(start.offset(x, 0, z));
-                }
-            }
-            return posSet;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return name().toLowerCase(Locale.ROOT);
-        }
-    }
 
     protected final CubicSpline<Float, ToFloatFunction<Float>> trunkThicknessSpline;
     protected final TrunkConfig cfg;
@@ -131,7 +84,7 @@ public class PineTrunkPlacer extends TrunkPlacer {
                 this.placeLog(level, blockSetter, random, p, config);
             });
         }
-        //foliageNodes.add(new FoliagePlacer.FoliageAttachment(mutablePos.offset(0, freeSteps, 0), 0, false));
+        foliageNodes.add(new FoliagePlacer.FoliageAttachment(mutablePos.offset(0, freeSteps, 0), 0, false));
 
 
         return foliageNodes;

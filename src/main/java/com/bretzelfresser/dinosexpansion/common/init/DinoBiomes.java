@@ -16,20 +16,47 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class DinoBiomes {
 
+    public static Biome makePrimordialJungle(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.GIANT_JUNGLE_TREE);
+
+        MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
+
+
+        Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_JUNGLE);
+        BiomeSpecialEffects specialEffects = new BiomeSpecialEffects.Builder()
+                .waterColor(3832426)
+                .waterFogColor(5077600)
+                .fogColor(12638463)
+                .skyColor(calculateSkyColor(0.8F))
+                .backgroundMusic(music)
+                .build();
+
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(true)
+                .temperature(0.8F)
+                .downfall(0.4F)
+                .specialEffects(specialEffects)
+                .mobSpawnSettings(spawnSettings)
+                .generationSettings(genSettingsBuilder.build())
+                .build();
+
+    }
+
     public static Biome makeDeltaMangrove(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
-        BiomeDefaultFeatures.addMangroveSwampVegetation(genSettingsBuilder);
-        //genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.TEST_TREE_PLACED);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 
 
         Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_SWAMP);
         BiomeSpecialEffects specialEffects = new BiomeSpecialEffects.Builder()
-                .waterColor(3832426)
-                .waterFogColor(5077600)
+                .waterColor(4159204)
+                .waterFogColor(329011)
                 .fogColor(12638463)
+                .skyColor(7907327)
                 .skyColor(calculateSkyColor(0.8F))
                 .backgroundMusic(music)
                 .build();

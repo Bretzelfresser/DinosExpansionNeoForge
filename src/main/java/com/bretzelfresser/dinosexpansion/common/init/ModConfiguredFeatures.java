@@ -1,8 +1,10 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.common.worldgen.tree.GiantJungleTreeConfiguration;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineTrunkPlacer;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineFoliagePlacer;
+import com.bretzelfresser.dinosexpansion.util.TrunkForm;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -28,6 +31,7 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> FERN_PATCH = create("fern_patch");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TALL_PREHISTORIC_PINE = create("tall_prehistoric_pine");
     public static final ResourceKey<ConfiguredFeature<?, ?>> MEGA_PREHISTORIC_REDWOOD = create("mega_prehistoric_redwood");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> GIANT_JUNGLE_TREE = create("giant_jungle_tree");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TEST_TREE = create("test_tree");
 
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -55,7 +59,7 @@ public class ModConfiguredFeatures {
                         .bottomRadius(1)
                         .topRadius(0)
                         .thicknessSpline(0.7f)
-                        .form(PineTrunkPlacer.TrunkForm.CIRCLE)
+                        .form(TrunkForm.CIRCLE)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
                 new PineFoliagePlacer(UniformFloat.of(0.4f, 0.6f), UniformFloat.of(0.1f, 0.3f), ConstantInt.of(1), ConstantInt.of(4), ConstantInt.of(3)),
@@ -73,12 +77,19 @@ public class ModConfiguredFeatures {
                                 .addPoint(0.8f, 0f, 0)
                                 .addPoint(1f, 1f, 1)
                                 .build())
-                        .form(PineTrunkPlacer.TrunkForm.CIRCLE)
+                        .form(TrunkForm.CIRCLE)
                         .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
                 new PineFoliagePlacer(UniformFloat.of(0.4f, 0.6f), UniformFloat.of(0.1f, 0.3f), ConstantInt.of(1), ConstantInt.of(4), ConstantInt.of(3)),
                 new TwoLayersFeatureSize(1, 2, 4)
         ).build()));
+
+        context.register(GIANT_JUNGLE_TREE, new ConfiguredFeature<>(ModFeatures.GIANT_JUNGLE_TREE_FEATURE.get(), new GiantJungleTreeConfiguration(
+                UniformInt.of(1, 3),
+                UniformFloat.of(10, 12),
+                BlockStateProvider.simple(Blocks.JUNGLE_LOG),
+                BlockStateProvider.simple(Blocks.JUNGLE_LEAVES)
+        )));
     }
 
 
