@@ -16,6 +16,7 @@ public class ModBiomes {
     public static final ResourceKey<Biome> PREHISTORIC_COAST = create("prehistoric_coast");
     public static final ResourceKey<Biome> DELTA_MANGROVE = create("delta_mangrove");
     public static final ResourceKey<Biome> PRIMORDIAL_JUNGLE = create("primordial_jungle");
+    public static final ResourceKey<Biome> REDWOOD_FOREST = create("redwood_forest");
 
     public static void bootstrap(BootstrapContext<Biome> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -44,8 +45,8 @@ public class ModBiomes {
         context.register(FERN_PLAINS, DinoBiomes.makeFernPlains(placedFeatures, configuredCarvers));
         context.register(PREHISTORIC_COAST, DinoBiomes.makePrehistoricCoast(placedFeatures, configuredCarvers));
         context.register(DELTA_MANGROVE, DinoBiomes.makeDeltaMangrove(placedFeatures, configuredCarvers));
-
         context.register(PRIMORDIAL_JUNGLE, DinoBiomes.makePrimordialJungle(placedFeatures, configuredCarvers));
+        context.register(REDWOOD_FOREST, DinoBiomes.makeRedwoodForest(placedFeatures, configuredCarvers));
     }
 
 

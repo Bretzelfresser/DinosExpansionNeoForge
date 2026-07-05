@@ -16,6 +16,32 @@ import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class DinoBiomes {
 
+
+    public static Biome makeRedwoodForest(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+
+        MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
+
+
+        Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_JUNGLE);
+        BiomeSpecialEffects specialEffects = new BiomeSpecialEffects.Builder()
+                .waterColor(3832426)
+                .waterFogColor(5077600)
+                .fogColor(12638463)
+                .skyColor(calculateSkyColor(0.8F))
+                .backgroundMusic(music)
+                .build();
+
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(true)
+                .temperature(0.8F)
+                .downfall(0.4F)
+                .specialEffects(specialEffects)
+                .mobSpawnSettings(spawnSettings)
+                .generationSettings(genSettingsBuilder.build())
+                .build();
+    }
+
     public static Biome makePrimordialJungle(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
