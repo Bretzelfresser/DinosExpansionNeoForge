@@ -76,7 +76,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         for (int y = 0; y < totalHeight; y++) {
             BlockPos sliceCenter = pos.above(y);
             int r = 2;
-            if (y >= totalHeight * 0.9f){
+            if (y >= totalHeight - 5){
                 r = 0;
             }else if (y >= minBranchY + 3){
                 r = 1;
