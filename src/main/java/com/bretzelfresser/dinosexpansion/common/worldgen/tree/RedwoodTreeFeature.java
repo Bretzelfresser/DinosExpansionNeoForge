@@ -70,10 +70,17 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             }
         }
 
+
+        int minBranchY = (int) (totalHeight * config.branchStartHeight().sample(random));
         // 3. Trunk Placement (Constant cross shape, tapering at the very top)
         for (int y = 0; y < totalHeight; y++) {
             BlockPos sliceCenter = pos.above(y);
-            int r = (y >= totalHeight - 4) ? 0 : 1;
+            int r = 2;
+            if (y >= totalHeight * 0.9f){
+                r = 0;
+            }else if (y >= minBranchY + 3){
+                r = 1;
+            }
             var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(sliceCenter, r);
             positions.forEach(p -> {
                 placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
@@ -81,7 +88,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         }
 
         // 4. Whorled conifer branches
-        int minBranchY = (int) (totalHeight * config.branchStartHeight().sample(random));
+
         int maxBranchY = totalHeight - 5;
         if (maxBranchY < minBranchY) {
             maxBranchY = minBranchY;

@@ -56,11 +56,11 @@ public class ModConfiguredFeatures {
         ).build()));
 
         context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(ModFeatures.REDWOOD_TREE_FEATURE.get(), new RedwoodTreeConfiguration(
-                UniformInt.of(3, 4), // radius
-                UniformFloat.of(13, 17), // radiusToHeightFactor: 3..4 * 13..17 = 39..68 blocks tall
+                UniformInt.of(4, 6), // radius
+                UniformFloat.of(15, 25), // radiusToHeightFactor: 3..4 * 13..17 = 39..68 blocks tall
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                UniformFloat.of(0.25f, 0.35f), // branchStartHeight
+                UniformFloat.of(0.35f, 0.45f), // branchStartHeight
                 ConstantInt.of(4), // branchInterval
                 ConstantInt.of(8), // branchesPerInterval
                 UniformInt.of(5, 7), // branchLength

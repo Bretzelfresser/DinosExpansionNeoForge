@@ -39,7 +39,7 @@ public class ModPlacedFeatures {
         );
 
         PlacementUtils.register(ctx, MEGA_PREHISTORIC_REDWOOD_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.MEGA_PREHISTORIC_REDWOOD),
-                RarityFilter.onAverageOnceEvery(12),
+                PlacementUtils.countExtra(5, 0.05f, 4),
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),
                 PlacementUtils.HEIGHTMAP,
