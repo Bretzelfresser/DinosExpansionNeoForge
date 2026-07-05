@@ -17,6 +17,8 @@ public class ModBiomes {
     public static final ResourceKey<Biome> DELTA_MANGROVE = create("delta_mangrove");
     public static final ResourceKey<Biome> PRIMORDIAL_JUNGLE = create("primordial_jungle");
     public static final ResourceKey<Biome> REDWOOD_FOREST = create("redwood_forest");
+    public static final ResourceKey<Biome> FOGGY_SWAMP = create("foggy_swamp");
+    public static final ResourceKey<Biome> GEYSER_VALLEY = create("geyser_valley");
 
     public static void bootstrap(BootstrapContext<Biome> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -47,6 +49,8 @@ public class ModBiomes {
         context.register(DELTA_MANGROVE, DinoBiomes.makeDeltaMangrove(placedFeatures, configuredCarvers));
         context.register(PRIMORDIAL_JUNGLE, DinoBiomes.makePrimordialJungle(placedFeatures, configuredCarvers));
         context.register(REDWOOD_FOREST, DinoBiomes.makeRedwoodForest(placedFeatures, configuredCarvers));
+        context.register(FOGGY_SWAMP, DinoBiomes.makeFoggySwamp(placedFeatures, configuredCarvers));
+        context.register(GEYSER_VALLEY, DinoBiomes.makeGeyserValley(placedFeatures, configuredCarvers));
     }
 
 

@@ -32,7 +32,7 @@ public class ModLevelStems {
 
         context.register(DINO_LEVEL_STEM_KEY, new LevelStem(
                 dimTypes.getOrThrow(ModDimensionTypes.DINO_DIM_TYPE_KEY),
-                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(ModBiomes.REDWOOD_FOREST)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
+                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(ModBiomes.FOGGY_SWAMP)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
         ));
     }
 }

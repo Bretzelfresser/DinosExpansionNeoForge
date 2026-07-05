@@ -2,20 +2,71 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.placement.AquaticPlacements;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.Musics;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeGenerationSettings;
-import net.minecraft.world.level.biome.BiomeSpecialEffects;
-import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class DinoBiomes {
 
+    public static Biome makeGeyserValley(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+
+
+        MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
+
+        BiomeSpecialEffects specialEffects = new BiomeSpecialEffects.Builder()
+                .waterColor(4159204)
+                .waterFogColor(329011)
+                .fogColor(12638463)
+                .skyColor(calculateSkyColor(0.8F))
+                .build();
+
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(true)
+                .temperature(0.8F)
+                .downfall(0.4F)
+                .specialEffects(specialEffects)
+                .mobSpawnSettings(spawnSettings)
+                .generationSettings(genSettingsBuilder.build())
+                .build();
+    }
+
+    public static Biome makeFoggySwamp(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, AquaticPlacements.SEAGRASS_SWAMP);
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, VegetationPlacements.TREES_SWAMP);
+
+        MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
+
+        Music music = Musics.createGameMusic(SoundEvents.MUSIC_BIOME_SWAMP);
+        BiomeSpecialEffects specialEffects = new BiomeSpecialEffects.Builder()
+                .waterColor(6388580)
+                .waterFogColor(2302743)
+                .fogColor(12638463)
+                .skyColor(calculateSkyColor(0.8F))
+                .backgroundMusic(music)
+                .foliageColorOverride(6975545)
+                .grassColorModifier(BiomeSpecialEffects.GrassColorModifier.SWAMP)
+                .ambientMoodSound(AmbientMoodSettings.LEGACY_CAVE_SETTINGS)
+                .build();
+
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(true)
+                .temperature(0.8F)
+                .downfall(0.4F)
+                .specialEffects(specialEffects)
+                .mobSpawnSettings(spawnSettings)
+                .generationSettings(genSettingsBuilder.build())
+                .build();
+    }
 
     public static Biome makeRedwoodForest(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
