@@ -39,8 +39,8 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             level.setBlock(p, state, 19);
         };
 
-        // Set dirt at the base
-        var basePositions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(pos, radius);
+        // Set dirt at the base (5-log cross base)
+        var basePositions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(pos, 1);
         basePositions.forEach(p -> {
             setDirtAt(blockSetter, p.below());
             setDirtAt(blockSetter, p.below().below());
@@ -58,7 +58,8 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             int dz = dir[1];
             for (int y = 0; y <= flareHeight; y++) {
                 double progress = (double) y / (flareHeight + 1);
-                int lengthAtY = radius + (int) Math.round(flareLength * (1.0 - progress));
+                // Trunk covers radius=1 cross. Flare goes beyond it.
+                int lengthAtY = 1 + (int) Math.round(flareLength * (1.0 - progress));
                 for (int i = 1; i <= lengthAtY; i++) {
                     BlockPos flarePos = pos.offset(dx * i, y, dz * i);
                     placeBlock(level, blockSetter, flarePos, config.woodProvider().getState(random, flarePos), true);
@@ -69,19 +70,17 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             }
         }
 
-        // 3. Tapered Trunk (Straight, vertical)
+        // 3. Trunk Placement (Constant cross shape, tapering at the very top)
         for (int y = 0; y < totalHeight; y++) {
-            double progress = (double) y / totalHeight;
-            // Radius tapers towards the top
-            int r = (int) Math.round(radius * Math.pow(1.0 - progress, 1.3));
-            BlockPos centerPos = pos.above(y);
-            var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(centerPos, r);
+            BlockPos sliceCenter = pos.above(y);
+            int r = (y >= totalHeight - 4) ? 0 : 1;
+            var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(sliceCenter, r);
             positions.forEach(p -> {
                 placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
             });
         }
 
-        // 4. Whorled branches
+        // 4. Whorled conifer branches
         int minBranchY = (int) (totalHeight * config.branchStartHeight().sample(random));
         int maxBranchY = totalHeight - 5;
         if (maxBranchY < minBranchY) {
@@ -89,7 +88,6 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         }
 
         int branchInterval = Math.max(1, config.branchInterval().sample(random));
-        int branchesPerInterval = config.branchesPerInterval().sample(random);
         int baseBranchLength = config.branchLength().sample(random);
         int foliageRadius = config.foliageRadius().sample(random);
 
@@ -101,29 +99,25 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             double progressOfFoliage = (double) (y - minBranchY) / (totalHeight - minBranchY);
             // Length of branches tapers towards the top
             int length = (int) Math.round(baseBranchLength * (1.0 - progressOfFoliage * 0.8));
-            if (length < 2) length = 2;
+            if (length < 1) length = 1;
 
-            int numBranches = branchesPerInterval;
-            double spiralOffset = (y * 0.35) * Math.PI;
+            int tipRadius = Math.max(1, (int) Math.round(foliageRadius * (1.0 - progressOfFoliage)));
 
-            for (int b = 0; b < numBranches; b++) {
-                double angle = (b * 2.0 * Math.PI) / numBranches + spiralOffset + (random.nextDouble() - 0.5) * 0.2;
-                
-                // Redwood branches slope slightly downwards
-                double slope = -0.1 - random.nextDouble() * 0.1;
-                
-                double dx = Math.cos(angle) * length;
-                double dz = Math.sin(angle) * length;
-                double dy = length * slope;
+            for (int[] dir : directions) {
+                int dx = dir[0];
+                int dz = dir[1];
 
                 BlockPos start = pos.above(y);
-                BlockPos end = start.offset((int) Math.round(dx), (int) Math.round(dy), (int) Math.round(dz));
+                BlockPos end = start.offset(dx * length, 0, dz * length);
 
                 // Draw branch wood
-                drawBranch(level, blockSetter, random, start, end, config);
+                for (int i = 1; i <= length; i++) {
+                    BlockPos p = start.offset(dx * i, 0, dz * i);
+                    placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), false);
+                }
 
                 // Place foliage along and at the tip of the branch
-                placeBranchFoliage(level, blockSetter, random, start, end, foliageRadius, config);
+                placeBranchFoliage(level, blockSetter, random, start, end, tipRadius, config);
             }
         }
 
@@ -150,84 +144,51 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         return true;
     }
 
-    private void drawBranch(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, RedwoodTreeConfiguration config) {
-        int x1 = start.getX();
-        int y1 = start.getY();
-        int z1 = start.getZ();
-
-        int x2 = end.getX();
-        int y2 = end.getY();
-        int z2 = end.getZ();
-
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int dz = Math.abs(z2 - z1);
-
-        int sx = x1 < x2 ? 1 : -1;
-        int sy = y1 < y2 ? 1 : -1;
-        int sz = z1 < z2 ? 1 : -1;
-
-        int x = x1;
-        int y = y1;
-        int z = z1;
-
-        // Draw branch line using 6-connected DDA
-        while (x != x2 || y != y2 || z != z2) {
-            if (x != x2) {
-                x += sx;
-            }
-            if (z != z2) {
-                z += sz;
-            }
-            if (y != y2) {
-                y += sy;
-            }
-            BlockPos branchPos = new BlockPos(x, y, z);
-            placeBlock(level, blockSetter, branchPos, config.woodProvider().getState(random, branchPos), false);
-        }
-    }
-
     private void placeBranchFoliage(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int tipRadius, RedwoodTreeConfiguration config) {
         // 1. Tip foliage: place a leafy blob at the end of the branch
         placeLeafBlob(level, blockSetter, random, end, tipRadius, config);
 
         // 2. Along-branch foliage: place flat sprays of leaves
         int x1 = start.getX();
-        int y1 = start.getY();
         int z1 = start.getZ();
 
         int x2 = end.getX();
-        int y2 = end.getY();
         int z2 = end.getZ();
 
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int dz = Math.abs(z2 - z1);
-
-        int sx = x1 < x2 ? 1 : -1;
-        int sy = y1 < y2 ? 1 : -1;
-        int sz = z1 < z2 ? 1 : -1;
+        int sx = Integer.compare(x2, x1);
+        int sz = Integer.compare(z2, z1);
 
         int x = x1;
-        int y = y1;
         int z = z1;
 
         int distance = 0;
-        while (x != x2 || y != y2 || z != z2) {
-            if (x != x2) x += sx;
-            if (z != z2) z += sz;
-            if (y != y2) y += sy;
+        while (x != x2 || z != z2) {
+            x += sx;
+            z += sz;
             distance++;
 
             // Don't place leaves right next to the trunk
-            if (distance > 2) {
-                BlockPos p = new BlockPos(x, y, z);
-                BlockPos[] spray = {
+            if (distance > 1) {
+                BlockPos p = new BlockPos(x, start.getY(), z);
+                
+                // Flat spray at branch level (y)
+                BlockPos[] sprayY = {
                     p,
                     p.north(), p.south(), p.east(), p.west(),
                     p.north().east(), p.north().west(), p.south().east(), p.south().west()
                 };
-                for (BlockPos leafPos : spray) {
+                for (BlockPos leafPos : sprayY) {
+                    if (isReplaceable(level, leafPos)) {
+                        blockSetter.accept(leafPos, config.foliageProvider().getState(random, leafPos));
+                    }
+                }
+                
+                // Flat spray at level above (y + 1)
+                BlockPos[] sprayAbove = {
+                    p.above(),
+                    p.above().north(), p.above().south(), p.above().east(), p.above().west()
+                };
+                for (BlockPos leafPos : sprayAbove) {
                     if (isReplaceable(level, leafPos)) {
                         blockSetter.accept(leafPos, config.foliageProvider().getState(random, leafPos));
                     }
