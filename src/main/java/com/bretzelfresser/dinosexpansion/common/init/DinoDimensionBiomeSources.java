@@ -18,120 +18,149 @@ public class DinoDimensionBiomeSources {
 
         // Deep Ocean
         addBiome(parameters, biomes, ModBiomes.DEEP_PREHISTORIC_OCEAN,
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
+                all(),
+                all(),
                 Climate.Parameter.span(-1.0F, -0.6F),
-                Climate.Parameter.span(-1.0F, 1.0F),
+                all(),
                 Climate.Parameter.span(0.2F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
+                all()
         );
 
         // Prehistoric Ocean
         addBiome(parameters, biomes, ModBiomes.PREHISTORIC_OCEAN,
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-0.6F, -0.2F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
+                all(),
+                all(),
+                Climate.Parameter.span(-0.6F, -0.05F),
+                all(),
+                all(),
+                all()
         );
 
-        // Prehistoric Coast
-        addBiome(parameters, biomes, ModBiomes.PREHISTORIC_COAST,
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-0.2F, -0.15F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
+        makeBeach(parameters, biomes, Climate.Parameter.span(-0.05f, .15f));
 
-        // Cold Biome
-        addBiome(parameters, biomes, ModBiomes.ANCIENT_GLACIAL_TUNDRA,
-                Climate.Parameter.span(-1.0F, -0.4F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        // Fern Plains (Default land biome)
         addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
-                Climate.Parameter.span(-0.4F, 0.4F),
-                Climate.Parameter.span(-0.4F, 0.4F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        // Dry/Hot Biomes
-        addBiome(parameters, biomes, ModBiomes.BONE_DESERT,
-                Climate.Parameter.span(0.4F, 1.0F),
-                Climate.Parameter.span(-1.0F, -0.3F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        addBiome(parameters, biomes, ModBiomes.PETRIFIED_BADLANDS,
-                Climate.Parameter.span(0.4F, 1.0F),
-                Climate.Parameter.span(-0.3F, 0.1F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        // Swamp/Wet/Forest Biomes
-        addBiome(parameters, biomes, ModBiomes.FOGGY_SWAMP,
-                Climate.Parameter.span(-0.2F, 0.3F),
-                Climate.Parameter.span(0.4F, 1.0F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        addBiome(parameters, biomes, ModBiomes.REDWOOD_FOREST,
-                Climate.Parameter.span(0.1F, 0.5F),
-                Climate.Parameter.span(0.1F, 0.6F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        addBiome(parameters, biomes, ModBiomes.PRIMORDIAL_JUNGLE,
-                Climate.Parameter.span(0.5F, 1.0F),
-                Climate.Parameter.span(0.4F, 1.0F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        addBiome(parameters, biomes, ModBiomes.DELTA_MANGROVE,
-                Climate.Parameter.span(0.3F, 0.8F),
-                Climate.Parameter.span(0.3F, 0.8F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
-        );
-
-        addBiome(parameters, biomes, ModBiomes.GEYSER_VALLEY,
-                Climate.Parameter.span(0.6F, 1.0F),
-                Climate.Parameter.span(-0.1F, 0.4F),
-                Climate.Parameter.span(-0.15F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F),
-                Climate.Parameter.span(-1.0F, 1.0F)
+                all(),
+                all(),
+                Climate.Parameter.span(0.15F, 1F),
+                all(),
+                all(),
+                all()
         );
 
         return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(parameters));
+    }
+
+    protected static void makeBeach(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,
+                                    HolderGetter<Biome> biomes,
+                                    Climate.Parameter continents){
+        //HOT beaches
+        //when hot always bone desert
+        addBiome(parameters, biomes, ModBiomes.BONE_DESERT,
+                hot(true),
+                all(),
+                continents,
+                all(),
+                all(),
+                all()
+        );
+        //frozen beaches
+        //when frozen always frozen tundra
+        addBiome(parameters, biomes, ModBiomes.ANCIENT_GLACIAL_TUNDRA,
+                frozen(true),
+                all(),
+                continents,
+                all(),
+                all(),
+                all()
+        );
+        //Normal Temperature beaches
+        // Prehistoric Coast only at flat beaches, not when hot and not when wet, cause then the biomes reach inside the ocean without a coast biome in between
+        addBiome(parameters, biomes, ModBiomes.PREHISTORIC_COAST,// not wet
+                normalTemperature(),
+                wet(false),
+                continents,
+                steep(false),
+                all(),
+                all()
+        );
+        addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,//not wet
+                normalTemperature(),
+                wet(false),
+                continents,
+                steep(true),
+                all(),
+                all()
+        );
+        addBiome(parameters, biomes, ModBiomes.FOGGY_SWAMP,//wet
+                normalTemperature(),
+                wet(true),
+                continents,
+                flat(true),
+                all(),
+                all()
+        );
+        addBiome(parameters, biomes, ModBiomes.DELTA_MANGROVE,//wet
+                normalTemperature(),
+                wet(true),
+                continents,
+                normalErosion(),
+                all(),
+                all()
+        );
+        addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,//wet
+                normalTemperature(),
+                wet(true),
+                continents,
+                steep(true),
+                all(),
+                all()
+        );
+
+
+    }
+
+    private static Climate.Parameter land(){
+        return Climate.Parameter.span(-0.05f, 1f);
+    }
+    private static Climate.Parameter landWithoutBeach(){
+        return Climate.Parameter.span(0.05f, 1f);
+    }
+
+    private static Climate.Parameter beach(){
+        return Climate.Parameter.span(-0.05f, 0.05f);
+    }
+
+    private static Climate.Parameter flat(boolean flat){
+        return flat ? Climate.Parameter.span(-1f, -0.5f) : Climate.Parameter.span(-.5f, 1f);
+    }
+
+    private static Climate.Parameter normalErosion(){
+        return Climate.Parameter.span(-0.5f, 0.5f);
+    }
+    private static Climate.Parameter steep(boolean steep){
+        return steep ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+    }
+
+    private static Climate.Parameter frozen(boolean frozen){
+        return frozen ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
+    }
+
+    private static Climate.Parameter normalTemperature(){
+        return Climate.Parameter.span(-.5f, .5f);
+    }
+
+    private static Climate.Parameter hot(boolean hot){
+        return hot ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+    }
+
+
+    private static Climate.Parameter wet(boolean wet){
+        return wet ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+    }
+
+
+    private static Climate.Parameter all(){
+        return Climate.Parameter.span(-1f, 1f);
     }
 
     private static void addBiome(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,

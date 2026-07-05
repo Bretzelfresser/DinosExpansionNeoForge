@@ -29,6 +29,10 @@ public class ModNoiseParameters {
     public static final ResourceKey<NormalNoise.NoiseParameters> EROSION = create("erosion");
 
 
+    public static final ResourceKey<NormalNoise.NoiseParameters> TEMPERATURE = create("temperature");
+    public static final ResourceKey<NormalNoise.NoiseParameters> HUMIDITY = create("humidity");
+
+
     public static final ResourceKey<NormalNoise.NoiseParameters> CAVE_DUNGEON_NOISE = create("cave_dungeon_noise");
 
 
@@ -58,6 +62,8 @@ public class ModNoiseParameters {
         context.register(CAVE_ENTRANCE_NOISE, new NormalNoise.NoiseParameters(-7, 1.0));
         context.register(EROSION, new NormalNoise.NoiseParameters(-7, 1.0, .5));
         context.register(CAVE_DUNGEON_NOISE, new NormalNoise.NoiseParameters(-7, 1.0, 1, 1, 0.25d));
+        context.register(TEMPERATURE, new NormalNoise.NoiseParameters(-8, 1.0));
+        context.register(HUMIDITY, new NormalNoise.NoiseParameters(-8, 1.0));
     }
 
 

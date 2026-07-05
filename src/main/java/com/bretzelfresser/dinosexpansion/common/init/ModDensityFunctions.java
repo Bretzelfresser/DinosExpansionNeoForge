@@ -17,6 +17,8 @@ public class ModDensityFunctions {
     public static final ResourceKey<DensityFunction> ZERO_DENSITY_KEY = create("zero");
     public static final ResourceKey<DensityFunction> CONTINENTS = create("continents");
     public static final ResourceKey<DensityFunction> EROSION = create("erosion");
+    public static final ResourceKey<DensityFunction> TEMPERATURE = create("temperature");
+    public static final ResourceKey<DensityFunction> HUMIDITY = create("humidity");
     public static final ResourceKey<DensityFunction> DEPTH = create("depth");
     public static final ResourceKey<DensityFunction> FINAL_DENSITY = create("final_density");
     public static final ResourceKey<DensityFunction> SURFACE_DENSITY_AQUAFIER = create("surface_density_aquafier");
@@ -31,10 +33,13 @@ public class ModDensityFunctions {
         var noiseLookup = context.lookup(Registries.NOISE);
         var densityLookup = context.lookup(Registries.DENSITY_FUNCTION);
 
+        context.register(TEMPERATURE, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.TEMPERATURE), 1f, 0f));
+        context.register(HUMIDITY, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.HUMIDITY), 1f, 0f));
+
         context.register(ZERO_DENSITY_KEY, DensityFunctions.zero());
         var refDepth = context.register(DEPTH, DensityFunctions.yClampedGradient(-64, 320, (double)1.5F, (double)-1.5F));
 
-        var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f));
+        var refContinents = context.register(CONTINENTS, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.CONTINENTS), 1f, 0f).clamp(-1, 1));
         var continents = wrap(refContinents);
 
         var refErosion = context.register(EROSION, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.EROSION), 1f, 0f));
@@ -97,7 +102,7 @@ public class ModDensityFunctions {
         // depthSpline = 0.0 at Y = 63 (sea level).
         // Since Y ranges from 3 to 156, the fraction at Y = 63 is (63-3)/(156-3) = 60/153 = 20/51.
         // Choosing minVal = 1.0d and maxVal = -1.55d results in 1.0 + (20/51) * (-2.55) = 1.0 - 1.0 = 0.0.
-        var depthSpline = DensityFunctions.yClampedGradient(3, 156, 1d, -1.55d);
+        var depthSpline = DensityFunctions.yClampedGradient(3, 156, 1.01d, -1.55d);
 
         var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
                 .addPoint(-1.0f, -1f, 0.0f)     // Deep Ocean (Y ~ 3)

@@ -29,8 +29,8 @@ public class ModNoiseGeneratorSettings {
                 zero,
                 zero,
                 zero,
-                zero,
-                zero,
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.TEMPERATURE)),
+                new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.HUMIDITY)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.CONTINENTS)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.EROSION)),
                 new DensityFunctions.HolderHolder(densityLookup.getOrThrow(ModDensityFunctions.DEPTH)),//depth to stick biomes within depth ranges

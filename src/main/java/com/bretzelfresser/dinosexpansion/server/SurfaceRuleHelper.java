@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.server;
 
+import com.bretzelfresser.dinosexpansion.common.init.ModBiomes;
 import com.bretzelfresser.dinosexpansion.common.init.ModNoiseParameters;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.SurfaceRules;
@@ -10,7 +11,7 @@ public class SurfaceRuleHelper {
 
     public static SurfaceRules.RuleSource generateDinoSurfaceRules(){
 
-        var waterSandGlassRule = andConditions(
+        var waterSandRule = andConditions(
                 ifElse(
                         SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.2f),
                         SurfaceRules.state(Blocks.SAND.defaultBlockState()),
@@ -19,6 +20,12 @@ public class SurfaceRuleHelper {
                 SurfaceRules.ON_FLOOR,
                 SurfaceRules.abovePreliminarySurface()
         );
+
+        var beachSandRule = SurfaceRules.ifTrue(SurfaceRules.isBiome(ModBiomes.PREHISTORIC_COAST), SurfaceRules.sequence(
+                SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
+                SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
+
+        ) );
 
         var surfaceRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
@@ -34,7 +41,8 @@ public class SurfaceRuleHelper {
                 SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
 
         return SurfaceRules.sequence(
-                waterSandGlassRule,
+                waterSandRule,
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  beachSandRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  surfaceRule),
                 stoneDeepslateRule
         );
