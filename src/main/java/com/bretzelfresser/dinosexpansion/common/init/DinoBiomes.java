@@ -267,6 +267,18 @@ public class DinoBiomes {
     }
 
 
+    public static Biome makePrehistoricOcean(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup) {
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+        var spawnSettings = new MobSpawnSettings.Builder();
+        return biome(true, 0.5F, 0.5F, spawnSettings, genSettingsBuilder, null);
+    }
+
+    public static Biome makeDeepPrehistoricOcean(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup) {
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+        var spawnSettings = new MobSpawnSettings.Builder();
+        return biome(true, 0.5F, 0.5F, spawnSettings, genSettingsBuilder, null);
+    }
+
     public static int calculateSkyColor(float temperature) {
         float $$1 = temperature / 3.0F;
         $$1 = Mth.clamp($$1, -1.0F, 1.0F);

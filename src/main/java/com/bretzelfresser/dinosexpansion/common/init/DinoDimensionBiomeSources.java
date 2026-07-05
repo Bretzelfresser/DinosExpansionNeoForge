@@ -6,7 +6,7 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 public class DinoDimensionBiomeSources {
 
 
-    public static BiomeSource createDinoDimensionBiomeSource(){
-        MultiNoiseBiomeSource source = new
-    }
+    // public static BiomeSource createDinoDimensionBiomeSource(){
+    //     MultiNoiseBiomeSource source = new
+    // }
 }

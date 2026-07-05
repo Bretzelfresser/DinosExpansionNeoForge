@@ -22,6 +22,8 @@ public class ModBiomes {
     public static final ResourceKey<Biome> BONE_DESERT = create("bone_desert");
     public static final ResourceKey<Biome> PETRIFIED_BADLANDS = create("petrified_badlands");
     public static final ResourceKey<Biome> ANCIENT_GLACIAL_TUNDRA = create("ancient_glacial_tundra");
+    public static final ResourceKey<Biome> PREHISTORIC_OCEAN = create("prehistoric_ocean");
+    public static final ResourceKey<Biome> DEEP_PREHISTORIC_OCEAN = create("deep_prehistoric_ocean");
 
     public static void bootstrap(BootstrapContext<Biome> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -57,6 +59,8 @@ public class ModBiomes {
         context.register(BONE_DESERT, DinoBiomes.makeBoneDesert(placedFeatures, configuredCarvers));
         context.register(PETRIFIED_BADLANDS, DinoBiomes.makePetrifiedBadlands(placedFeatures, configuredCarvers));
         context.register(ANCIENT_GLACIAL_TUNDRA, DinoBiomes.makeAncientGlacialTundra(placedFeatures, configuredCarvers));
+        context.register(PREHISTORIC_OCEAN, DinoBiomes.makePrehistoricOcean(placedFeatures, configuredCarvers));
+        context.register(DEEP_PREHISTORIC_OCEAN, DinoBiomes.makeDeepPrehistoricOcean(placedFeatures, configuredCarvers));
     }
 
 
