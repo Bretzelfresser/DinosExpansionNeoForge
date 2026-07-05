@@ -20,6 +20,8 @@ public class DinoBiomes {
     public static Biome makeRedwoodForest(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.MEGA_PREHISTORIC_REDWOOD_PLACED);
+
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 
 

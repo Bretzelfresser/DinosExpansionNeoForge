@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.GiantJungleTreeConfiguration;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineTrunkPlacer;
 import com.bretzelfresser.dinosexpansion.common.worldgen.tree.PineFoliagePlacer;
+import com.bretzelfresser.dinosexpansion.common.worldgen.tree.RedwoodTreeConfiguration;
 import com.bretzelfresser.dinosexpansion.util.TrunkForm;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -54,18 +55,19 @@ public class ModConfiguredFeatures {
                 new TwoLayersFeatureSize(1, 1, 2)
         ).build()));
 
-        context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
+        context.register(MEGA_PREHISTORIC_REDWOOD, new ConfiguredFeature<>(ModFeatures.REDWOOD_TREE_FEATURE.get(), new RedwoodTreeConfiguration(
+                UniformInt.of(3, 4), // radius
+                UniformFloat.of(13, 16), // radiusToHeightFactor: 3 * 13..16 = 39..48 blocks tall
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
-                new PineTrunkPlacer.Builder(20, 8, 4)
-                        .bottomRadius(1)
-                        .topRadius(0)
-                        .thicknessSpline(0.7f)
-                        .form(TrunkForm.CIRCLE)
-                        .build(),
                 BlockStateProvider.simple(Blocks.SPRUCE_LEAVES),
-                new PineFoliagePlacer(UniformFloat.of(0.4f, 0.6f), UniformFloat.of(0.1f, 0.3f), ConstantInt.of(1), ConstantInt.of(4), ConstantInt.of(3)),
-                new TwoLayersFeatureSize(1, 2, 4)
-        ).build()));
+                UniformFloat.of(0.3f, 0.4f), // branchStartHeight
+                ConstantInt.of(2), // branchInterval
+                UniformInt.of(3, 5), // branchesPerInterval
+                UniformInt.of(7, 10), // branchLength
+                UniformInt.of(2, 3), // foliageRadius
+                UniformInt.of(3, 5), // rootFlareHeight
+                UniformInt.of(2, 4) // rootFlareLength
+        )));
 
         context.register(TEST_TREE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(
                 BlockStateProvider.simple(Blocks.SPRUCE_LOG),
