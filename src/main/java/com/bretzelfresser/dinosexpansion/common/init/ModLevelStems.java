@@ -27,11 +27,12 @@ public class ModLevelStems {
     public static void bootstrap(BootstrapContext<LevelStem> context) {
         HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
+
         HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
 
         context.register(DINO_LEVEL_STEM_KEY, new LevelStem(
                 dimTypes.getOrThrow(ModDimensionTypes.DINO_DIM_TYPE_KEY),
-                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(ModBiomes.PRIMORDIAL_JUNGLE)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
+                new NoiseBasedChunkGenerator(new FixedBiomeSource(biomes.getOrThrow(ModBiomes.REDWOOD_FOREST)), noiseSettings.getOrThrow(ModNoiseGeneratorSettings.DINO_NOISE_SETTINGS_KEY))
         ));
     }
 }
