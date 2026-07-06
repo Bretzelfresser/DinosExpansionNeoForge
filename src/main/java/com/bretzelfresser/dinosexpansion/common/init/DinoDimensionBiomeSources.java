@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
+import ca.weblite.objc.Client;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -116,7 +117,15 @@ public class DinoDimensionBiomeSources {
                     normalTemperature(),
                     normalHumidity(),
                     continents,
-                    normalErosion(),
+                    Climate.Parameter.span(-.5f, 0f),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
+                    normalTemperature(),
+                    normalHumidity(),
+                    continents,
+                    Climate.Parameter.span(0f, .5f),
                     all(),
                     all()
             );
