@@ -37,17 +37,120 @@ public class DinoDimensionBiomeSources {
         );
 
         makeBeach(parameters, biomes, Climate.Parameter.span(-0.05f, .15f));
+        makeNormalInland(parameters, biomes, Climate.Parameter.span(.15f, 1f));
 
-        addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
-                all(),
-                all(),
-                Climate.Parameter.span(0.15F, 1F),
-                all(),
-                all(),
-                all()
-        );
 
         return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(parameters));
+    }
+
+    protected static void makeNormalInland(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,
+                                    HolderGetter<Biome> biomes,
+                                           Climate.Parameter continents){
+
+        {//hot scope -> just for me for orientation
+            //hot will be desert
+            //hot and dry and not very hilly -> desert
+            addBiome(parameters, biomes, ModBiomes.BONE_DESERT,
+                    hot(true),
+                    dry(true),
+                    continents,
+                    steep(false),
+                    all(),
+                    all()
+            );
+            //got and dry and mountains -> badlands
+            addBiome(parameters, biomes, ModBiomes.PETRIFIED_BADLANDS,
+                    hot(true),
+                    dry(true),
+                    continents,
+                    steep(true),
+                    all(),
+                    all()
+            );
+
+            addBiome(parameters, biomes, ModBiomes.GEYSER_VALLEY,
+                    hot(true),
+                    normalHumidity(),
+                    continents,
+                    all(),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.PRIMORDIAL_JUNGLE,
+                    hot(true),
+                    wet(true),
+                    continents,
+                    all(),
+                    all(),
+                    all()
+            );
+        }
+        {//normal termperature (-.5, .5)
+            addBiome(parameters, biomes, ModBiomes.FOGGY_SWAMP,
+                    normalTemperature(),
+                    wet(true),
+                    continents,
+                    flat(true),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.DELTA_MANGROVE,
+                    normalTemperature(),
+                    wet(true),
+                    continents,
+                    normalErosion(),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
+                    normalTemperature(),
+                    wet(true),
+                    continents,
+                    steep(true),
+                    all(),
+                    all()
+            );
+
+
+            addBiome(parameters, biomes, ModBiomes.REDWOOD_FOREST,
+                    normalTemperature(),
+                    normalHumidity(),
+                    continents,
+                    normalErosion(),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
+                    normalTemperature(),
+                    normalHumidity(),
+                    continents,
+                    steep(true),
+                    all(),
+                    all()
+            );
+            addBiome(parameters, biomes, ModBiomes.FERN_PLAINS,
+                    normalTemperature(),
+                    normalHumidity(),
+                    continents,
+                    flat(true),
+                    all(),
+                    all()
+            );
+        }
+        {//cold (-.5, -1)
+            addBiome(parameters, biomes, ModBiomes.ANCIENT_GLACIAL_TUNDRA,
+                    frozen(true),
+                    all(),
+                    continents,
+                    all(),
+                    all(),
+                    all()
+            );
+        }
+
+
+
+
     }
 
     protected static void makeBeach(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,
@@ -55,7 +158,7 @@ public class DinoDimensionBiomeSources {
                                     Climate.Parameter continents){
         //HOT beaches
         //when hot always bone desert
-        addBiome(parameters, biomes, ModBiomes.BONE_DESERT,
+        addBiome(parameters, biomes, ModBiomes.PREHISTORIC_COAST,
                 hot(true),
                 all(),
                 continents,
@@ -156,6 +259,14 @@ public class DinoDimensionBiomeSources {
 
     private static Climate.Parameter wet(boolean wet){
         return wet ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+    }
+
+    private static Climate.Parameter dry(boolean dry){
+        return dry ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
+    }
+
+    private static Climate.Parameter normalHumidity(){
+        return Climate.Parameter.span(-.5f, .5f);
     }
 
 
