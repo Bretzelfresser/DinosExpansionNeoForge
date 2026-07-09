@@ -1,6 +1,5 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
-import ca.weblite.objc.Client;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -45,8 +44,8 @@ public class DinoDimensionBiomeSources {
     }
 
     protected static void makeNormalInland(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,
-                                    HolderGetter<Biome> biomes,
-                                           Climate.Parameter continents){
+                                           HolderGetter<Biome> biomes,
+                                           Climate.Parameter continents) {
 
         {//hot scope -> just for me for orientation
             //hot will be desert
@@ -158,13 +157,11 @@ public class DinoDimensionBiomeSources {
         }
 
 
-
-
     }
 
     protected static void makeBeach(List<Pair<Climate.ParameterPoint, Holder<Biome>>> parameters,
                                     HolderGetter<Biome> biomes,
-                                    Climate.Parameter continents){
+                                    Climate.Parameter continents) {
         //HOT beaches
         //when hot always bone desert
         addBiome(parameters, biomes, ModBiomes.PREHISTORIC_COAST,
@@ -231,55 +228,57 @@ public class DinoDimensionBiomeSources {
 
     }
 
-    private static Climate.Parameter land(){
+    private static Climate.Parameter land() {
         return Climate.Parameter.span(-0.05f, 1f);
     }
-    private static Climate.Parameter landWithoutBeach(){
+
+    private static Climate.Parameter landWithoutBeach() {
         return Climate.Parameter.span(0.05f, 1f);
     }
 
-    private static Climate.Parameter beach(){
+    private static Climate.Parameter beach() {
         return Climate.Parameter.span(-0.05f, 0.05f);
     }
 
-    private static Climate.Parameter flat(boolean flat){
+    private static Climate.Parameter flat(boolean flat) {
         return flat ? Climate.Parameter.span(-1f, -0.5f) : Climate.Parameter.span(-.5f, 1f);
     }
 
-    private static Climate.Parameter normalErosion(){
+    private static Climate.Parameter normalErosion() {
         return Climate.Parameter.span(-0.5f, 0.5f);
     }
-    private static Climate.Parameter steep(boolean steep){
+
+    private static Climate.Parameter steep(boolean steep) {
         return steep ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
     }
 
-    private static Climate.Parameter frozen(boolean frozen){
+    private static Climate.Parameter frozen(boolean frozen) {
         return frozen ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
     }
 
-    private static Climate.Parameter normalTemperature(){
+    private static Climate.Parameter normalTemperature() {
         return Climate.Parameter.span(-.5f, .5f);
     }
 
-    private static Climate.Parameter hot(boolean hot){
+    private static Climate.Parameter hot(boolean hot) {
         return hot ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
     }
 
 
-    private static Climate.Parameter wet(boolean wet){
+    private static Climate.Parameter wet(boolean wet) {
         return wet ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
     }
 
-    private static Climate.Parameter dry(boolean dry){
+    private static Climate.Parameter dry(boolean dry) {
         return dry ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
     }
 
-    private static Climate.Parameter normalHumidity(){
+    private static Climate.Parameter normalHumidity() {
         return Climate.Parameter.span(-.5f, .5f);
     }
 
 
-    private static Climate.Parameter all(){
+    private static Climate.Parameter all() {
         return Climate.Parameter.span(-1f, 1f);
     }
 
