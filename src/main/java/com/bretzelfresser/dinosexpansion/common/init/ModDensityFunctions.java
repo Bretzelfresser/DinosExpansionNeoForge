@@ -96,13 +96,13 @@ public class ModDensityFunctions {
 
         var erosionMountainSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
                 .addPoint(-1f, 0.1f)
-                .addPoint(1f, 1f)
+                .addPoint(1f, 2.8f)
                 .build();
 
         // depthSpline = 0.0 at Y = 63 (sea level).
         // Since Y ranges from 3 to 156, the fraction at Y = 63 is (63-3)/(156-3) = 60/153 = 20/51.
         // Choosing minVal = 1.0d and maxVal = -1.55d results in 1.0 + (20/51) * (-2.55) = 1.0 - 1.0 = 0.0.
-        var depthSpline = DensityFunctions.yClampedGradient(3, 156, 1.01d, -1.55d);
+        var depthSpline = DensityFunctions.yClampedGradient(3, 256, 1.0d, -3.22d);
 
         var surfaceContinentalSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refContinents))
                 .addPoint(-1.0f, -1f, 0.0f)     // Deep Ocean (Y ~ 3)
