@@ -34,6 +34,8 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStatePr
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 
+import com.bretzelfresser.dinosexpansion.common.worldgen.feature.HotSpringFeature;
+
 import java.util.List;
 
 public class ModConfiguredFeatures {
@@ -50,12 +52,12 @@ public class ModConfiguredFeatures {
         var featureLookup = context.lookup(Registries.FEATURE);
         var placedFeatureLookup = context.lookup(Registries.FEATURE);
 
-        List<OreConfiguration.TargetBlockState> targets = List.of(
-                OreConfiguration.target(new TagMatchTest(BlockTags.BASE_STONE_OVERWORLD), Blocks.WATER.defaultBlockState()),
-                OreConfiguration.target(new TagMatchTest(BlockTags.DIRT), Blocks.WATER.defaultBlockState()),
-                OreConfiguration.target(new BlockMatchTest(Blocks.GRASS_BLOCK), Blocks.WATER.defaultBlockState())
-        );
-        context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(targets, 24)));
+        context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(ModFeatures.GEYSER_HOT_SPRING_FEATURE.get(), new HotSpringFeature.Configuration(
+                BlockStateProvider.simple(Blocks.WATER),
+                BlockStateProvider.simple(Blocks.CALCITE),
+                8, // size (radius)
+                4  // depth
+        )));
 
         context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(2000, 10, 4,
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))
