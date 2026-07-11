@@ -54,9 +54,35 @@ public class OasisStructurePieces {
             int radius = this.size;
             int depth = 2;
 
+            // 1. Scan the area to find the minimum surface Y level (minY)
+            int minY = this.center.getY();
+            boolean foundAnySurface = false;
+
+            for (int xOffset = -radius - 3; xOffset <= radius + 3; xOffset++) {
+                for (int zOffset = -radius - 3; zOffset <= radius + 3; zOffset++) {
+                    if (xOffset * xOffset + zOffset * zOffset <= (radius + 3) * (radius + 3)) {
+                        int x = this.center.getX() + xOffset;
+                        int z = this.center.getZ() + zOffset;
+                        BlockPos surfPos = getSurface(level, new BlockPos(x, this.center.getY(), z));
+                        if (surfPos != null) {
+                            int surfY = surfPos.getY() - 1;
+                            if (!foundAnySurface) {
+                                minY = surfY;
+                                foundAnySurface = true;
+                            } else {
+                                minY = Math.min(minY, surfY);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Clamp minY to avoid pulling the oasis too deep
+            minY = Math.max(minY, this.center.getY() - 4);
+
             BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
-            // Carve and place pond
+            // 2. Loop through columns to generate the flat recessed basin relative to minY
             for (int xOffset = -radius - 3; xOffset <= radius + 3; xOffset++) {
                 for (int zOffset = -radius - 3; zOffset <= radius + 3; zOffset++) {
                     double r = Math.sqrt(xOffset * xOffset + zOffset * zOffset);
@@ -65,21 +91,18 @@ public class OasisStructurePieces {
                     int x = this.center.getX() + xOffset;
                     int z = this.center.getZ() + zOffset;
 
-                    // Find surface
-                    BlockPos surfPos = getSurface(level, new BlockPos(x, this.center.getY(), z));
-                    if (surfPos == null) continue;
-                    int surfY = surfPos.getY() - 1;
-
                     if (r < radius) {
-                        // We are inside the pond basin
+                        // Pond Basin
                         double depthRatio = r / radius;
                         int localDepth = (int) Math.round(depth * (1.0 - depthRatio * depthRatio)) + 1;
 
-                        // Carve air above water, place water inside, place clay/mud/moss at the bottom
-                        for (int yOffset = 4; yOffset >= -localDepth - 1; yOffset--) {
-                            int currentY = surfY + yOffset;
+                        for (int yOffset = 6; yOffset >= -localDepth - 1; yOffset--) {
+                            int currentY = minY + yOffset;
                             mutablePos.set(x, currentY, z);
+                            if (level.isOutsideBuildHeight(currentY)) continue;
+
                             if (yOffset > 0) {
+                                // Clear air above the water
                                 level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
                             } else if (yOffset >= -localDepth) {
                                 // Place water
@@ -91,31 +114,34 @@ public class OasisStructurePieces {
                             }
                         }
                     } else if (r < radius + 2.5) {
-                        // Pond border: place moss blocks, mud, grass, clay on the surface
-                        for (int yOffset = 2; yOffset >= -2; yOffset--) {
-                            int currentY = surfY + yOffset;
+                        // Pond border: place moss blocks, mud, grass, clay on the flat surface
+                        for (int yOffset = 6; yOffset >= -3; yOffset--) {
+                            int currentY = minY + yOffset;
                             mutablePos.set(x, currentY, z);
-                            BlockState original = level.getBlockState(mutablePos);
-                            if (!original.isAir() && original.getFluidState().isEmpty()) {
+                            if (level.isOutsideBuildHeight(currentY)) continue;
+
+                            if (yOffset > 0) {
+                                // Clear air above the border
+                                level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
+                            } else if (yOffset == 0) {
+                                // Place border cover block
                                 BlockState cover;
-                                if (random.nextFloat() < 0.5f) {
+                                float f = random.nextFloat();
+                                if (f < 0.4f) {
                                     cover = Blocks.MOSS_BLOCK.defaultBlockState();
-                                } else if (random.nextFloat() < 0.7f) {
+                                } else if (f < 0.7f) {
                                     cover = Blocks.MUD.defaultBlockState();
                                 } else {
                                     cover = Blocks.GRASS_BLOCK.defaultBlockState();
                                 }
                                 level.setBlock(mutablePos, cover, 2);
-                                // Set dirt underneath
-                                level.setBlock(mutablePos.below(), Blocks.DIRT.defaultBlockState(), 2);
-                                
-                                // Place decorations on top
+
+                                // Place vegetation on top
                                 BlockPos topPos = mutablePos.above();
                                 if (level.getBlockState(topPos).isAir()) {
                                     if (random.nextFloat() < 0.2f) {
                                         level.setBlock(topPos, Blocks.FERN.defaultBlockState(), 2);
                                     } else if (random.nextFloat() < 0.1f) {
-                                        // Sugar cane at the water edge
                                         if (r < radius + 1.2) {
                                             level.setBlock(topPos, Blocks.SUGAR_CANE.defaultBlockState(), 2);
                                             if (random.nextBoolean()) {
@@ -124,27 +150,27 @@ public class OasisStructurePieces {
                                         }
                                     }
                                 }
-                                break;
+                            } else {
+                                // Under-layer seal (dirt underneath the border cover)
+                                level.setBlock(mutablePos, Blocks.DIRT.defaultBlockState(), 2);
                             }
                         }
                     }
                 }
             }
 
-            // 3. Spawn a couple of custom Palm Trees
+            // 3. Spawn Palm Trees standing flat at minY + 1 on the border
             int palmCount = random.nextInt(2) + 2; // 2 to 3 palms
             for (int i = 0; i < palmCount; i++) {
                 double angle = random.nextDouble() * 2.0 * Math.PI;
-                double dist = radius + 1.2 + random.nextDouble() * 1.2;
+                double dist = radius + 0.8 + random.nextDouble() * 1.2;
                 int px = this.center.getX() + (int) Math.round(Math.cos(angle) * dist);
                 int pz = this.center.getZ() + (int) Math.round(Math.sin(angle) * dist);
                 
-                BlockPos palmBase = getSurface(level, new BlockPos(px, this.center.getY(), pz));
-                if (palmBase != null) {
-                    BlockState baseState = level.getBlockState(palmBase.below());
-                    if (baseState.is(Blocks.MOSS_BLOCK) || baseState.is(Blocks.MUD) || baseState.is(Blocks.GRASS_BLOCK) || baseState.is(Blocks.SAND)) {
-                        generatePalmTree(level, palmBase, random);
-                    }
+                BlockPos palmBase = new BlockPos(px, minY + 1, pz);
+                BlockState baseState = level.getBlockState(palmBase.below());
+                if (baseState.is(Blocks.MOSS_BLOCK) || baseState.is(Blocks.MUD) || baseState.is(Blocks.GRASS_BLOCK) || baseState.is(Blocks.SAND) || baseState.is(Blocks.DIRT)) {
+                    generatePalmTree(level, palmBase, random);
                 }
             }
         }
