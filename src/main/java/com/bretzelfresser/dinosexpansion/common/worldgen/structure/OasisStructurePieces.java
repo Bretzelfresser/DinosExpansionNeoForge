@@ -53,6 +53,7 @@ public class OasisStructurePieces {
                 ChunkPos chunkPos,
                 BlockPos origin
         ) {
+
             DinosExpansion.LOGGER.debug("generating Oasis piece at: {}", this.center);
 
             // 1. Create a deterministic random source based on the center coordinates
@@ -159,6 +160,7 @@ public class OasisStructurePieces {
 
             // 3. Spawn Palm Trees standing flat at baseY + 1 on the border
             int palmCount = deterministicRandom.nextInt(2) + 2; // 2 to 3 palms
+            DinosExpansion.LOGGER.debug("generating Oasis with {} palm trees", palmCount);
             for (int i = 0; i < palmCount; i++) {
                 double angle = deterministicRandom.nextDouble() * 2.0 * Math.PI;
                 double dist = radius + 0.8 + deterministicRandom.nextDouble() * 1.2;
@@ -179,9 +181,7 @@ public class OasisStructurePieces {
             for (int y = 0; y < height; y++) {
                 if (level.isOutsideBuildHeight(current.getY())) break;
 
-                if (box.isInside(current)) {
-                    level.setBlock(current, Blocks.JUNGLE_LOG.defaultBlockState(), 2);
-                }
+                level.setBlock(current, Blocks.JUNGLE_LOG.defaultBlockState(), 2);
 
                 if (y > 2 && y % 3 == 0) {
                     // Shift horizontally and place an elbow connector log to ensure connection!
