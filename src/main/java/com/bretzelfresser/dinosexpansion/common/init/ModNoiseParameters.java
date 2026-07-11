@@ -42,7 +42,7 @@ public class ModNoiseParameters {
 
 
     public static void bootstrap(BootstrapContext<NormalNoise.NoiseParameters> context) {
-        context.register(CONTINENTS, new NormalNoise.NoiseParameters(-10, 1.0, 1.0, 0, 0.75, 0, 0.25));
+        context.register(CONTINENTS, new NormalNoise.NoiseParameters(-10, 1.5, 1.0, 0, 0.75, 0, 1));
         context.register(DEEP_UNDERGROUND_CAVES, new NormalNoise.NoiseParameters(-6, 1.0, 1.0, 0, 0.2, 0, 0.25));
         context.register(DEEP_UNDERGROUND_CAVE_SIZE, new NormalNoise.NoiseParameters(-5, 1.0 ));
         context.register(UNDERGROUND_CAVES, new NormalNoise.NoiseParameters(-5, 1.0, 1));

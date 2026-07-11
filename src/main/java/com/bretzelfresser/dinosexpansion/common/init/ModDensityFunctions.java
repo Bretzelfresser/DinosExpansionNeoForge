@@ -33,8 +33,8 @@ public class ModDensityFunctions {
         var noiseLookup = context.lookup(Registries.NOISE);
         var densityLookup = context.lookup(Registries.DENSITY_FUNCTION);
 
-        context.register(TEMPERATURE, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.TEMPERATURE), 1f, 0f));
-        context.register(HUMIDITY, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.HUMIDITY), 1f, 0f));
+        context.register(TEMPERATURE, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.TEMPERATURE), .25f, 0f));
+        context.register(HUMIDITY, DensityFunctions.noise(noiseLookup.getOrThrow(ModNoiseParameters.HUMIDITY), .25f, 0f));
 
         context.register(ZERO_DENSITY_KEY, DensityFunctions.zero());
         var refDepth = context.register(DEPTH, DensityFunctions.yClampedGradient(-64, 320, (double)1.5F, (double)-1.5F));
@@ -89,8 +89,8 @@ public class ModDensityFunctions {
 
         var erosionInlandSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(refErosion))
                 .addPoint(-1f, riverNegativeCliffSpline)
-                .addPoint(-.4f, riverNegativeCliffSpline)
-                .addPoint(1f, 0.8f)
+                .addPoint(0f, riverNegativeCliffSpline)
+                .addPoint(1f, 1.5f)
                 .build();
 
 

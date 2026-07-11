@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.sounds.Music;
@@ -188,6 +189,7 @@ public class DinoBiomes {
     public static Biome makeDeltaMangrove(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
+        BiomeDefaultFeatures.addMangroveSwampVegetation(genSettingsBuilder);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 
