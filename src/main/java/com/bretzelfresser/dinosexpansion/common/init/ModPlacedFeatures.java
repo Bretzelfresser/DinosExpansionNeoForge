@@ -25,7 +25,7 @@ public class ModPlacedFeatures {
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
 
         PlacementUtils.register(ctx, GEYSER_HOT_SPRING_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.GEYSER_HOT_SPRING),
-                RarityFilter.onAverageOnceEvery(12),
+                RarityFilter.onAverageOnceEvery(3),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
                 BiomeFilter.biome()
