@@ -22,6 +22,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.LakeFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStatePr
 
 public class ModConfiguredFeatures {
 
+    public static final ResourceKey<ConfiguredFeature<?, ?>> GEYSER_HOT_SPRING = create("geyser_hot_spring");
     public static final ResourceKey<ConfiguredFeature<?, ?>> FERN_PATCH = create("fern_patch");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TALL_PREHISTORIC_PINE = create("tall_prehistoric_pine");
     public static final ResourceKey<ConfiguredFeature<?, ?>> MEGA_PREHISTORIC_REDWOOD = create("mega_prehistoric_redwood");
@@ -41,6 +44,8 @@ public class ModConfiguredFeatures {
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         var featureLookup = context.lookup(Registries.FEATURE);
         var placedFeatureLookup = context.lookup(Registries.FEATURE);
+
+        context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(Feature.LAKE, new LakeFeature.Configuration(BlockStateProvider.simple(Blocks.WATER), BlockStateProvider.simple(Blocks.CALCITE))));
 
         context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(2000, 10, 4,
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))

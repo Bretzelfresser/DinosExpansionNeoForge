@@ -12,6 +12,7 @@ import net.minecraft.world.level.levelgen.placement.*;
 public class ModPlacedFeatures {
 
 
+    public static final ResourceKey<PlacedFeature> GEYSER_HOT_SPRING_PLACED = create("geyser_hot_spring_placed");
     public static final ResourceKey<PlacedFeature> FERN_PLAINS_FERN = create("fern_plains_fern");
     public static final ResourceKey<PlacedFeature> PREHISTORIC_PINE_PLACED = create("prehistoric_pine_placed");
     public static final ResourceKey<PlacedFeature> MEGA_PREHISTORIC_REDWOOD_PLACED = create("mega_prehistoric_redwood_placed");
@@ -22,6 +23,13 @@ public class ModPlacedFeatures {
 
     public static void generate(BootstrapContext<PlacedFeature> ctx){
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
+
+        PlacementUtils.register(ctx, GEYSER_HOT_SPRING_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.GEYSER_HOT_SPRING),
+                RarityFilter.onAverageOnceEvery(12),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
+                BiomeFilter.biome()
+        );
 
         PlacementUtils.register(ctx, FERN_PLAINS_FERN, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.FERN_PATCH),
                 RarityFilter.onAverageOnceEvery(1),

@@ -80,6 +80,7 @@ public class DinoBiomes {
     public static Biome makeGeyserValley(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup){
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
 
+        genSettingsBuilder.addFeature(GenerationStep.Decoration.LAKES, ModPlacedFeatures.GEYSER_HOT_SPRING_PLACED);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 

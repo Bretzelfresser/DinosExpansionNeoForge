@@ -31,6 +31,92 @@ public class SurfaceRuleHelper {
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
 
 
+        var geyserValleySurfaceRule = SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.GEYSER_VALLEY),
+                SurfaceRules.sequence(
+                        // Underwater floor rule
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.waterBlockCheck(-1, 0),
+                                SurfaceRules.ifTrue(
+                                        SurfaceRules.ON_FLOOR,
+                                        SurfaceRules.sequence(
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, 0.2, 1.0),
+                                                        SurfaceRules.state(Blocks.MAGMA_BLOCK.defaultBlockState())
+                                                ),
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.HUMIDITY, 0.2, 1.0),
+                                                        SurfaceRules.state(Blocks.SOUL_SAND.defaultBlockState())
+                                                ),
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.EROSION, 0.4, 1.0),
+                                                        SurfaceRules.state(Blocks.OBSIDIAN.defaultBlockState())
+                                                ),
+                                                ifElse(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, -0.2, 0.2),
+                                                        SurfaceRules.state(Blocks.CLAY.defaultBlockState()),
+                                                        SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                                )
+                                        )
+                                )
+                        ),
+                        // Dry floor rule
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, 0.35, 1.0),
+                                                SurfaceRules.state(Blocks.CALCITE.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.HUMIDITY, 0.3, 1.0),
+                                                SurfaceRules.state(Blocks.YELLOW_TERRACOTTA.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.EROSION, 0.25, 1.0),
+                                                SurfaceRules.state(Blocks.ORANGE_TERRACOTTA.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, -1.0, -0.4),
+                                                SurfaceRules.state(Blocks.CLAY.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.HUMIDITY, -1.0, -0.4),
+                                                SurfaceRules.state(Blocks.MUD.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.EROSION, -1.0, -0.5),
+                                                SurfaceRules.state(Blocks.SMOOTH_BASALT.defaultBlockState())
+                                        ),
+                                        ifElse(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, -0.15, 0.15),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState()),
+                                                SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                        )
+                                )
+                        ),
+                        // Deep under floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR),
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, 0.35, 1.0),
+                                                SurfaceRules.state(Blocks.CALCITE.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.TEMPERATURE, -1.0, -0.4),
+                                                SurfaceRules.state(Blocks.CLAY.defaultBlockState())
+                                        ),
+                                        ifElse(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.HUMIDITY, -0.3, 0.3),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState()),
+                                                SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                        )
+                                )
+                        )
+                )
+        );
+
         var stoneDeepslateRule =  SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(63), 0),
                         SurfaceRules.sequence(
                                 andConditions(SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()),
@@ -43,6 +129,7 @@ public class SurfaceRuleHelper {
         return SurfaceRules.sequence(
                 waterSandRule,
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  beachSandRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  geyserValleySurfaceRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  surfaceRule),
                 stoneDeepslateRule
         );
