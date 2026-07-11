@@ -11,6 +11,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.ToFloatFunction;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -22,14 +23,18 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.LakeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+
+import java.util.List;
 
 public class ModConfiguredFeatures {
 
@@ -45,7 +50,12 @@ public class ModConfiguredFeatures {
         var featureLookup = context.lookup(Registries.FEATURE);
         var placedFeatureLookup = context.lookup(Registries.FEATURE);
 
-        context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(Feature.LAKE, new LakeFeature.Configuration(BlockStateProvider.simple(Blocks.WATER), BlockStateProvider.simple(Blocks.CALCITE))));
+        List<OreConfiguration.TargetBlockState> targets = List.of(
+                OreConfiguration.target(new TagMatchTest(BlockTags.BASE_STONE_OVERWORLD), Blocks.WATER.defaultBlockState()),
+                OreConfiguration.target(new TagMatchTest(BlockTags.DIRT), Blocks.WATER.defaultBlockState()),
+                OreConfiguration.target(new BlockMatchTest(Blocks.GRASS_BLOCK), Blocks.WATER.defaultBlockState())
+        );
+        context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(Feature.ORE, new OreConfiguration(targets, 24)));
 
         context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(2000, 10, 4,
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))
