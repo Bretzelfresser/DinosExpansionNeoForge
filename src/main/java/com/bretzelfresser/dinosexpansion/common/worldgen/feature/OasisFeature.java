@@ -24,17 +24,16 @@ public class OasisFeature extends Feature<NoneFeatureConfiguration> {
         RandomSource random = context.random();
 
         // 1. Edge Prevention Check: Check surrounding offsets.
-        // If any surrounding block (16 blocks away in cardinal directions) is not BONE_DESERT, abort.
         int[] offsets = {-16, 16};
         for (int dx : offsets) {
             BlockPos checkPos = origin.offset(dx, 0, 0);
-            if (!level.getBiome(checkPos).is(ModBiomes.BONE_DESERT)) {
+            if (!isBoneDesert(level, checkPos, origin)) {
                 return false;
             }
         }
         for (int dz : offsets) {
             BlockPos checkPos = origin.offset(0, 0, dz);
-            if (!level.getBiome(checkPos).is(ModBiomes.BONE_DESERT)) {
+            if (!isBoneDesert(level, checkPos, origin)) {
                 return false;
             }
         }
@@ -189,5 +188,16 @@ public class OasisFeature extends Feature<NoneFeatureConfiguration> {
             mPos.move(Direction.DOWN);
         }
         return null;
+    }
+
+    private boolean isBoneDesert(WorldGenLevel level, BlockPos pos, BlockPos origin) {
+        int cx = pos.getX() >> 4;
+        int cz = pos.getZ() >> 4;
+        int centerChunkX = origin.getX() >> 4;
+        int centerChunkZ = origin.getZ() >> 4;
+        if (Math.abs(cx - centerChunkX) > 1 || Math.abs(cz - centerChunkZ) > 1) {
+            return true; // Outside loaded region, safe fallback
+        }
+        return level.getNoiseBiome(pos.getX() >> 2, pos.getY() >> 2, pos.getZ() >> 2).is(ModBiomes.BONE_DESERT);
     }
 }
