@@ -3,6 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.worldgen.feature;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -22,8 +23,8 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
         BlockPos origin = context.origin();
         Configuration config = context.config();
 
-        int size = Math.min(config.size(), 12); // Clamped to ensure it stays in loaded chunks
-        int depth = Math.min(config.depth(), 8);
+        int size = Math.min(config.size().sample(context.random()), 12); // Clamped to ensure it stays in loaded chunks
+        int depth = Math.min(config.depth().sample(context.random()), 8);
 
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
@@ -86,12 +87,12 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
         return true;
     }
 
-    public static record Configuration(BlockStateProvider fluidProvider, BlockStateProvider barrierProvider, int size, int depth) implements FeatureConfiguration {
+    public static record Configuration(BlockStateProvider fluidProvider, BlockStateProvider barrierProvider, IntProvider size, IntProvider depth) implements FeatureConfiguration {
         public static final Codec<Configuration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BlockStateProvider.CODEC.fieldOf("fluid_provider").forGetter(Configuration::fluidProvider),
                 BlockStateProvider.CODEC.fieldOf("barrier_provider").forGetter(Configuration::barrierProvider),
-                Codec.INT.fieldOf("size").forGetter(Configuration::size),
-                Codec.INT.fieldOf("depth").forGetter(Configuration::depth)
+                IntProvider.CODEC.fieldOf("size").forGetter(Configuration::size),
+                IntProvider.CODEC.fieldOf("depth").forGetter(Configuration::depth)
         ).apply(instance, Configuration::new));
     }
 }

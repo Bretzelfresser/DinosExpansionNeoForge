@@ -15,10 +15,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.ToFloatFunction;
 import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.valueproviders.ConstantFloat;
-import net.minecraft.util.valueproviders.ConstantInt;
-import net.minecraft.util.valueproviders.UniformFloat;
-import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.util.valueproviders.*;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -55,8 +52,8 @@ public class ModConfiguredFeatures {
         context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(ModFeatures.GEYSER_HOT_SPRING_FEATURE.get(), new HotSpringFeature.Configuration(
                 BlockStateProvider.simple(Blocks.WATER),
                 BlockStateProvider.simple(Blocks.CALCITE),
-                8, // size (radius)
-                4  // depth
+                BiasedToBottomInt.of(5, 10), // size (radius)
+                UniformInt.of(1, 4)  // depth
         )));
 
         context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(2000, 10, 4,

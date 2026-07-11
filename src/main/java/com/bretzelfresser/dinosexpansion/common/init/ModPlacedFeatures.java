@@ -38,7 +38,7 @@ public class ModPlacedFeatures {
         var flatSurfaceFilter = BlockPredicateFilter.forPredicate(flatSurfacePredicate);
 
         PlacementUtils.register(ctx, GEYSER_HOT_SPRING_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.GEYSER_HOT_SPRING),
-                RarityFilter.onAverageOnceEvery(2),
+                RarityFilter.onAverageOnceEvery(6),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
                 BiomeFilter.biome()
