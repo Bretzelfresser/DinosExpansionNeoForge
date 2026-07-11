@@ -26,13 +26,35 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
         int size = Math.min(config.size().sample(context.random()), 12); // Clamped to ensure it stays in loaded chunks
         int depth = Math.min(config.depth().sample(context.random()), 8);
 
-        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
+        // Find the lowest surface point in the lake area to prevent water from generating in air
+        int minY = origin.getY();
+        BlockPos.MutableBlockPos scanPos = new BlockPos.MutableBlockPos();
 
-        // Check if there is actual ground to carve
-        BlockState originState = level.getBlockState(origin.below());
-        if (originState.isAir() || !originState.getFluidState().isEmpty()) {
-            return false;
+        for (int xOffset = -size; xOffset <= size; xOffset++) {
+            for (int zOffset = -size; zOffset <= size; zOffset++) {
+                if (xOffset * xOffset + zOffset * zOffset <= size * size) {
+                    int x = origin.getX() + xOffset;
+                    int z = origin.getZ() + zOffset;
+
+                    // Find surface Y at this column
+                    int ySurf = origin.getY();
+                    for (int y = origin.getY() + 6; y >= origin.getY() - 10; y--) {
+                        scanPos.set(x, y, z);
+                        BlockState state = level.getBlockState(scanPos);
+                        if (!state.isAir() && state.getFluidState().isEmpty()) {
+                            ySurf = y;
+                            break;
+                        }
+                    }
+                    minY = Math.min(minY, ySurf);
+                }
+            }
         }
+
+        // Clamp minY to avoid pulling the lake into deep caves/ravines
+        minY = Math.max(minY, origin.getY() - 5);
+
+        BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
         // 1. Loop through a bounding box to generate the lake basin
         for (int xOffset = -size - 2; xOffset <= size + 2; xOffset++) {
@@ -42,10 +64,10 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                 // Distort the radius to make it look organic
                 double limit = size * (1.0 + 0.15 * Math.sin(4 * theta) + 0.1 * Math.cos(7 * theta));
 
-                // yOffset from 2 (to clear air above) down to -depth - 1
-                for (int yOffset = 2; yOffset >= -depth - 1; yOffset--) {
+                // yOffset from 10 (to clear air above) down to -depth - 1
+                for (int yOffset = 10; yOffset >= -depth - 1; yOffset--) {
                     int x = origin.getX() + xOffset;
-                    int y = origin.getY() + yOffset;
+                    int y = minY + yOffset; // Relative to the lowest surface point minY
                     int z = origin.getZ() + zOffset;
                     mutablePos.set(x, y, z);
 
@@ -60,13 +82,13 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
 
                     if (r < layerLimit) {
                         if (yOffset >= 0) {
-                            // Carve air above the lake
+                            // Carve air above the lake (clears any slopes/hills above minY)
                             level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
-                        } else if (yOffset >= -depth) { // Y = -1 down to -depth
+                        } else if (yOffset >= -depth) { // Y = minY - 1 down to minY - depth
                             // Place fluid (water)
                             BlockState fluidState = config.fluidProvider().getState(context.random(), mutablePos);
                             level.setBlock(mutablePos, fluidState, 2);
-                        } else { // Y < -depth
+                        } else { // Y < minY - depth
                             // Place barrier at the bottom of the lake (seals the floor)
                             BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
                             level.setBlock(mutablePos, barrierState, 2);
