@@ -26,6 +26,12 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         var random = featurePlaceContext.random();
         var level = featurePlaceContext.level();
 
+        // Safe bounds for 3x3 chunks grid
+        int minX = ((pos.getX() >> 4) - 1) * 16;
+        int maxX = ((pos.getX() >> 4) + 2) * 16 - 1;
+        int minZ = ((pos.getZ() >> 4) - 1) * 16;
+        int maxZ = ((pos.getZ() >> 4) + 2) * 16 - 1;
+
         // 1. Ground Verification
         BlockPos basePos = pos.below();
         if (!isDirtOrGrass(level, basePos)) {
@@ -36,7 +42,9 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         int totalHeight = Math.round((float) radius * config.radiusToHeightFactor().sample(random));
 
         BiConsumer<BlockPos, BlockState> blockSetter = (p, state) -> {
-            level.setBlock(p, state, 19);
+            if (p.getX() >= minX && p.getX() <= maxX && p.getZ() >= minZ && p.getZ() <= maxZ) {
+                level.setBlock(p, state, 19);
+            }
         };
 
         // Set dirt at the base (5-log cross base)
@@ -60,9 +68,26 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
                 double progress = (double) y / (flareHeight + 1);
                 // Trunk covers radius=1 cross. Flare goes beyond it.
                 int lengthAtY = 1 + (int) Math.round(flareLength * (1.0 - progress));
-                for (int i = 1; i <= lengthAtY; i++) {
+                // Clamp root flare length to bounds
+                int clampedRootLength = lengthAtY;
+                int flareBuffer = 2;
+
+                if (dx > 0) {
+                    clampedRootLength = Math.min(clampedRootLength, (maxX - flareBuffer - pos.getX()));
+                } else if (dx < 0) {
+                    clampedRootLength = Math.min(clampedRootLength, (pos.getX() - minX - flareBuffer));
+                }
+
+                if (dz > 0) {
+                    clampedRootLength = Math.min(clampedRootLength, (maxZ - flareBuffer - pos.getZ()));
+                } else if (dz < 0) {
+                    clampedRootLength = Math.min(clampedRootLength, (pos.getZ() - minZ - flareBuffer));
+                }
+                clampedRootLength = Math.max(1, clampedRootLength);
+
+                for (int i = 1; i <= clampedRootLength; i++) {
                     BlockPos flarePos = pos.offset(dx * i, y, dz * i);
-                    placeBlock(level, blockSetter, flarePos, config.woodProvider().getState(random, flarePos), true);
+                    placeBlock(level, blockSetter, flarePos, config.woodProvider().getState(random, flarePos), true, minX, maxX, minZ, maxZ);
                     if (y == 0) {
                         setDirtAt(blockSetter, flarePos.below());
                     }
@@ -83,7 +108,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
             }
             var positions = TrunkForm.SQUARE_WITH_CUTOUT_EDGES.calculateBase(sliceCenter, r);
             positions.forEach(p -> {
-                placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true);
+                placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), true, minX, maxX, minZ, maxZ);
             });
         }
 
@@ -115,16 +140,34 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
                 int dz = dir[1];
 
                 BlockPos start = pos.above(y);
-                BlockPos end = start.offset(dx * length, 0, dz * length);
+
+                // Clamp branch length to safe bounds
+                int clampedLength = length;
+                int buffer = tipRadius + 2;
+
+                if (dx > 0) {
+                    clampedLength = Math.min(clampedLength, (maxX - buffer - start.getX()));
+                } else if (dx < 0) {
+                    clampedLength = Math.min(clampedLength, (start.getX() - minX - buffer));
+                }
+
+                if (dz > 0) {
+                    clampedLength = Math.min(clampedLength, (maxZ - buffer - start.getZ()));
+                } else if (dz < 0) {
+                    clampedLength = Math.min(clampedLength, (start.getZ() - minZ - buffer));
+                }
+                clampedLength = Math.max(1, clampedLength);
+
+                BlockPos end = start.offset(dx * clampedLength, 0, dz * clampedLength);
 
                 // Draw branch wood
-                for (int i = 1; i <= length; i++) {
+                for (int i = 1; i <= clampedLength; i++) {
                     BlockPos p = start.offset(dx * i, 0, dz * i);
-                    placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), false);
+                    placeBlock(level, blockSetter, p, config.woodProvider().getState(random, p), false, minX, maxX, minZ, maxZ);
                 }
 
                 // Place foliage along and at the tip of the branch
-                placeBranchFoliage(level, blockSetter, random, start, end, tipRadius, config);
+                placeBranchFoliage(level, blockSetter, random, start, end, tipRadius, config, minX, maxX, minZ, maxZ);
             }
         }
 
@@ -140,7 +183,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
                 for (int z = -coneRadius; z <= coneRadius; z++) {
                     if (x * x + z * z <= coneRadius * coneRadius) {
                         BlockPos leafPos = sliceCenter.offset(x, 0, z);
-                        if (isReplaceable(level, leafPos)) {
+                        if (isReplaceable(level, leafPos, minX, maxX, minZ, maxZ)) {
                             blockSetter.accept(leafPos, config.foliageProvider().getState(random, leafPos));
                         }
                     }
@@ -151,9 +194,9 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         return true;
     }
 
-    private void placeBranchFoliage(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int tipRadius, RedwoodTreeConfiguration config) {
+    private void placeBranchFoliage(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos start, BlockPos end, int tipRadius, RedwoodTreeConfiguration config, int minX, int maxX, int minZ, int maxZ) {
         // 1. Tip foliage: place a leafy blob at the end of the branch
-        placeLeafBlob(level, blockSetter, random, end, tipRadius, config);
+        placeLeafBlob(level, blockSetter, random, end, tipRadius, config, minX, maxX, minZ, maxZ);
 
         // 2. Along-branch foliage: place flat sprays of leaves
         int x1 = start.getX();
@@ -185,7 +228,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
                     p.north().east(), p.north().west(), p.south().east(), p.south().west()
                 };
                 for (BlockPos leafPos : sprayY) {
-                    if (isReplaceable(level, leafPos)) {
+                    if (isReplaceable(level, leafPos, minX, maxX, minZ, maxZ)) {
                         blockSetter.accept(leafPos, config.foliageProvider().getState(random, leafPos));
                     }
                 }
@@ -196,7 +239,7 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
                     p.above().north(), p.above().south(), p.above().east(), p.above().west()
                 };
                 for (BlockPos leafPos : sprayAbove) {
-                    if (isReplaceable(level, leafPos)) {
+                    if (isReplaceable(level, leafPos, minX, maxX, minZ, maxZ)) {
                         blockSetter.accept(leafPos, config.foliageProvider().getState(random, leafPos));
                     }
                 }
@@ -204,14 +247,14 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         }
     }
 
-    private void placeLeafBlob(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos center, int radius, RedwoodTreeConfiguration config) {
+    private void placeLeafBlob(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, RandomSource random, BlockPos center, int radius, RedwoodTreeConfiguration config, int minX, int maxX, int minZ, int maxZ) {
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
                     double distSq = (x * x) + (y * y * 1.8) + (z * z);
                     if (distSq <= radius * radius) {
                         BlockPos leafPos = center.offset(x, y, z);
-                        if (isReplaceable(level, leafPos)) {
+                        if (isReplaceable(level, leafPos, minX, maxX, minZ, maxZ)) {
                             BlockState leafState = config.foliageProvider().getState(random, leafPos);
                             blockSetter.accept(leafPos, leafState);
                         }
@@ -221,7 +264,10 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         }
     }
 
-    private boolean isReplaceable(WorldGenLevel level, BlockPos pos) {
+    private boolean isReplaceable(WorldGenLevel level, BlockPos pos, int minX, int maxX, int minZ, int maxZ) {
+        if (pos.getX() < minX || pos.getX() > maxX || pos.getZ() < minZ || pos.getZ() > maxZ) {
+            return false;
+        }
         if (level.isOutsideBuildHeight(pos)) {
             return false;
         }
@@ -234,8 +280,8 @@ public class RedwoodTreeFeature extends Feature<RedwoodTreeConfiguration> {
         return state.is(BlockTags.DIRT) || state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MOSS_BLOCK);
     }
 
-    private void placeBlock(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, BlockPos pos, BlockState state, boolean force) {
-        if (force || isReplaceable(level, pos)) {
+    private void placeBlock(WorldGenLevel level, BiConsumer<BlockPos, BlockState> blockSetter, BlockPos pos, BlockState state, boolean force, int minX, int maxX, int minZ, int maxZ) {
+        if (force || isReplaceable(level, pos, minX, maxX, minZ, maxZ)) {
             blockSetter.accept(pos, state);
         }
     }
