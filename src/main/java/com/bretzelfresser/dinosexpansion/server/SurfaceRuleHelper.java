@@ -126,10 +126,19 @@ public class SurfaceRuleHelper {
                         )),
                 SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
 
+        var boneDesertSurfaceRule = SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.BONE_DESERT),
+                SurfaceRules.sequence(
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
+                )
+        );
+
         return SurfaceRules.sequence(
                 waterSandRule,
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  beachSandRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  geyserValleySurfaceRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  boneDesertSurfaceRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  surfaceRule),
                 stoneDeepslateRule
         );

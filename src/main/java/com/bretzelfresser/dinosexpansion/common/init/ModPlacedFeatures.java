@@ -22,6 +22,9 @@ public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> SMALL_JUNGLE_TREE = create("small_jungle_tree");
 
     public static final ResourceKey<PlacedFeature> TEST_TREE_PLACED = create("test_tree_placed");
+    public static final ResourceKey<PlacedFeature> PREHISTORIC_FOSSIL_PLACED = create("prehistoric_fossil_placed");
+    public static final ResourceKey<PlacedFeature> OASIS_PLACED = create("oasis_placed");
+    public static final ResourceKey<PlacedFeature> PREHISTORIC_DESERT_VEGETATION_PLACED = create("prehistoric_desert_vegetation_placed");
 
     public static void generate(BootstrapContext<PlacedFeature> ctx){
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
@@ -94,6 +97,27 @@ public class ModPlacedFeatures {
                 PlacementUtils.HEIGHTMAP,
                 flatSurfaceFilter,
                 PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING),
+                BiomeFilter.biome()
+        );
+
+        PlacementUtils.register(ctx, PREHISTORIC_FOSSIL_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.PREHISTORIC_FOSSIL),
+                RarityFilter.onAverageOnceEvery(10),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP,
+                BiomeFilter.biome()
+        );
+
+        PlacementUtils.register(ctx, OASIS_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.OASIS),
+                RarityFilter.onAverageOnceEvery(140),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP,
+                BiomeFilter.biome()
+        );
+
+        PlacementUtils.register(ctx, PREHISTORIC_DESERT_VEGETATION_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.PREHISTORIC_DESERT_VEGETATION),
+                RarityFilter.onAverageOnceEvery(3),
+                InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP,
                 BiomeFilter.biome()
         );
     }
