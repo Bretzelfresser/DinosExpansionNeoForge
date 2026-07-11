@@ -59,7 +59,7 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                     BlockState state = level.getBlockState(mutablePos);
 
                     if (r < layerLimit) {
-                        if (yOffset <= 0 && yOffset > -depth) {
+                        if (yOffset < 0 && yOffset > -depth) {
                             // Place fluid (water)
                             BlockState fluidState = config.fluidProvider().getState(context.random(), mutablePos);
                             level.setBlock(mutablePos, fluidState, 2);
@@ -74,7 +74,7 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                     } else if (r < layerLimit + 1.5) {
                         // Place barrier rim/borders
                         if (yOffset <= 0 && yOffset >= -depth) {
-                            if (!state.isAir() && state.getFluidState().isEmpty() || yOffset == 0) {
+                            if (!state.isAir() && state.getFluidState().isEmpty()) {
                                 BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
                                 level.setBlock(mutablePos, barrierState, 2);
                             }
