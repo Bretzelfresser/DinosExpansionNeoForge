@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.worldgen.structure;
 
+import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.init.ModStructurePieces;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
@@ -28,7 +30,7 @@ public class OasisStructurePieces {
         }
 
         public OasisPiece(BlockPos pos, int size) {
-            super(ModStructurePieces.OASIS_PIECE.get(), 1, new BoundingBox(pos).inflatedBy(size + 4));
+            super(ModStructurePieces.OASIS_PIECE.get(), 1, new BoundingBox(pos).inflatedBy(size + 10).inflatedBy(0, 5, 0));
             this.center = pos;
             this.size = size;
         }
@@ -51,6 +53,8 @@ public class OasisStructurePieces {
                 ChunkPos chunkPos,
                 BlockPos origin
         ) {
+
+            DinosExpansion.LOGGER.debug("generated Oasis piece at: {}", this.center);
             int radius = this.size;
             int depth = 2;
 
@@ -63,15 +67,14 @@ public class OasisStructurePieces {
                     if (xOffset * xOffset + zOffset * zOffset <= (radius + 3) * (radius + 3)) {
                         int x = this.center.getX() + xOffset;
                         int z = this.center.getZ() + zOffset;
-                        BlockPos surfPos = getSurface(level, new BlockPos(x, this.center.getY(), z));
-                        if (surfPos != null) {
-                            int surfY = surfPos.getY() - 1;
-                            if (!foundAnySurface) {
-                                minY = surfY;
-                                foundAnySurface = true;
-                            } else {
-                                minY = Math.min(minY, surfY);
-                            }
+
+                        //looks like this gets me the block above the surface, so i have to reduce it by one
+                        int surfY = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+                        if (!foundAnySurface) {
+                            minY = surfY;
+                            foundAnySurface = true;
+                        } else {
+                            minY = Math.min(minY, surfY);
                         }
                     }
                 }
@@ -79,7 +82,6 @@ public class OasisStructurePieces {
 
             // Clamp minY to avoid pulling the oasis too deep
             minY = Math.max(minY, this.center.getY() - 4);
-
             BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
 
             // 2. Loop through columns to generate the flat recessed basin relative to minY
@@ -159,14 +161,16 @@ public class OasisStructurePieces {
                 }
             }
 
+
             // 3. Spawn Palm Trees standing flat at minY + 1 on the border
             int palmCount = random.nextInt(2) + 2; // 2 to 3 palms
+            DinosExpansion.LOGGER.debug("placing {} palm trees inside oasis", palmCount);
             for (int i = 0; i < palmCount; i++) {
                 double angle = random.nextDouble() * 2.0 * Math.PI;
                 double dist = radius + 0.8 + random.nextDouble() * 1.2;
                 int px = this.center.getX() + (int) Math.round(Math.cos(angle) * dist);
                 int pz = this.center.getZ() + (int) Math.round(Math.sin(angle) * dist);
-                
+
                 BlockPos palmBase = new BlockPos(px, minY + 1, pz);
                 BlockState baseState = level.getBlockState(palmBase.below());
                 if (baseState.is(Blocks.MOSS_BLOCK) || baseState.is(Blocks.MUD) || baseState.is(Blocks.GRASS_BLOCK) || baseState.is(Blocks.SAND) || baseState.is(Blocks.DIRT)) {
@@ -185,21 +189,21 @@ public class OasisStructurePieces {
                 if (y > 2 && y % 3 == 0) {
                     current = current.relative(leanDir);
                 }
-                if (level.isOutsideBuildHeight(current.getY())) break;
-                level.setBlock(current, Blocks.JUNGLE_LOG.defaultBlockState(), 2);
+                //if (level.isOutsideBuildHeight(current.getY())) break;
+                level.setBlock(current, Blocks.JUNGLE_LOG.defaultBlockState(), 3);
                 current = current.above();
             }
 
             // Canopy of leaves at the top
             BlockPos top = current.below();
             setLeaves(level, top.above());
-            
+
             for (Direction dir : Direction.Plane.HORIZONTAL) {
                 BlockPos leafPos = top.relative(dir);
                 setLeaves(level, leafPos);
                 setLeaves(level, leafPos.relative(dir));
                 setLeaves(level, leafPos.relative(dir).below());
-                
+
                 Direction diag = dir.getClockWise();
                 BlockPos diagPos = top.relative(dir).relative(diag);
                 setLeaves(level, diagPos);
@@ -212,18 +216,6 @@ public class OasisStructurePieces {
             if (level.getBlockState(pos).isAir()) {
                 level.setBlock(pos, Blocks.JUNGLE_LEAVES.defaultBlockState(), 2);
             }
-        }
-
-        private BlockPos getSurface(WorldGenLevel level, BlockPos pos) {
-            BlockPos.MutableBlockPos mPos = new BlockPos.MutableBlockPos(pos.getX(), level.getMaxBuildHeight(), pos.getZ());
-            while (mPos.getY() > level.getMinBuildHeight()) {
-                BlockState state = level.getBlockState(mPos);
-                if (!state.isAir() && state.getFluidState().isEmpty()) {
-                    return mPos.above().immutable();
-                }
-                mPos.move(Direction.DOWN);
-            }
-            return null;
         }
     }
 }
