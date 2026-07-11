@@ -26,6 +26,7 @@ public class ModPlacedFeatures {
     public static void generate(BootstrapContext<PlacedFeature> ctx){
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
 
+        //edge detection filter in 3D, basically preventing trees from spawning at steep surfaces
         var flatSurfacePredicate = BlockPredicate.allOf(
                 BlockPredicate.solid(new Vec3i(0, -1, 0)),
                 BlockPredicate.solid(new Vec3i(1, -1, 0)),
