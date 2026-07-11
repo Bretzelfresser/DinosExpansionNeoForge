@@ -27,6 +27,7 @@ public class ModPlacedFeatures {
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
 
         //edge detection filter in 3D, basically preventing trees from spawning at steep surfaces
+        //derived from taylor series, should be adjusted to only take the vertical gradient into account
         var flatSurfacePredicate = BlockPredicate.allOf(
                 BlockPredicate.solid(new Vec3i(0, -1, 0)),
                 BlockPredicate.solid(new Vec3i(1, -1, 0)),
