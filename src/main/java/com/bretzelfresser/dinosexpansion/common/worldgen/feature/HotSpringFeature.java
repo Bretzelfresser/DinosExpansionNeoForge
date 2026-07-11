@@ -81,7 +81,7 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                     BlockState state = level.getBlockState(mutablePos);
 
                     if (r < layerLimit) {
-                        if (yOffset >= 0) {
+                        if (yOffset > 0) {
                             // Carve air above the lake (clears any slopes/hills above minY)
                             level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
                         } else if (yOffset >= -depth) { // Y = minY - 1 down to minY - depth

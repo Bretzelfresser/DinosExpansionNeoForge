@@ -52,7 +52,6 @@ public class ModConfiguredFeatures {
         context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(ModFeatures.GEYSER_HOT_SPRING_FEATURE.get(), new HotSpringFeature.Configuration(
                 BlockStateProvider.simple(Blocks.WATER),
                 BlockStateProvider.simple(Blocks.CALCITE),
-
                 BiasedToBottomInt.of(7, 12), // size (radius)
                 UniformInt.of(2, 4)  // depth
         )));
