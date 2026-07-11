@@ -19,5 +19,6 @@ public class ModBiomeTagsProvider extends BiomeTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(Tags.Biomes.HAS_CAVE_DUNGEON).addOptional(ModBiomes.FERN_PLAINS.location());
+        tag(Tags.Biomes.HAS_OASIS).addOptional(ModBiomes.BONE_DESERT.location());
     }
 }

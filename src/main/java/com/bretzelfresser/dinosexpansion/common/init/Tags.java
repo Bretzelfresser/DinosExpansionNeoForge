@@ -12,6 +12,7 @@ public class Tags {
     public static final class Biomes{
 
         public static final TagKey<Biome> HAS_CAVE_DUNGEON = create("has_structure/cave_dungeon");
+        public static final TagKey<Biome> HAS_OASIS = create("has_structure/oasis");
 
 
         public static TagKey<Biome> create(String name){

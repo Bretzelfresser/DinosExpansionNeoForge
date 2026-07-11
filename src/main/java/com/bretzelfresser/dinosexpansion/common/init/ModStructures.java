@@ -3,6 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.worldgen.structure.CaveDungeonPieces;
 import com.bretzelfresser.dinosexpansion.common.worldgen.structure.CaveDungeonStructure;
+import com.bretzelfresser.dinosexpansion.common.worldgen.structure.OasisStructure;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -34,12 +35,21 @@ public class ModStructures {
     public static final DeferredHolder<StructureType<?>, StructureType<CaveDungeonStructure>> CAVE_DUNGEON =
             STRUCTURE_TYPES.register("cave_dungeon", () -> () -> CaveDungeonStructure.CODEC);
 
+    public static final DeferredHolder<StructureType<?>, StructureType<OasisStructure>> OASIS =
+            STRUCTURE_TYPES.register("oasis", () -> () -> OasisStructure.CODEC);
+
 
     public static final ResourceKey<Structure> CAVE_DUNGEON_STRUCTURE =
             ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "cave_dungeon"));
 
+    public static final ResourceKey<Structure> OASIS_STRUCTURE =
+            ResourceKey.create(Registries.STRUCTURE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "oasis"));
+
     public static final ResourceKey<StructureSet> CAVE_DUNGEON_SET =
             ResourceKey.create(Registries.STRUCTURE_SET, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "cave_dungeon_set"));
+
+    public static final ResourceKey<StructureSet> OASIS_SET =
+            ResourceKey.create(Registries.STRUCTURE_SET, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "oasis_set"));
 
 
     public static void register(IEventBus eventBus) {
@@ -61,6 +71,16 @@ public class ModStructures {
                         TerrainAdjustment.NONE
                 )
         ));
+
+        context.register(OASIS_STRUCTURE, new OasisStructure(
+                new Structure.StructureSettings(
+                        biomes.getOrThrow(Tags.Biomes.HAS_OASIS),
+                        Map.of(),
+                        GenerationStep.Decoration.SURFACE_STRUCTURES,
+                        TerrainAdjustment.NONE
+                ),
+                net.minecraft.util.valueproviders.BiasedToBottomInt.of(5, 9)
+        ));
     }
 
     public static void bootstrapStructureSets(BootstrapContext<StructureSet> context) {
@@ -73,6 +93,16 @@ public class ModStructures {
                         8,
                         RandomSpreadType.TRIANGULAR,
                         14357892
+                )
+        ));
+
+        context.register(OASIS_SET, new StructureSet(
+                List.of(StructureSet.entry(structures.getOrThrow(OASIS_STRUCTURE))),
+                new RandomSpreadStructurePlacement(
+                        32,
+                        8,
+                        RandomSpreadType.LINEAR,
+                        58219438
                 )
         ));
     }

@@ -59,7 +59,6 @@ public class DinoBiomes {
 
         genSettingsBuilder.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, ModPlacedFeatures.PREHISTORIC_DESERT_VEGETATION_PLACED);
         genSettingsBuilder.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PREHISTORIC_FOSSIL_PLACED);
-        genSettingsBuilder.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.OASIS_PLACED);
 
         MobSpawnSettings spawnSettings = new MobSpawnSettings.Builder().build();
 

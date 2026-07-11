@@ -45,7 +45,6 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> SMALL_JUNGLE_TREE = create("small_jungle_tree");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TEST_TREE = create("test_tree");
     public static final ResourceKey<ConfiguredFeature<?, ?>> PREHISTORIC_FOSSIL = create("prehistoric_fossil");
-    public static final ResourceKey<ConfiguredFeature<?, ?>> OASIS = create("oasis");
     public static final ResourceKey<ConfiguredFeature<?, ?>> PREHISTORIC_DESERT_VEGETATION = create("prehistoric_desert_vegetation");
 
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -124,7 +123,6 @@ public class ModConfiguredFeatures {
                 BlockStateProvider.simple(Blocks.JUNGLE_LEAVES)
         )));
         context.register(PREHISTORIC_FOSSIL, new ConfiguredFeature<>(ModFeatures.PREHISTORIC_FOSSIL_FEATURE.get(), net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.INSTANCE));
-        context.register(OASIS, new ConfiguredFeature<>(ModFeatures.OASIS_FEATURE.get(), net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.INSTANCE));
         context.register(PREHISTORIC_DESERT_VEGETATION, new ConfiguredFeature<>(ModFeatures.PREHISTORIC_DESERT_VEGETATION_FEATURE.get(), net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.INSTANCE));
     }
 
