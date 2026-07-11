@@ -1,12 +1,14 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.placement.*;
 
 public class ModPlacedFeatures {
@@ -24,8 +26,17 @@ public class ModPlacedFeatures {
     public static void generate(BootstrapContext<PlacedFeature> ctx){
         var configuredFeatureLookup = ctx.lookup(Registries.CONFIGURED_FEATURE);
 
+        var flatSurfacePredicate = BlockPredicate.allOf(
+                BlockPredicate.solid(new Vec3i(0, -1, 0)),
+                BlockPredicate.solid(new Vec3i(1, -1, 0)),
+                BlockPredicate.solid(new Vec3i(-1, -1, 0)),
+                BlockPredicate.solid(new Vec3i(0, -1, 1)),
+                BlockPredicate.solid(new Vec3i(0, -1, -1))
+        );
+        var flatSurfaceFilter = BlockPredicateFilter.forPredicate(flatSurfacePredicate);
+
         PlacementUtils.register(ctx, GEYSER_HOT_SPRING_PLACED, configuredFeatureLookup.getOrThrow(ModConfiguredFeatures.GEYSER_HOT_SPRING),
-                RarityFilter.onAverageOnceEvery(3),
+                RarityFilter.onAverageOnceEvery(2),
                 InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
                 BiomeFilter.biome()
@@ -51,6 +62,7 @@ public class ModPlacedFeatures {
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),
                 PlacementUtils.HEIGHTMAP,
+                flatSurfaceFilter,
                 PlacementUtils.filteredByBlockSurvival(Blocks.SPRUCE_SAPLING),
                 BiomeFilter.biome()
         );
@@ -69,6 +81,7 @@ public class ModPlacedFeatures {
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),
                 PlacementUtils.HEIGHTMAP,
+                flatSurfaceFilter,
                 PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING),
                 BiomeFilter.biome()
         );
@@ -77,6 +90,7 @@ public class ModPlacedFeatures {
                 InSquarePlacement.spread(),
                 SurfaceWaterDepthFilter.forMaxDepth(0),
                 PlacementUtils.HEIGHTMAP,
+                flatSurfaceFilter,
                 PlacementUtils.filteredByBlockSurvival(Blocks.JUNGLE_SAPLING),
                 BiomeFilter.biome()
         );

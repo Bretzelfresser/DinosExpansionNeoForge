@@ -37,6 +37,7 @@ public class ModNoiseParameters {
 
 
     public static final ResourceKey<NormalNoise.NoiseParameters> DEEPSLATE_NOISE = create("deepslate_noise");
+    public static final ResourceKey<NormalNoise.NoiseParameters> GEYSER_PATCH_NOISE = create("geyser_patch_noise");
 
     public static final ResourceKey<NormalNoise.NoiseParameters> DINO_NOISE_KEY = create("dino_noise");
 
@@ -50,6 +51,7 @@ public class ModNoiseParameters {
         context.register(NOODLE_NOISE, new NormalNoise.NoiseParameters(-5, 1.0, 1));
         context.register(NOODLE_THICKNESS_NOISE, new NormalNoise.NoiseParameters(-5, 1.0, 1, 1));
         context.register(DEEPSLATE_NOISE, new NormalNoise.NoiseParameters(-2, 1.0, 1));
+        context.register(GEYSER_PATCH_NOISE, new NormalNoise.NoiseParameters(-3, 1.0, 1.0));
 
 
         context.register(RIVER_NOISE, new NormalNoise.NoiseParameters(-9, 1.0, 1));
