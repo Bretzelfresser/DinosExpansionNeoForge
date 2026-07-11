@@ -48,13 +48,12 @@ public class DinoDimensionBiomeSources {
                                            Climate.Parameter continents) {
 
         {//hot scope -> just for me for orientation
-            //hot will be desert
-            //hot and dry and not very hilly -> desert
+            //hot will be desert in flat terrain
             addBiome(parameters, biomes, ModBiomes.BONE_DESERT,
                     hot(true),
                     dry(true),
                     continents,
-                    steep(false),
+                    Climate.Parameter.span(-1.0f, -0.1f),
                     all(),
                     all()
             );
@@ -63,16 +62,26 @@ public class DinoDimensionBiomeSources {
                     hot(true),
                     dry(true),
                     continents,
-                    steep(true),
+                    Climate.Parameter.span(-0.1f, 1.0f),
                     all(),
                     all()
             );
 
+            // hot and normal humidity and flat -> geyser valley
             addBiome(parameters, biomes, ModBiomes.GEYSER_VALLEY,
                     hot(true),
                     normalHumidity(),
                     continents,
+                    Climate.Parameter.span(-1.0f, -0.1f),
                     all(),
+                    all()
+            );
+            // hot and normal humidity and mountains -> badlands
+            addBiome(parameters, biomes, ModBiomes.PETRIFIED_BADLANDS,
+                    hot(true),
+                    normalHumidity(),
+                    continents,
+                    Climate.Parameter.span(-0.1f, 1.0f),
                     all(),
                     all()
             );
@@ -253,28 +262,28 @@ public class DinoDimensionBiomeSources {
     }
 
     private static Climate.Parameter frozen(boolean frozen) {
-        return frozen ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
+        return frozen ? Climate.Parameter.span(-1f, -0.15f) : Climate.Parameter.span(-0.15f, 1f);
     }
 
     private static Climate.Parameter normalTemperature() {
-        return Climate.Parameter.span(-.5f, .5f);
+        return Climate.Parameter.span(-0.15f, 0.15f);
     }
 
     private static Climate.Parameter hot(boolean hot) {
-        return hot ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+        return hot ? Climate.Parameter.span(0.15f, 1f) : Climate.Parameter.span(-1f, 0.15f);
     }
 
 
     private static Climate.Parameter wet(boolean wet) {
-        return wet ? Climate.Parameter.span(.5f, 1f) : Climate.Parameter.span(-1f, .5f);
+        return wet ? Climate.Parameter.span(0.15f, 1f) : Climate.Parameter.span(-1f, 0.15f);
     }
 
     private static Climate.Parameter dry(boolean dry) {
-        return dry ? Climate.Parameter.span(-1f, -.5f) : Climate.Parameter.span(-.5f, 1f);
+        return dry ? Climate.Parameter.span(-1f, -0.15f) : Climate.Parameter.span(-0.15f, 1f);
     }
 
     private static Climate.Parameter normalHumidity() {
-        return Climate.Parameter.span(-.5f, .5f);
+        return Climate.Parameter.span(-0.15f, 0.15f);
     }
 
 
