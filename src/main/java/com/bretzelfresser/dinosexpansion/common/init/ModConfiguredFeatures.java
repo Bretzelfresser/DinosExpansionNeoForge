@@ -11,7 +11,6 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.ToFloatFunction;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -20,25 +19,18 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
-import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.RandomPatchConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.*;
 import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSize;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
-import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
-import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 
 import com.bretzelfresser.dinosexpansion.common.worldgen.feature.HotSpringFeature;
-
-import java.util.List;
 
 public class ModConfiguredFeatures {
 
     public static final ResourceKey<ConfiguredFeature<?, ?>> GEYSER_HOT_SPRING = create("geyser_hot_spring");
     public static final ResourceKey<ConfiguredFeature<?, ?>> FERN_PATCH = create("fern_patch");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> SMALL_FERN_OASIS = create("small_fern_oasis");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TALL_PREHISTORIC_PINE = create("tall_prehistoric_pine");
     public static final ResourceKey<ConfiguredFeature<?, ?>> MEGA_PREHISTORIC_REDWOOD = create("mega_prehistoric_redwood");
     public static final ResourceKey<ConfiguredFeature<?, ?>> GIANT_JUNGLE_TREE = create("giant_jungle_tree");
@@ -47,19 +39,29 @@ public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> PREHISTORIC_FOSSIL = create("prehistoric_fossil");
     public static final ResourceKey<ConfiguredFeature<?, ?>> PREHISTORIC_DESERT_VEGETATION = create("prehistoric_desert_vegetation");
 
+
+
+
+    public static final ResourceKey<ConfiguredFeature<?, ?>> NONE = create("none");
+
     public static void generate(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         var featureLookup = context.lookup(Registries.FEATURE);
         var placedFeatureLookup = context.lookup(Registries.FEATURE);
+
+        context.register(NONE, new ConfiguredFeature<>(Feature.NO_OP, new NoneFeatureConfiguration()));
 
         context.register(GEYSER_HOT_SPRING, new ConfiguredFeature<>(ModFeatures.GEYSER_HOT_SPRING_FEATURE.get(), new HotSpringFeature.Configuration(
                 BlockStateProvider.simple(Blocks.WATER),
                 BlockStateProvider.simple(Blocks.CALCITE),
                 BiasedToBottomInt.of(7, 12), // size (radius)
-                UniformInt.of(2, 4)  // depth
+                UniformInt.of(2, 4)  // waterPondDepth
         )));
 
         context.register(FERN_PATCH, new ConfiguredFeature<>(Feature.RANDOM_PATCH, new RandomPatchConfiguration(2000, 10, 4,
                 PlacementUtils.onlyWhenEmpty(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 5).add(Blocks.LARGE_FERN.defaultBlockState(), 15)))))
+        ));
+
+        context.register(SMALL_FERN_OASIS, new ConfiguredFeature<>(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(Blocks.FERN))
         ));
 
         context.register(TALL_PREHISTORIC_PINE, new ConfiguredFeature<>(Feature.TREE, new TreeConfiguration.TreeConfigurationBuilder(

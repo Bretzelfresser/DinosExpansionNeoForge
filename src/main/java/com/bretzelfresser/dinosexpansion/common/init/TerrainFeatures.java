@@ -33,7 +33,7 @@ public class TerrainFeatures {
         var widthModulator = DensityFunctions.add(DensityFunctions.constant(riverThicknessModulator), riverThicknessNoise);
         var adjustedThickness = DensityFunctions.mul(riverNoise.abs(), widthModulator);
 
-        // Sub-spline to vary depth depending on riverDepthNoise
+        // Sub-spline to vary waterPondDepth depending on riverDepthNoise
         var depthModulationSpline = CubicSpline.builder(new DensityFunctions.Spline.Coordinate(Holder.direct(riverDepthNoise)))
                 .addPoint(-1.0f, -0.25f, 0.0f) // deep parts
                 .addPoint(1.0f, -0.15f, 0.0f)  // shallow parts

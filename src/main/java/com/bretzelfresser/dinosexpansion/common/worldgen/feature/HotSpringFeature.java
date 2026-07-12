@@ -64,7 +64,7 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                 // Distort the radius to make it look organic
                 double limit = size * (1.0 + 0.15 * Math.sin(4 * theta) + 0.1 * Math.cos(7 * theta));
 
-                // yOffset from 10 (to clear air above) down to -depth - 1
+                // yOffset from 10 (to clear air above) down to -waterPondDepth - 1
                 for (int yOffset = 10; yOffset >= -depth - 1; yOffset--) {
                     int x = origin.getX() + xOffset;
                     int y = minY + yOffset; // Relative to the lowest surface point minY
@@ -84,11 +84,11 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                         if (yOffset > 0) {
                             // Carve air above the lake (clears any slopes/hills above minY)
                             level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
-                        } else if (yOffset >= -depth) { // Y = minY - 1 down to minY - depth
+                        } else if (yOffset >= -depth) { // Y = minY - 1 down to minY - waterPondDepth
                             // Place fluid (water)
                             BlockState fluidState = config.fluidProvider().getState(context.random(), mutablePos);
                             level.setBlock(mutablePos, fluidState, 2);
-                        } else { // Y < minY - depth
+                        } else { // Y < minY - waterPondDepth
                             // Place barrier at the bottom of the lake (seals the floor)
                             BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
                             level.setBlock(mutablePos, barrierState, 2);
@@ -114,7 +114,7 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                 BlockStateProvider.CODEC.fieldOf("fluid_provider").forGetter(Configuration::fluidProvider),
                 BlockStateProvider.CODEC.fieldOf("barrier_provider").forGetter(Configuration::barrierProvider),
                 IntProvider.CODEC.fieldOf("size").forGetter(Configuration::size),
-                IntProvider.CODEC.fieldOf("depth").forGetter(Configuration::depth)
+                IntProvider.CODEC.fieldOf("waterPondDepth").forGetter(Configuration::depth)
         ).apply(instance, Configuration::new));
     }
 }

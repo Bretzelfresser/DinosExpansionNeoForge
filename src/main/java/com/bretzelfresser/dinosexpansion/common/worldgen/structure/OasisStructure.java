@@ -18,14 +18,14 @@ import java.util.Optional;
 public class OasisStructure extends Structure {
     public static final MapCodec<OasisStructure> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             settingsCodec(instance),
-            IntProvider.CODEC.fieldOf("size").forGetter(s -> s.size)
+            OasisStructurePieces.OasisConfiguration.CODEC.fieldOf("configuration").forGetter(s -> s.config)
     ).apply(instance, OasisStructure::new));
 
-    private final IntProvider size;
+    private final OasisStructurePieces.OasisConfiguration config;
 
-    public OasisStructure(StructureSettings settings, IntProvider size) {
+    public OasisStructure(StructureSettings settings, OasisStructurePieces.OasisConfiguration config) {
         super(settings);
-        this.size = size;
+        this.config = config;
     }
 
     @Override
@@ -71,8 +71,8 @@ public class OasisStructure extends Structure {
         BlockPos spawnPos = center.atY(y);
 
         return Optional.of(new GenerationStub(spawnPos, builder -> {
-            int sampledSize = this.size.sample(context.random());
-            builder.addPiece(new OasisStructurePieces.OasisPiece(spawnPos, sampledSize));
+            var sampledConfig = this.config.sample(context.random());
+            builder.addPiece(new OasisStructurePieces.OasisPiece(spawnPos, sampledConfig));
         }));
     }
 

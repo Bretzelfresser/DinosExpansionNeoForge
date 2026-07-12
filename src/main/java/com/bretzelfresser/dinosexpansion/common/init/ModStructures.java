@@ -4,15 +4,33 @@ import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.worldgen.structure.CaveDungeonPieces;
 import com.bretzelfresser.dinosexpansion.common.worldgen.structure.CaveDungeonStructure;
 import com.bretzelfresser.dinosexpansion.common.worldgen.structure.OasisStructure;
+import com.bretzelfresser.dinosexpansion.common.worldgen.structure.OasisStructurePieces;
+import com.bretzelfresser.dinosexpansion.util.FeaturePlacementUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.features.VegetationFeatures;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.valueproviders.BiasedToBottomInt;
+import net.minecraft.util.valueproviders.UniformFloat;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
+import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
@@ -60,7 +78,8 @@ public class ModStructures {
     public static void bootstrapStructures(BootstrapContext<Structure> context) {
         var biomes = context.lookup(Registries.BIOME);
         var noises = context.lookup(Registries.NOISE);
-
+        var configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
+        var placedFeatures = context.lookup(Registries.PLACED_FEATURE);
 
 
         context.register(CAVE_DUNGEON_STRUCTURE, new CaveDungeonStructure(
@@ -79,7 +98,33 @@ public class ModStructures {
                         GenerationStep.Decoration.SURFACE_STRUCTURES,
                         TerrainAdjustment.NONE
                 ),
-                net.minecraft.util.valueproviders.BiasedToBottomInt.of(5, 9)
+                new OasisStructurePieces.OasisConfiguration(
+                        UniformInt.of(5, 10),
+                        UniformInt.of(2, 4),
+                        UniformFloat.of(5f, 15f),
+                        BlockStateProvider.simple(Blocks.WATER),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.MUD.defaultBlockState(), 1)
+                                .add(Blocks.CLAY.defaultBlockState(), 1)
+                                .add(Blocks.DIRT.defaultBlockState(), 2)
+                        ),
+                        new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.MUD.defaultBlockState(), 2)
+                                .add(Blocks.SAND.defaultBlockState(), 1)
+                                .add(Blocks.GRASS_BLOCK.defaultBlockState(), 4)
+                        ),
+                        SimpleWeightedRandomList.<Holder<PlacedFeature>>builder()
+                                .add(PlacementUtils.inlinePlaced(configuredFeatures.getOrThrow(VegetationFeatures.PATCH_SUGAR_CANE),
+                                        PlacementUtils.isEmpty(),
+                                        PlacementUtils.filteredByBlockSurvival(Blocks.SUGAR_CANE)
+                                ), 1)//25%
+                                .add(FeaturePlacementUtils.wrapHolder(configuredFeatures.getOrThrow(ModConfiguredFeatures.NONE)), 4)
+                                .add(PlacementUtils.inlinePlaced(Holder.direct(new ConfiguredFeature<>(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 9).add(Blocks.LARGE_FERN.defaultBlockState(), 1).build())))),
+                                                        PlacementUtils.isEmpty(),
+                                                        PlacementUtils.filteredByBlockSurvival(Blocks.FERN)),
+                                                2)
+                                .build()
+                )
         ));
     }
 
