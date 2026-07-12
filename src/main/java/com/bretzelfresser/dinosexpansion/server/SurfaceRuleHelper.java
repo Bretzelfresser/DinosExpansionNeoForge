@@ -9,14 +9,14 @@ import net.minecraft.world.level.levelgen.placement.CaveSurface;
 
 public class SurfaceRuleHelper {
 
-    public static SurfaceRules.RuleSource generateDinoSurfaceRules(){
+    public static SurfaceRules.RuleSource generateDinoSurfaceRules() {
 
         var waterSandRule = andConditions(
                 ifElse(
                         SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.2f),
                         SurfaceRules.state(Blocks.SAND.defaultBlockState()),
                         SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
-                SurfaceRules.not(SurfaceRules.waterBlockCheck(0,1)),
+                SurfaceRules.not(SurfaceRules.waterBlockCheck(0, 1)),
                 SurfaceRules.ON_FLOOR,
                 SurfaceRules.abovePreliminarySurface()
         );
@@ -25,13 +25,56 @@ public class SurfaceRuleHelper {
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
 
-        ) );
+        ));
 
         var surfaceRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
                 SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
 
+        var stoneDeepslateRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(63), 0),
+                        SurfaceRules.sequence(
+                                andConditions(SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()),
+                                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(70), 0)),
+                                        SurfaceRules.noiseCondition(ModNoiseParameters.DEEPSLATE_NOISE, -1, -0.5)),
+                                SurfaceRules.state(Blocks.STONE.defaultBlockState())
+                        )),
+                SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
 
-        var geyserValleySurfaceRule = SurfaceRules.ifTrue(
+        var boneDesertSurfaceRule = SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.BONE_DESERT),
+                SurfaceRules.sequence(
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
+                )
+        );
+
+        return SurfaceRules.sequence(
+                waterSandRule,
+                makeColdSurface(),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), beachSandRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeGeysirValleySurface()),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), boneDesertSurfaceRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), surfaceRule),
+                stoneDeepslateRule
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeColdSurface() {
+        // 1. LAND RULE: If on the true floor and above water level, coat with snow
+        SurfaceRules.RuleSource solidToSnow = andConditions(
+                SurfaceRules.state(Blocks.SNOW_BLOCK.defaultBlockState()),
+                SurfaceRules.ON_FLOOR,
+                SurfaceRules.abovePreliminarySurface()
+        );
+
+        // 3. Combine them in a sequence under your temperature noise condition
+        return andConditions(
+                solidToSnow,
+                SurfaceRules.temperature() // Your temperature threshold condition
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeGeysirValleySurface() {
+        return SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(ModBiomes.GEYSER_VALLEY),
                 SurfaceRules.sequence(
                         // Underwater floor rule
@@ -116,32 +159,6 @@ public class SurfaceRuleHelper {
                         )
                 )
         );
-
-        var stoneDeepslateRule =  SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(63), 0),
-                        SurfaceRules.sequence(
-                                andConditions(SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()),
-                                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(70), 0)),
-                                        SurfaceRules.noiseCondition(ModNoiseParameters.DEEPSLATE_NOISE, -1, -0.5)),
-                                SurfaceRules.state(Blocks.STONE.defaultBlockState())
-                        )),
-                SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
-
-        var boneDesertSurfaceRule = SurfaceRules.ifTrue(
-                SurfaceRules.isBiome(ModBiomes.BONE_DESERT),
-                SurfaceRules.sequence(
-                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
-                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
-                )
-        );
-
-        return SurfaceRules.sequence(
-                waterSandRule,
-                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  beachSandRule),
-                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  geyserValleySurfaceRule),
-                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  boneDesertSurfaceRule),
-                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(),  surfaceRule),
-                stoneDeepslateRule
-        );
     }
 
 
@@ -152,13 +169,13 @@ public class SurfaceRuleHelper {
         );
     }
 
-    private static SurfaceRules.RuleSource andConditions(SurfaceRules.RuleSource ifTrue, SurfaceRules.ConditionSource... conditions){
-        if (conditions == null || conditions.length == 0){
+    private static SurfaceRules.RuleSource andConditions(SurfaceRules.RuleSource ifTrue, SurfaceRules.ConditionSource... conditions) {
+        if (conditions == null || conditions.length == 0) {
             return ifTrue;
         }
         var start = SurfaceRules.ifTrue(conditions[0], ifTrue);
 
-        for (int i = 1; i < conditions.length; i++){
+        for (int i = 1; i < conditions.length; i++) {
             start = SurfaceRules.ifTrue(conditions[i], start);
         }
         return start;

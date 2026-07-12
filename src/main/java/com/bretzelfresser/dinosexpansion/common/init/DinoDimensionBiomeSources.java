@@ -18,7 +18,7 @@ public class DinoDimensionBiomeSources {
 
         // Deep Ocean
         addBiome(parameters, biomes, ModBiomes.DEEP_PREHISTORIC_OCEAN,
-                all(),
+                frozen(false),
                 all(),
                 Climate.Parameter.span(-1.0F, -0.6F),
                 all(),
@@ -28,7 +28,27 @@ public class DinoDimensionBiomeSources {
 
         // Prehistoric Ocean
         addBiome(parameters, biomes, ModBiomes.PREHISTORIC_OCEAN,
+                frozen(false),
                 all(),
+                Climate.Parameter.span(-0.6F, -0.05F),
+                all(),
+                all(),
+                all()
+        );
+
+        // Deep Ocean
+        addBiome(parameters, biomes, ModBiomes.DEEP_PREHISTORIC_FROZEN_OCEAN,
+                frozen(true),
+                all(),
+                Climate.Parameter.span(-1.0F, -0.6F),
+                all(),
+                Climate.Parameter.span(0.2F, 1.0F),
+                all()
+        );
+
+        // Prehistoric Ocean
+        addBiome(parameters, biomes, ModBiomes.PREHISTORIC_FROZEN_OCEAN,
+                frozen(true),
                 all(),
                 Climate.Parameter.span(-0.6F, -0.05F),
                 all(),

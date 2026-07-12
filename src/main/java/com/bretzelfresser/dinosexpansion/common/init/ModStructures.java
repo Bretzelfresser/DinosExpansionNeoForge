@@ -117,7 +117,7 @@ public class ModStructures {
                                 .add(PlacementUtils.inlinePlaced(configuredFeatures.getOrThrow(VegetationFeatures.PATCH_SUGAR_CANE),
                                         PlacementUtils.isEmpty(),
                                         PlacementUtils.filteredByBlockSurvival(Blocks.SUGAR_CANE)
-                                ), 1)//25%
+                                ), 1)
                                 .add(FeaturePlacementUtils.wrapHolder(configuredFeatures.getOrThrow(ModConfiguredFeatures.NONE)), 4)
                                 .add(PlacementUtils.inlinePlaced(Holder.direct(new ConfiguredFeature<>(Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(new WeightedStateProvider(SimpleWeightedRandomList.<BlockState>builder().add(Blocks.FERN.defaultBlockState(), 9).add(Blocks.LARGE_FERN.defaultBlockState(), 1).build())))),
                                                         PlacementUtils.isEmpty(),

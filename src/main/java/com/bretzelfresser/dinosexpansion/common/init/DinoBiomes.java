@@ -272,6 +272,18 @@ public class DinoBiomes {
     }
 
 
+    public static Biome makePrehistoricFrozenOcean(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup) {
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+        var spawnSettings = new MobSpawnSettings.Builder();
+        return biome(true, 0F, 0.5F, spawnSettings, genSettingsBuilder, null);
+    }
+
+    public static Biome makeDeepPrehistoricFrozenOcean(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup) {
+        var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
+        var spawnSettings = new MobSpawnSettings.Builder();
+        return biome(true, 0F, 0.5F, spawnSettings, genSettingsBuilder, null);
+    }
+
     public static Biome makePrehistoricOcean(HolderGetter<PlacedFeature> placedFeatureLookup, HolderGetter<ConfiguredWorldCarver<?>> configuredCarverLookup) {
         var genSettingsBuilder = new BiomeGenerationSettings.Builder(placedFeatureLookup, configuredCarverLookup);
         var spawnSettings = new MobSpawnSettings.Builder();
