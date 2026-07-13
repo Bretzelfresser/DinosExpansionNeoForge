@@ -52,10 +52,20 @@ public class SurfaceRuleHelper {
                 makeColdSurface(),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), beachSandRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeGeysirValleySurface()),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeRedwoodForest()),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), boneDesertSurfaceRule),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), surfaceRule),
                 stoneDeepslateRule
         );
+    }
+
+    public static SurfaceRules.RuleSource makeRedwoodForest() {
+       var coarseDirtSurface = SurfaceRules.sequence(
+               SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState())),
+               SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState()))
+       );
+       return SurfaceRules.ifTrue(SurfaceRules.isBiome(ModBiomes.REDWOOD_FOREST), coarseDirtSurface);
+
     }
 
     public static SurfaceRules.RuleSource makeColdSurface() {
