@@ -104,7 +104,6 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                                 BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
                                 level.setBlock(mutablePos, barrierState, 2);
                             }
-                            //floor, leave it when there is a solid block, otherwise set our barrier block there too
                         }
                     }
                 }
