@@ -15,4 +15,14 @@ public class ModAttributes {
 
     public static final DeferredHolder<Attribute, Attribute> MAX_HUNGER = ATTRIBUTES.register("max_hunger",
             () -> new RangedAttribute("attribute.name.dinosexpansion.max_hunger", 100.0D, 1.0D, 100000.0D).setSyncable(true));
+
+    public static final DeferredHolder<Attribute, Attribute> HUNGER_DECREASE = ATTRIBUTES.register("hunger_decrease",
+            () -> new RangedAttribute("attribute.name.dinosexpansion.hunger_decrease", 0.02, 0, 100000.0D).setSyncable(true));
+
+    public static final DeferredHolder<Attribute, Attribute> TORPOR_DECREASE = ATTRIBUTES.register("torpor_decrease",
+            () -> new RangedAttribute("attribute.name.dinosexpansion.torpor_decrease", 0.01, 0, 100000.0D).setSyncable(true));
+
+
+    public static final DeferredHolder<Attribute, Attribute> TORPOR_WAKE_UP_THRESHOLD = ATTRIBUTES.register("torpor_wake_up_threshold",
+            () -> new RangedAttribute("attribute.name.dinosexpansion.torpor_wake_up_threshold", 0.1, 0, 1).setSyncable(true));
 }

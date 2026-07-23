@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion;
 
+import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -7,6 +8,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -28,7 +30,7 @@ public class DinosExpansionClient {
     }
 
     @SubscribeEvent
-    static void registerScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
-        event.register(ModMenus.DINO_MENU.get(), com.bretzelfresser.dinosexpansion.client.gui.DinoScreen::new);
+    static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenus.DINO_MENU.get(), DinoScreen::new);
     }
 }

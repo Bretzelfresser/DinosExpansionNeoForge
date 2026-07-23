@@ -3,13 +3,11 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
-import com.bretzelfresser.dinosexpansion.common.init.DinoFoods;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -18,12 +16,8 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.ContainerListener;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
@@ -67,13 +61,17 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         this.inventory.addListener(this);
     }
 
-    public static AttributeSupplier.Builder createAttributes() {
+    public static AttributeSupplier.Builder createDinoDefaultAttributes() {
         return Animal.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ATTACK_DAMAGE, 3.0D)
                 .add(ModAttributes.MAX_TORPOR, 100.0D)
-                .add(ModAttributes.MAX_HUNGER, 100.0D);
+                .add(ModAttributes.MAX_HUNGER, 100.0D)
+                .add(ModAttributes.HUNGER_DECREASE)
+                .add(ModAttributes.TORPOR_DECREASE)
+                .add(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)
+                ;
     }
 
     @Override
@@ -152,7 +150,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     }
 
     @Override
-    public void containerChanged(net.minecraft.world.Container container) {
+    public void containerChanged(Container container) {
         ItemStack saddle = container.getItem(0);
         this.setSaddled(!saddle.isEmpty() && saddle.is(ModItems.TEST_DINO_SADDLE.get()));
     }
@@ -204,14 +202,14 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
             float torpor = this.getTorpor();
             if (torpor > 0) {
                 // Drain torpor slowly (e.g. 0.1 per tick, can be customized)
-                this.setTorpor(torpor - 0.1f);
+                this.setTorpor(torpor - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE));
             }
 
             // Unconsciousness state machine
             float maxTorpor = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
-            if (!this.isUnconscious() && this.getTorpor() >= maxTorpor * 0.8f) {
+            if (!this.isUnconscious() && this.getTorpor() >= maxTorpor) {
                 this.setUnconscious(true);
-            } else if (this.isUnconscious() && this.getTorpor() <= 0.0f) {
+            } else if (this.isUnconscious() && this.getTorpor() <= maxTorpor * getAttributeValue(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)) {
                 this.setUnconscious(false);
                 // When waking up wild, reset taming progress slightly
                 if (!this.isTame()) {
@@ -222,7 +220,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
             // Hunger depletion over time
             float hunger = this.getHunger();
             if (hunger > 0) {
-                this.setHunger(hunger - 0.02f); // Drain hunger slowly
+                this.setHunger(hunger - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE)); // Drain hunger slowly
             } else {
                 // Starving - lose health
                 this.hurt(this.damageSources().starve(), 1.0F);

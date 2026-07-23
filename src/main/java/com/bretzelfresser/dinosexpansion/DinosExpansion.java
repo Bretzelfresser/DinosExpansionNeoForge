@@ -51,6 +51,7 @@ public class DinosExpansion {
         ModEntities.ENTITIES.register(modEventBus);
         // Register custom data components
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
+        ModMenus.MENUS.register(modEventBus);
 
         // Register entity attributes event listener
         modEventBus.addListener(this::registerAttributes);
@@ -73,7 +74,7 @@ public class DinosExpansion {
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(ModEntities.TEST_DINO.get(), BaseDinoEntity.createAttributes().build());
+        event.put(ModEntities.TEST_DINO.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
