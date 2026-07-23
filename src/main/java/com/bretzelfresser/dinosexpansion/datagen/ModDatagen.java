@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.datagen;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
@@ -25,7 +26,7 @@ public class ModDatagen {
             .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::generate)
             .add(Registries.STRUCTURE, ModStructures::bootstrapStructures)
             .add(Registries.STRUCTURE_SET, ModStructures::bootstrapStructureSets)
-            .add(DinoFoodEntry.DINO_FOOD_REGISTRY_KEY, DinoFoodEntry::bootstrap);
+            .add(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoods::bootstrap);
 
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

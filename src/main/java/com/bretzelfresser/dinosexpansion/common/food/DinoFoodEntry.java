@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.init;
+package com.bretzelfresser.dinosexpansion.common.food;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.mojang.serialization.Codec;
@@ -15,9 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public record DinoFoodEntry(ResourceKey<EntityType<?>> dinoType, Map<ResourceKey<Item>, FoodValues> foods) {
-
-    public static final ResourceKey<Registry<DinoFoodEntry>> DINO_FOOD_REGISTRY_KEY = ResourceKey.createRegistryKey(
-            ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "dino_food"));
 
     public record FoodValues(float hungerValue, float tamingValue) {
         public static final Codec<FoodValues> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -49,14 +46,4 @@ public record DinoFoodEntry(ResourceKey<EntityType<?>> dinoType, Map<ResourceKey
         }
     }
 
-    // Bootstrap method for registrations
-    public static void bootstrap(BootstrapContext<DinoFoodEntry> context) {
-        context.register(
-                ResourceKey.create(DINO_FOOD_REGISTRY_KEY, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")),
-                new Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
-                        .addFood(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "raw_beef")), 50.0F, 0.05F)
-                        .addFood(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "cooked_beef")), 80.0F, 0.10F)
-                        .build()
-        );
-    }
 }

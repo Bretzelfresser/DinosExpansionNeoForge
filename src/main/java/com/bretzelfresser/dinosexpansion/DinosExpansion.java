@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
 import net.minecraft.world.item.Items;
@@ -105,9 +106,9 @@ public class DinosExpansion {
 
     private void registerDatapackRegistries(net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(
-                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.DINO_FOOD_REGISTRY_KEY,
-                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.CODEC,
-                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.CODEC
+                DinoFoodEntry.DINO_FOOD_REGISTRY_KEY,
+                DinoFoodEntry.CODEC,
+                DinoFoodEntry.CODEC
         );
     }
 }
