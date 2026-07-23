@@ -1,30 +1,20 @@
 package com.bretzelfresser.dinosexpansion;
 
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
+import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -50,11 +40,11 @@ public class DinosExpansion {
 
 
         // Register our custom items
-        com.bretzelfresser.dinosexpansion.registry.ModItems.ITEMS.register(modEventBus);
+        ModItems.ITEMS.register(modEventBus);
         // Register custom attributes
-        com.bretzelfresser.dinosexpansion.registry.ModAttributes.ATTRIBUTES.register(modEventBus);
+        ModAttributes.ATTRIBUTES.register(modEventBus);
         // Register custom entities
-        com.bretzelfresser.dinosexpansion.registry.ModEntities.ENTITIES.register(modEventBus);
+        ModEntities.ENTITIES.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
 
         // Register entity attributes event listener
@@ -74,7 +64,7 @@ public class DinosExpansion {
     }
 
     private void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
-        event.put(com.bretzelfresser.dinosexpansion.registry.ModEntities.TEST_DINO.get(), com.bretzelfresser.dinosexpansion.entity.BaseDinoEntity.createAttributes().build());
+        event.put(ModEntities.TEST_DINO.get(), com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity.createAttributes().build());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {

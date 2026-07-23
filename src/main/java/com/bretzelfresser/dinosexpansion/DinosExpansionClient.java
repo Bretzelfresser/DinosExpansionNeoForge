@@ -1,6 +1,6 @@
 package com.bretzelfresser.dinosexpansion;
 
-import net.minecraft.client.Minecraft;
+import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -29,6 +29,6 @@ public class DinosExpansionClient {
 
     @SubscribeEvent
     static void registerScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
-        event.register(com.bretzelfresser.dinosexpansion.registry.ModMenus.DINO_MENU.get(), com.bretzelfresser.dinosexpansion.client.gui.DinoScreen::new);
+        event.register(ModMenus.DINO_MENU.get(), com.bretzelfresser.dinosexpansion.client.gui.DinoScreen::new);
     }
 }

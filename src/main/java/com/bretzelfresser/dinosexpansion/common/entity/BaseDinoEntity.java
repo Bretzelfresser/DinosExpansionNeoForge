@@ -1,12 +1,10 @@
-package com.bretzelfresser.dinosexpansion.entity;
+package com.bretzelfresser.dinosexpansion.common.entity;
 
-import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.entity.ai.DinoBrain;
-import com.bretzelfresser.dinosexpansion.menu.DinoContainerMenu;
-import com.bretzelfresser.dinosexpansion.registry.ModAttributes;
-import com.bretzelfresser.dinosexpansion.registry.ModItems;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -20,7 +18,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TamableAnimal;
@@ -39,7 +36,6 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity, ContainerListener {

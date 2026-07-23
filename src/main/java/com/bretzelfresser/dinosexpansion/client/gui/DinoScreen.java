@@ -1,12 +1,11 @@
 package com.bretzelfresser.dinosexpansion.client.gui;
 
-import com.bretzelfresser.dinosexpansion.entity.BaseDinoEntity;
-import com.bretzelfresser.dinosexpansion.menu.DinoContainerMenu;
-import com.bretzelfresser.dinosexpansion.registry.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 

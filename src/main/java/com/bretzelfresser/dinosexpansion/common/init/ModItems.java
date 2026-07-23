@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.registry;
+package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import net.minecraft.world.item.Item;

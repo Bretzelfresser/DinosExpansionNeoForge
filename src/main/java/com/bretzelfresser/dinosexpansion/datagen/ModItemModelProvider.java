@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.datagen;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.registry.ModItems;
+import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;

@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.entity;
+package com.bretzelfresser.dinosexpansion.common.entity;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;

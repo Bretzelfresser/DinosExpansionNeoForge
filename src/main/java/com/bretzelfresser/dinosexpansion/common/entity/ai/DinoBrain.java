@@ -1,6 +1,6 @@
-package com.bretzelfresser.dinosexpansion.entity.ai;
+package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
-import com.bretzelfresser.dinosexpansion.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -12,8 +12,6 @@ import net.minecraft.world.entity.ai.behavior.RandomStroll;
 import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.Swim;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
 
 public class DinoBrain {

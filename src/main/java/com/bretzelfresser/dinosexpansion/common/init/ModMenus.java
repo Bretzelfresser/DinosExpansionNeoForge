@@ -1,7 +1,7 @@
-package com.bretzelfresser.dinosexpansion.registry;
+package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.menu.DinoContainerMenu;
+import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
