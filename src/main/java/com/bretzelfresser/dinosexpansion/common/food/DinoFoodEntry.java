@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -34,6 +35,10 @@ public record DinoFoodEntry(ResourceKey<EntityType<?>> dinoType, Map<ResourceKey
 
         public Builder(ResourceKey<EntityType<?>> dinoType) {
             this.dinoType = dinoType;
+        }
+
+        public Builder addFood(Item item, float hunger, float taming) {
+            return addFood(item.builtInRegistryHolder().key(), hunger, taming);
         }
 
         public Builder addFood(ResourceKey<Item> itemKey, float hunger, float taming) {

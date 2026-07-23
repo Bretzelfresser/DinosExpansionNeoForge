@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 
 public class DinoFoods {
     public static final ResourceKey<Registry<DinoFoodEntry>> DINO_FOOD_REGISTRY_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "dino_food"));
@@ -22,12 +23,11 @@ public class DinoFoods {
 
     public static void bootstrap(BootstrapContext<DinoFoodEntry> context) {
 
-        var itemLookup = context.registryLookup(Registries.ITEM).orElseThrow();
 
-                context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
-                        .addFood(net.minecraft.world.item.Items.BEEF.builtInRegistryHolder().key(), 50.0F, 0.05F)
-                        .addFood(net.minecraft.world.item.Items.COOKED_BEEF.builtInRegistryHolder().key(), 80.0F, 0.10F)
-                        .build()
-                );
+        context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
+                .addFood(Items.BEEF, 50.0F, 0.05F)
+                .addFood(Items.COOKED_BEEF, 80.0F, 0.10F)
+                .build()
+        );
     }
 }

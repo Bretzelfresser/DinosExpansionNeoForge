@@ -1,6 +1,9 @@
 package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
+import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
+import com.bretzelfresser.dinosexpansion.common.init.DinoFoods;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
@@ -247,12 +250,16 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         for (int i = 2; i < 38; i++) {
             ItemStack stack = this.inventory.getItem(i);
             if (!stack.isEmpty() && this.isPreferredFood(stack)) {
+                DinoFoodEntry.FoodValues values = this.getFoodValues(stack);
+                float hungerVal = values != null ? values.hungerValue() : 50.0F;
+                float tamingVal = values != null ? values.tamingValue() : 0.05F;
+
                 // Eat food
-                this.setHunger(this.getHunger() + 50.0f); // Restore hunger
+                this.setHunger(this.getHunger() + hungerVal); // Restore hunger
                 
                 if (!this.isTame() && this.isUnconscious()) {
                     // Wild & asleep: eating increases taming progress
-                    float progressGain = 0.05f * this.getTamingEffectiveness();
+                    float progressGain = tamingVal * this.getTamingEffectiveness();
                     this.setTamingProgress(this.getTamingProgress() + progressGain);
                     if (this.getTamingProgress() >= 1.0f) {
                         this.tame(null); // Tame it!
@@ -272,8 +279,13 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     }
 
     protected boolean isPreferredFood(ItemStack stack) {
-        // Can be overridden per dino subclass. Default: eats any food (has FOOD data component in 1.21.1)
-        return stack.has(DataComponents.FOOD);
+        if (stack.isEmpty()) return false;
+        return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).containsKey(stack.getItem());
+    }
+
+    protected DinoFoodEntry.FoodValues getFoodValues(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).get(stack.getItem());
     }
 
     public void applyNarcotics(int amount) {
