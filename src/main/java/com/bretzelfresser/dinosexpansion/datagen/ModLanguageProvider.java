@@ -27,6 +27,9 @@ public class ModLanguageProvider extends LanguageProvider {
         // Creative Tabs
         add("itemGroup.dinosexpansion", "Dinos Expansion");
 
+        // Custom Tooltips
+        add("dinosexpansion.narcotic_value", "Narcotic Value: +%s Torpor");
+
         // Inherited Existing Manual Translations
         add("block.dinosexpansion.example_block", "Example Block");
         add("item.dinosexpansion.example_item", "Example Item");

@@ -44,10 +44,13 @@ public class DinosExpansion {
         ModAttributes.ATTRIBUTES.register(modEventBus);
         // Register custom entities
         ModEntities.ENTITIES.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
+        // Register custom data components
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
 
         // Register entity attributes event listener
         modEventBus.addListener(this::registerAttributes);
+        // Register default component modifier event listener
+        modEventBus.addListener(this::modifyDefaultComponents);
 
         // Register data generators
 
@@ -86,5 +89,11 @@ public class DinosExpansion {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+
+    private void modifyDefaultComponents(net.neoforged.neoforge.event.ModifyDefaultComponentsEvent event) {
+        event.modify(net.minecraft.world.item.Items.ROTTEN_FLESH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F));
+        event.modify(net.minecraft.world.item.Items.PUFFERFISH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 30.0F));
+        event.modify(net.minecraft.world.item.Items.SPIDER_EYE, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 15.0F));
     }
 }

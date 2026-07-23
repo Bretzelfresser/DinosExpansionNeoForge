@@ -5,6 +5,7 @@ import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -269,7 +270,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
 
     protected boolean isPreferredFood(ItemStack stack) {
         // Can be overridden per dino subclass. Default: eats any food (has FOOD data component in 1.21.1)
-        return stack.has(net.minecraft.core.component.DataComponents.FOOD);
+        return stack.has(DataComponents.FOOD);
     }
 
     public void applyNarcotics(int amount) {
@@ -298,14 +299,13 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         
         if (this.isUnconscious()) {
             // If unconscious, we can force-feed narcotics or preferred food directly
-            if (!stack.isEmpty()) {
-                if (stack.is(ModItems.NARCOTICS.get())) {
-                    this.applyNarcotics(40);
-                    if (!player.getAbilities().instabuild) {
-                        stack.shrink(1);
-                    }
-                    return InteractionResult.SUCCESS;
+            if (!stack.isEmpty() && stack.has(com.bretzelfresser.dinosexpansion.common.init.ModDataComponents.NARCOTIC_VALUE.get())) {
+                float val = stack.get(com.bretzelfresser.dinosexpansion.common.init.ModDataComponents.NARCOTIC_VALUE.get());
+                this.applyNarcotics((int) val);
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
                 }
+                return InteractionResult.SUCCESS;
             }
             
             // Otherwise, open its inventory/taming menu
