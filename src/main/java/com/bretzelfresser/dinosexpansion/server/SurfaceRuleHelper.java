@@ -54,8 +54,45 @@ public class SurfaceRuleHelper {
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeGeysirValleySurface()),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeRedwoodForest()),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), boneDesertSurfaceRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeFoggySwampSurface()),
                 SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), surfaceRule),
                 stoneDeepslateRule
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeFoggySwampSurface() {
+        return SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.FOGGY_SWAMP),
+                SurfaceRules.sequence(
+                        // If on floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, 0.4, 1.0),
+                                                SurfaceRules.state(Blocks.WATER.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, 0.1, 0.4),
+                                                SurfaceRules.state(Blocks.MUD.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, -0.2, 0.1),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, -0.5, -0.2),
+                                                SurfaceRules.state(Blocks.PODZOL.defaultBlockState())
+                                        ),
+                                        SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState()) // default
+                                )
+                        ),
+                        // under floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR),
+                                SurfaceRules.state(Blocks.DIRT.defaultBlockState())
+                        )
+                )
         );
     }
 
