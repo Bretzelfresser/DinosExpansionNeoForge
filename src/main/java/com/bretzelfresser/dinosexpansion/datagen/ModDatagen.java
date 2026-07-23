@@ -40,5 +40,8 @@ public class ModDatagen {
                 event.includeServer(),
                 new ModBiomeTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
         );
+
+        generator.addProvider(event.includeClient(), new ModItemModelProvider(packOutput, event.getExistingFileHelper()));
+        generator.addProvider(event.includeClient(), new ModLanguageProvider(packOutput));
     }
 }

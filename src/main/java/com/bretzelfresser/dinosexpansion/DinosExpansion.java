@@ -1,8 +1,7 @@
 package com.bretzelfresser.dinosexpansion;
 
-import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
-import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
-import com.bretzelfresser.dinosexpansion.common.init.ModItems;
+import com.bretzelfresser.dinosexpansion.common.init.*;
+import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
