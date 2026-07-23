@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.worldgen.feature;
 
+import com.bretzelfresser.dinosexpansion.util.FeaturePlacementUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -86,8 +87,11 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                             level.setBlock(mutablePos, Blocks.AIR.defaultBlockState(), 2);
                         } else if (yOffset >= -depth) { // Y = minY - 1 down to minY - waterPondDepth
                             // Place fluid (water)
-                            BlockState fluidState = config.fluidProvider().getState(context.random(), mutablePos);
-                            level.setBlock(mutablePos, fluidState, 2);
+                            try {
+                                FeaturePlacementUtils.placeLiquid(config.fluidProvider, level, context.random(), mutablePos);
+                            } catch (IllegalArgumentException e) {
+                                throw new RuntimeException(e);
+                            }
                         } else { // Y < minY - waterPondDepth
                             // Place barrier at the bottom of the lake (seals the floor)
                             BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
@@ -96,10 +100,11 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
                     } else if (r < layerLimit + 1.5) {
                         // Place barrier rim/borders
                         if (yOffset <= 0 && yOffset >= -depth) {
-                            if (!state.isAir() && state.getFluidState().isEmpty()) {
+                            if (state.getFluidState().isEmpty()) {
                                 BlockState barrierState = config.barrierProvider().getState(context.random(), mutablePos);
                                 level.setBlock(mutablePos, barrierState, 2);
                             }
+                            //floor, leave it when there is a solid block, otherwise set our barrier block there too
                         }
                     }
                 }
@@ -109,7 +114,8 @@ public class HotSpringFeature extends Feature<HotSpringFeature.Configuration> {
         return true;
     }
 
-    public static record Configuration(BlockStateProvider fluidProvider, BlockStateProvider barrierProvider, IntProvider size, IntProvider depth) implements FeatureConfiguration {
+    public static record Configuration(BlockStateProvider fluidProvider, BlockStateProvider barrierProvider,
+                                       IntProvider size, IntProvider depth) implements FeatureConfiguration {
         public static final Codec<Configuration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BlockStateProvider.CODEC.fieldOf("fluid_provider").forGetter(Configuration::fluidProvider),
                 BlockStateProvider.CODEC.fieldOf("barrier_provider").forGetter(Configuration::barrierProvider),
