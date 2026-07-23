@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.ContainerListener;
 import net.minecraft.world.InteractionHand;
@@ -38,6 +39,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity, ContainerListener {
@@ -337,7 +339,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     }
 
     public void openDinoInventory(Player player) {
-        if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+        if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -406,12 +408,12 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         registrar.add(new AnimationController<>(this, "dino_controller", 10, event -> {
             if (this.isUnconscious()) {
-                return event.setAndContinue(software.bernie.geckolib.animation.RawAnimation.begin().thenLoop("sleep"));
+                return event.setAndContinue(RawAnimation.begin().thenLoop("sleep"));
             }
             if (event.isMoving()) {
-                return event.setAndContinue(software.bernie.geckolib.animation.RawAnimation.begin().thenLoop("walk"));
+                return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             }
-            return event.setAndContinue(software.bernie.geckolib.animation.RawAnimation.begin().thenLoop("idle"));
+            return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
         }));
     }
 

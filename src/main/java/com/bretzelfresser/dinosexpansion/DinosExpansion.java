@@ -55,6 +55,8 @@ public class DinosExpansion {
         modEventBus.addListener(this::registerAttributes);
         // Register default component modifier event listener
         modEventBus.addListener(this::modifyDefaultComponents);
+        // Register custom datapack registry
+        modEventBus.addListener(this::registerDatapackRegistries);
 
         // Register data generators
 
@@ -99,5 +101,13 @@ public class DinosExpansion {
         event.modify(Items.ROTTEN_FLESH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F));
         event.modify(Items.PUFFERFISH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 30.0F));
         event.modify(Items.SPIDER_EYE, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 15.0F));
+    }
+
+    private void registerDatapackRegistries(net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry event) {
+        event.dataPackRegistry(
+                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.DINO_FOOD_REGISTRY_KEY,
+                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.CODEC,
+                com.bretzelfresser.dinosexpansion.common.init.DinoFoodEntry.CODEC
+        );
     }
 }
