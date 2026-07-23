@@ -1,0 +1,230 @@
+package com.bretzelfresser.dinosexpansion.server;
+
+import com.bretzelfresser.dinosexpansion.common.init.ModBiomes;
+import com.bretzelfresser.dinosexpansion.common.init.ModNoiseParameters;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.placement.CaveSurface;
+
+public class SurfaceRuleHelper {
+
+    public static SurfaceRules.RuleSource generateDinoSurfaceRules() {
+
+        var waterSandRule = andConditions(
+                ifElse(
+                        SurfaceRules.noiseCondition(ModNoiseParameters.CONTINENTS, -0.2f),
+                        SurfaceRules.state(Blocks.SAND.defaultBlockState()),
+                        SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())),
+                SurfaceRules.not(SurfaceRules.waterBlockCheck(0, 1)),
+                SurfaceRules.ON_FLOOR,
+                SurfaceRules.abovePreliminarySurface()
+        );
+
+        var beachSandRule = SurfaceRules.ifTrue(SurfaceRules.isBiome(ModBiomes.PREHISTORIC_COAST), SurfaceRules.sequence(
+                SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
+                SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
+
+        ));
+
+        var surfaceRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState())),
+                SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState())));
+
+        var stoneDeepslateRule = SurfaceRules.sequence(SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(63), 0),
+                        SurfaceRules.sequence(
+                                andConditions(SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()),
+                                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(70), 0)),
+                                        SurfaceRules.noiseCondition(ModNoiseParameters.DEEPSLATE_NOISE, -1, -0.5)),
+                                SurfaceRules.state(Blocks.STONE.defaultBlockState())
+                        )),
+                SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState()));
+
+        var boneDesertSurfaceRule = SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.BONE_DESERT),
+                SurfaceRules.sequence(
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SAND.defaultBlockState())),
+                        SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(6, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.SANDSTONE.defaultBlockState()))
+                )
+        );
+
+        return SurfaceRules.sequence(
+                waterSandRule,
+                makeColdSurface(),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), beachSandRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeGeysirValleySurface()),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeRedwoodForest()),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), boneDesertSurfaceRule),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), makeFoggySwampSurface()),
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), surfaceRule),
+                stoneDeepslateRule
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeFoggySwampSurface() {
+        return SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.FOGGY_SWAMP),
+                SurfaceRules.sequence(
+                        // If on floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, 0.4, 1.0),
+                                                SurfaceRules.state(Blocks.WATER.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, 0.1, 0.4),
+                                                SurfaceRules.state(Blocks.MUD.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, -0.2, 0.1),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.FOGGY_SWAMP_NOISE, -0.5, -0.2),
+                                                SurfaceRules.state(Blocks.PODZOL.defaultBlockState())
+                                        ),
+                                        SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState()) // default
+                                )
+                        ),
+                        // under floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR),
+                                SurfaceRules.state(Blocks.DIRT.defaultBlockState())
+                        )
+                )
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeRedwoodForest() {
+       var coarseDirtSurface = SurfaceRules.sequence(
+               SurfaceRules.ifTrue(SurfaceRules.ON_FLOOR, SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState())),
+               SurfaceRules.ifTrue(SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR), SurfaceRules.state(Blocks.DIRT.defaultBlockState()))
+       );
+       return SurfaceRules.ifTrue(SurfaceRules.isBiome(ModBiomes.REDWOOD_FOREST), coarseDirtSurface);
+
+    }
+
+    public static SurfaceRules.RuleSource makeColdSurface() {
+        // 1. LAND RULE: If on the true floor and above water level, coat with snow
+        SurfaceRules.RuleSource solidToSnow = andConditions(
+                SurfaceRules.state(Blocks.SNOW_BLOCK.defaultBlockState()),
+                SurfaceRules.ON_FLOOR,
+                SurfaceRules.abovePreliminarySurface()
+        );
+
+        // 3. Combine them in a sequence under your temperature noise condition
+        return andConditions(
+                solidToSnow,
+                SurfaceRules.temperature() // Your temperature threshold condition
+        );
+    }
+
+    public static SurfaceRules.RuleSource makeGeysirValleySurface() {
+        return SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(ModBiomes.GEYSER_VALLEY),
+                SurfaceRules.sequence(
+                        // Underwater floor rule
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.waterBlockCheck(-1, 0),
+                                SurfaceRules.ifTrue(
+                                        SurfaceRules.ON_FLOOR,
+                                        SurfaceRules.sequence(
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.2, 1.0),
+                                                        SurfaceRules.state(Blocks.MAGMA_BLOCK.defaultBlockState())
+                                                ),
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.2, 0.2),
+                                                        SurfaceRules.state(Blocks.SOUL_SAND.defaultBlockState())
+                                                ),
+                                                SurfaceRules.ifTrue(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.5, -0.2),
+                                                        SurfaceRules.state(Blocks.OBSIDIAN.defaultBlockState())
+                                                ),
+                                                ifElse(
+                                                        SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.75, 1.0),
+                                                        SurfaceRules.state(Blocks.CLAY.defaultBlockState()),
+                                                        SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                                )
+                                        )
+                                )
+                        ),
+                        // Dry floor rule
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.35, 1.0),
+                                                SurfaceRules.state(Blocks.CALCITE.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.15, 0.35),
+                                                SurfaceRules.state(Blocks.YELLOW_TERRACOTTA.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.0, 0.15),
+                                                SurfaceRules.state(Blocks.ORANGE_TERRACOTTA.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.35, -0.15),
+                                                SurfaceRules.state(Blocks.CLAY.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.6, -0.35),
+                                                SurfaceRules.state(Blocks.MUD.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -1.0, -0.6),
+                                                SurfaceRules.state(Blocks.SMOOTH_BASALT.defaultBlockState())
+                                        ),
+                                        ifElse(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.075, 1.0),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState()),
+                                                SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                        )
+                                )
+                        ),
+                        // Deep under floor
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.stoneDepthCheck(4, false, CaveSurface.FLOOR),
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.35, 1.0),
+                                                SurfaceRules.state(Blocks.CALCITE.defaultBlockState())
+                                        ),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, -0.35, -0.15),
+                                                SurfaceRules.state(Blocks.CLAY.defaultBlockState())
+                                        ),
+                                        ifElse(
+                                                SurfaceRules.noiseCondition(ModNoiseParameters.GEYSER_PATCH_NOISE, 0.0, 1.0),
+                                                SurfaceRules.state(Blocks.COARSE_DIRT.defaultBlockState()),
+                                                SurfaceRules.state(Blocks.GRAVEL.defaultBlockState())
+                                        )
+                                )
+                        )
+                )
+        );
+    }
+
+
+    public static SurfaceRules.RuleSource ifElse(SurfaceRules.ConditionSource condition, SurfaceRules.RuleSource whenTrue, SurfaceRules.RuleSource whenFalse) {
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(condition, whenTrue),
+                whenFalse
+        );
+    }
+
+    private static SurfaceRules.RuleSource andConditions(SurfaceRules.RuleSource ifTrue, SurfaceRules.ConditionSource... conditions) {
+        if (conditions == null || conditions.length == 0) {
+            return ifTrue;
+        }
+        var start = SurfaceRules.ifTrue(conditions[0], ifTrue);
+
+        for (int i = 1; i < conditions.length; i++) {
+            start = SurfaceRules.ifTrue(conditions[i], start);
+        }
+        return start;
+    }
+}
