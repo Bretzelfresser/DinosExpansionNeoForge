@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
 
@@ -91,7 +92,7 @@ public class DinosExpansion {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("Dinos Expansion started on Server");
     }
 
     private void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
