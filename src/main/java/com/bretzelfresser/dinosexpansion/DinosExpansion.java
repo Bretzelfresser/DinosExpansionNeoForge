@@ -1,7 +1,10 @@
 package com.bretzelfresser.dinosexpansion;
 
+import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -65,8 +68,8 @@ public class DinosExpansion {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    private void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
-        event.put(ModEntities.TEST_DINO.get(), com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity.createAttributes().build());
+    private void registerAttributes(EntityAttributeCreationEvent event) {
+        event.put(ModEntities.TEST_DINO.get(), BaseDinoEntity.createAttributes().build());
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -91,9 +94,9 @@ public class DinosExpansion {
         LOGGER.info("HELLO from server starting");
     }
 
-    private void modifyDefaultComponents(net.neoforged.neoforge.event.ModifyDefaultComponentsEvent event) {
-        event.modify(net.minecraft.world.item.Items.ROTTEN_FLESH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F));
-        event.modify(net.minecraft.world.item.Items.PUFFERFISH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 30.0F));
-        event.modify(net.minecraft.world.item.Items.SPIDER_EYE, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 15.0F));
+    private void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
+        event.modify(Items.ROTTEN_FLESH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F));
+        event.modify(Items.PUFFERFISH, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 30.0F));
+        event.modify(Items.SPIDER_EYE, builder -> builder.set(ModDataComponents.NARCOTIC_VALUE.get(), 15.0F));
     }
 }

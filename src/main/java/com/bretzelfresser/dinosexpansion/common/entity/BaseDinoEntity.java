@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
@@ -299,8 +300,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         
         if (this.isUnconscious()) {
             // If unconscious, we can force-feed narcotics or preferred food directly
-            if (!stack.isEmpty() && stack.has(com.bretzelfresser.dinosexpansion.common.init.ModDataComponents.NARCOTIC_VALUE.get())) {
-                float val = stack.get(com.bretzelfresser.dinosexpansion.common.init.ModDataComponents.NARCOTIC_VALUE.get());
+            if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
+                float val = stack.get(ModDataComponents.NARCOTIC_VALUE.get());
                 this.applyNarcotics((int) val);
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);

@@ -13,7 +13,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        basicItem(ModItems.TEST_DINO_SADDLE.get());
+        //basicItem(ModItems.TEST_DINO_SADDLE.get());
         basicItem(ModItems.NARCOTICS.get());
     }
 }
