@@ -25,8 +25,8 @@ public class DinoFoods {
         var itemLookup = context.registryLookup(Registries.ITEM).orElseThrow();
 
                 context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
-                        .addFood(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "raw_beef")), 50.0F, 0.05F)
-                        .addFood(ResourceKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("minecraft", "cooked_beef")), 80.0F, 0.10F)
+                        .addFood(net.minecraft.world.item.Items.BEEF.builtInRegistryHolder().key(), 50.0F, 0.05F)
+                        .addFood(net.minecraft.world.item.Items.COOKED_BEEF.builtInRegistryHolder().key(), 80.0F, 0.10F)
                         .build()
                 );
     }

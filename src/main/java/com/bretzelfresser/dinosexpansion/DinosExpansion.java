@@ -105,10 +105,6 @@ public class DinosExpansion {
     }
 
     private void registerDatapackRegistries(net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(
-                DinoFoods.DINO_FOOD_REGISTRY_KEY,
-                DinoFoodEntry.CODEC,
-                DinoFoodEntry.CODEC
-        );
+        event.dataPackRegistry(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoodEntry.CODEC, DinoFoodEntry.CODEC);
     }
 }
