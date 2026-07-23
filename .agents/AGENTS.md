@@ -10,3 +10,8 @@ Always follow these Git commit rules when modifying the codebase:
 Always prioritize data generation over manual file creation:
 1. **Use Data Generators**: Always use data generation (datagen) to programmatically generate JSON files (such as blockstates, models, recipes, tags, loot tables, advancements, biomes, etc.) whenever possible.
 2. **Avoid Hardcoded JSONs**: Only write or modify JSON files manually when it is absolutely necessary (e.g., when the specific asset type or system does not support data generation).
+
+# Code Style and Imports
+
+Always prioritize imports over fully qualified names:
+1. **Use Import Statements**: Always use import statements at the top of the file instead of writing the fully qualified package path of a class directly in the code (e.g., use `import net.minecraft.world.level.block.Block;` and reference `Block` in the code, rather than referencing `net.minecraft.world.level.block.Block` inline).
