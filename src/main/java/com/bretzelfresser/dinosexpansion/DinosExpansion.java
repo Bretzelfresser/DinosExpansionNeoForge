@@ -61,6 +61,8 @@ public class DinosExpansion {
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(com.bretzelfresser.dinosexpansion.registry.ModItems.TEST_DINO_SADDLE.get());
+                output.accept(com.bretzelfresser.dinosexpansion.registry.ModItems.NARCOTICS.get());
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -73,8 +75,20 @@ public class DinosExpansion {
         BLOCKS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so items get registered
         ITEMS.register(modEventBus);
+        // Register our custom items
+        com.bretzelfresser.dinosexpansion.registry.ModItems.ITEMS.register(modEventBus);
+        // Register custom attributes
+        com.bretzelfresser.dinosexpansion.registry.ModAttributes.ATTRIBUTES.register(modEventBus);
+        // Register custom entities
+        com.bretzelfresser.dinosexpansion.registry.ModEntities.ENTITIES.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+
+        // Register entity attributes event listener
+        modEventBus.addListener(this::registerAttributes);
+
+        // Register data generators
+        modEventBus.addListener(com.bretzelfresser.dinosexpansion.datagen.DataGenerators::gatherData);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (DinosExpansion) to respond directly to events.
@@ -88,9 +102,15 @@ public class DinosExpansion {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    private void registerAttributes(net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent event) {
+        event.put(com.bretzelfresser.dinosexpansion.registry.ModEntities.TEST_DINO.get(), com.bretzelfresser.dinosexpansion.entity.BaseDinoEntity.createAttributes().build());
+    }
+
     private void commonSetup(FMLCommonSetupEvent event) {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
+
+
 
         if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
             LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));

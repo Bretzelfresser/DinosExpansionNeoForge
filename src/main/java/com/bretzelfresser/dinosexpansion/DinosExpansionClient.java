@@ -28,4 +28,9 @@ public class DinosExpansionClient {
         DinosExpansion.LOGGER.info("HELLO FROM CLIENT SETUP");
         DinosExpansion.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
+
+    @SubscribeEvent
+    static void registerScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
+        event.register(com.bretzelfresser.dinosexpansion.registry.ModMenus.DINO_MENU.get(), com.bretzelfresser.dinosexpansion.client.gui.DinoScreen::new);
+    }
 }
