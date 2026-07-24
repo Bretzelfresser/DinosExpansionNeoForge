@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;
+import org.jetbrains.annotations.Nullable;
 
 public class SleepBehaviour {
     
@@ -15,13 +16,20 @@ public class SleepBehaviour {
     }
 
     /**
-     * client synced
+     * Returns the sleeping state, or null if the rhythm is NONE.
      */
-    public boolean isSleeping(){
+    @Nullable
+    public Boolean isSleeping() {
+        if (this.rhythm == SleepRhythm.NONE) {
+            return null;
+        }
         return dino.getDinoFlag(2);
     }
 
-    public void setSleeping(boolean sleeping){
+    public void setSleeping(boolean sleeping) {
+        if (this.rhythm == SleepRhythm.NONE) {
+            return;
+        }
         dino.setDinoFlag(2, sleeping);
         if (!dino.level().isClientSide()) {
             if (sleeping) {
@@ -33,7 +41,10 @@ public class SleepBehaviour {
     }
 
     public void forceAwake(int ticks) {
-        if (this.isSleeping()) {
+        if (this.rhythm == SleepRhythm.NONE) {
+            return;
+        }
+        if (Boolean.TRUE.equals(this.isSleeping())) {
             this.setSleeping(false);
         }
         this.sleepCooldown = ticks;
@@ -43,12 +54,46 @@ public class SleepBehaviour {
         return this.sleepCooldown <= 0;
     }
 
-    public void tick(){
+    public SleepRhythm getRhythm() {
+        return this.rhythm;
+    }
+
+    public void setRhythm(SleepRhythm rhythm) {
+        this.rhythm = rhythm;
+    }
+
+    public void tick() {
+        if (this.rhythm == SleepRhythm.NONE) {
+            return;
+        }
+
         if (this.sleepCooldown > 0) {
             this.sleepCooldown--;
         }
+
+        if (!dino.level().isClientSide()) {
+            boolean shouldSleep = false;
+            if (this.rhythm == SleepRhythm.DIURNAL) {
+                // Diurnal dinos sleep during the night
+                shouldSleep = !dino.level().isDay();
+            } else if (this.rhythm == SleepRhythm.NOCTURNAL) {
+                // Nocturnal dinos sleep during the day
+                shouldSleep = dino.level().isDay();
+            }
+
+            if (shouldSleep) {
+                if (this.canSleep() && !Boolean.TRUE.equals(this.isSleeping()) && !dino.isUnconscious()) {
+                    this.setSleeping(true);
+                }
+            } else {
+                if (Boolean.TRUE.equals(this.isSleeping())) {
+                    this.setSleeping(false);
+                }
+            }
+        }
+
         // Force the sleep flag to false if we are on a sleep cooldown
-        if (this.sleepCooldown > 0 && this.isSleeping()) {
+        if (this.sleepCooldown > 0 && Boolean.TRUE.equals(this.isSleeping())) {
             this.setSleeping(false);
         }
     }
