@@ -61,11 +61,17 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     protected boolean isAttacking = false;
 
     protected float stackedTorpor = 0;
+    protected final SleepBehaviour sleepBehaviour;
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
         super(entityType, level);
+        this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.NONE);
         this.inventory = new SimpleContainer(38); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
         this.inventory.addListener(this);
+    }
+
+    public SleepBehaviour getSleepBehaviour() {
+        return this.sleepBehaviour;
     }
 
     public static AttributeSupplier.Builder createDinoDefaultAttributes() {
@@ -145,11 +151,6 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
             this.ejectPassengers();
             // Stop any active navigation/movement immediately
             this.getNavigation().stop();
-            // Erase brain memories for target, walk target, look target, path, and attack target
-            this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-            this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
-            this.getBrain().eraseMemory(MemoryModuleType.PATH);
-            this.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
             // Write unconscious status to brain memory
             this.getBrain().setMemory(ModMemoryModules.UNCONSCIOUS.get(), Unit.INSTANCE);
         } else {
@@ -205,7 +206,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                         MemoryModuleType.LOOK_TARGET,
                         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
                         MemoryModuleType.PATH,
-                        ModMemoryModules.UNCONSCIOUS.get()
+                        ModMemoryModules.UNCONSCIOUS.get(),
+                        ModMemoryModules.SLEEPING.get()
                 ),
                 ImmutableList.of(
                         SensorType.NEAREST_PLAYERS,
@@ -241,6 +243,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         super.aiStep();
 
         if (!this.level().isClientSide()) {
+            this.sleepBehaviour.tick();
             // Torpor draining over time
             float torpor = this.getTorpor();
             if (torpor > 0 && (this.stackedTorpor <= 0) || this.isUnconscious()) {

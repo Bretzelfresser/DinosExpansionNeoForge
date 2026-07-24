@@ -22,11 +22,6 @@ import java.util.Set;
 
 public class DinoBrain {
 
-    public static void eraseMovementGoals(Brain<BaseDinoEntity> brain){
-        brain.eraseMemory(MemoryModuleType.LOOK_TARGET);
-        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
-    }
-
     public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
@@ -38,13 +33,20 @@ public class DinoBrain {
     }
 
     private static void initCoreActivity(Brain<BaseDinoEntity> brain) {
-        brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
-                Pair.of(0, new Swim(0.8F)),
-                Pair.of(1, new LookAtTargetSink(45, 90)),
-                Pair.of(2, new MoveToTargetSink())
-        ), ImmutableSet.of(
-                Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT)
-        ));
+        brain.addActivityAndRemoveMemoriesWhenStopped(Activity.CORE, ImmutableList.of(
+                        Pair.of(0, new Swim(0.8F)),
+                        Pair.of(1, new LookAtTargetSink(45, 90)),
+                        Pair.of(2, new MoveToTargetSink())
+                ), ImmutableSet.of(
+                        Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT),
+                        Pair.of(ModMemoryModules.SLEEPING.get(), MemoryStatus.VALUE_ABSENT)
+                ), Set.of(
+                        MemoryModuleType.WALK_TARGET,
+                        MemoryModuleType.LOOK_TARGET,
+                        MemoryModuleType.PATH,
+                        MemoryModuleType.ATTACK_TARGET
+                )
+        );
     }
 
     private static void initIdleActivity(Brain<BaseDinoEntity> brain) {
@@ -59,6 +61,7 @@ public class DinoBrain {
 
     /**
      * adds the unconscious activity, which has the requiroment that the {@link ModMemoryModules#UNCONSCIOUS} module is present and then does nothing
+     *
      * @param brain
      */
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
@@ -70,12 +73,17 @@ public class DinoBrain {
         ));
     }
 
+    public static void initSleepActivity(Brain<BaseDinoEntity> brain) {
+        // When unconscious, do absolutely nothing but sleep
+        brain.addActivityWithConditions(ModActivities.SLEEP.get(), ImmutableList.of(
+                Pair.of(0, new DoNothing(100, 200))
+        ), Set.of(
+                Pair.of(ModMemoryModules.SLEEPING.get(), MemoryStatus.VALUE_PRESENT)
+        ));
+    }
+
     public static void updateActivity(BaseDinoEntity dino) {
         Brain<BaseDinoEntity> brain = dino.getBrain();
-        if (dino.isUnconscious()) {
-            brain.setActiveActivityIfPossible(Activity.REST);
-        } else {
-            brain.setActiveActivityIfPossible(Activity.IDLE);
-        }
+        brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.IDLE));
     }
 }

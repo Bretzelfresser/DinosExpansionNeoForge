@@ -8,6 +8,7 @@ import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -59,6 +60,9 @@ public class DinosExpansion {
         ModMenus.MENUS.register(modEventBus);
         ModEnchantmentEffectComponents.ENCHANTMENT_COMPONENT_TYPES.register(modEventBus);
 
+        ModMemoryModules.MEMORY_MODULE_TYPES.register(modEventBus);
+        ModActivities.ACTIVITES.register(modEventBus);
+
         // Register entity attributes event listener
         modEventBus.addListener(this::registerAttributes);
         // Register default component modifier event listener
@@ -72,7 +76,7 @@ public class DinosExpansion {
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (DinosExpansion) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        NeoForge.EVENT_BUS.addListener(this::registerCommands);
         modEventBus.addListener(ModDatagen::gatherData);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
