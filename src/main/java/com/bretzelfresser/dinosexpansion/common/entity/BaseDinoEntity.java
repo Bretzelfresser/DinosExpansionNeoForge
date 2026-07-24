@@ -7,6 +7,7 @@ import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
+import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
@@ -239,7 +240,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
             // Hunger depletion over time
             float hunger = this.getHunger();
             if (hunger > 0) {
-                this.setHunger(hunger - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE)); // Drain hunger slowly
+                this.setHunger(hunger - (float) getAttributeValue(ModAttributes.HUNGER_DECREASE)); // Drain hunger slowly
             } else {
                 // Starving - lose health
                 this.hurt(this.damageSources().starve(), 1.0F);
@@ -410,11 +411,11 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        this.setTorpor(tag.getFloat("Torpor"));
-        this.setHunger(tag.getFloat("Hunger"));
-        this.setUnconscious(tag.getBoolean("Unconscious"));
-        this.setTamingProgress(tag.getFloat("TamingProgress"));
-        this.setTamingEffectiveness(tag.getFloat("TamingEffectiveness"));
+        NbtUtils.setIfExists(tag, "Torpor", CompoundTag::getFloat, this::setTorpor);
+        NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getFloat, this::setHunger);
+        NbtUtils.setIfExists(tag, "TamingProgress", CompoundTag::getFloat, this::setTamingProgress);
+        NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
+        NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getBoolean, this::setUnconscious);
         
         // Load items
         ListTag listTag = tag.getList("Inventory", 10);

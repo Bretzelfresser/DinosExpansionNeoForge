@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.event;
+package com.bretzelfresser.dinosexpansion.client.event;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
@@ -11,7 +11,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(modid = DinosExpansion.MODID, value = Dist.CLIENT)
-public class ModEvents {
+public class ClientRenderingEvents {
     @SubscribeEvent
     public static void addTooltipInformation(ItemTooltipEvent event) {
         if (event.getEntity() != null) {

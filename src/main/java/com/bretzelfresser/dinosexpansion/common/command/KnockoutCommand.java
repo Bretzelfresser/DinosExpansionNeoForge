@@ -8,6 +8,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -29,7 +30,7 @@ public class KnockoutCommand {
         Vec3 endPoint = eyePosition.add(lookVector.x * reach, lookVector.y * reach, lookVector.z * reach);
         AABB searchArea = player.getBoundingBox().expandTowards(lookVector.scale(reach)).inflate(1.0D, 1.0D, 1.0D);
 
-        EntityHitResult hitResult = net.minecraft.world.entity.projectile.ProjectileUtil.getEntityHitResult(
+        EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(
                 player.level(),
                 player,
                 eyePosition,

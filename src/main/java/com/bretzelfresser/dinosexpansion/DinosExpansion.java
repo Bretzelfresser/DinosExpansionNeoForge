@@ -57,6 +57,7 @@ public class DinosExpansion {
         // Register custom data components
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
+        ModEnchantmentEffectComponents.ENCHANTMENT_COMPONENT_TYPES.register(modEventBus);
 
         // Register entity attributes event listener
         modEventBus.addListener(this::registerAttributes);

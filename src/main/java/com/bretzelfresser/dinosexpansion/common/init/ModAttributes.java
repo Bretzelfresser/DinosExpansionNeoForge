@@ -17,10 +17,10 @@ public class ModAttributes {
             () -> new RangedAttribute("attribute.name.dinosexpansion.max_hunger", 100.0D, 1.0D, 100000.0D).setSyncable(true));
 
     public static final DeferredHolder<Attribute, Attribute> HUNGER_DECREASE = ATTRIBUTES.register("hunger_decrease",
-            () -> new RangedAttribute("attribute.name.dinosexpansion.hunger_decrease", 0.02, 0, 100000.0D).setSyncable(true));
+            () -> new RangedAttribute("attribute.name.dinosexpansion.hunger_decrease", 0.002, 0, 100000.0D).setSyncable(true));
 
     public static final DeferredHolder<Attribute, Attribute> TORPOR_DECREASE = ATTRIBUTES.register("torpor_decrease",
-            () -> new RangedAttribute("attribute.name.dinosexpansion.torpor_decrease", 0.01, 0, 100000.0D).setSyncable(true));
+            () -> new RangedAttribute("attribute.name.dinosexpansion.torpor_decrease", 0.001, 0, 100000.0D).setSyncable(true));
 
 
     public static final DeferredHolder<Attribute, Attribute> TORPOR_WAKE_UP_THRESHOLD = ATTRIBUTES.register("torpor_wake_up_threshold",

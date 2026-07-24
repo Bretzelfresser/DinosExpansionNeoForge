@@ -13,9 +13,7 @@ public class CertosaurusModel extends GeoModel<Certosaurus> {
 
     @Override
     public ResourceLocation getTextureResource(Certosaurus animatable) {
-        return animatable.isSaddled() 
-            ? DinosExpansion.modLoc("textures/entity/ceratosaurus/ceratosaurus_saddle.png")
-            : DinosExpansion.modLoc("textures/entity/ceratosaurus/ceratosaurus_common.png");
+        return DinosExpansion.modLoc("textures/entity/ceratosaurus/ceratosaurus_common.png");
     }
 
     @Override
