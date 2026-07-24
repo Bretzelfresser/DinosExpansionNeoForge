@@ -8,6 +8,7 @@ import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -173,7 +174,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Brain<?> makeBrain(com.mojang.serialization.Dynamic<?> dynamic) {
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
         return DinoBrain.makeBrain((Brain<BaseDinoEntity>) this.brainProvider().makeBrain(dynamic));
     }
 
@@ -286,7 +287,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).get(stack.getItem());
     }
 
-    public void applyNarcotics(int amount) {
+    public void applyNarcotics(float amount) {
         // Narcotics increase torpor
         this.setTorpor(this.getTorpor() + amount);
     }
@@ -412,25 +413,5 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
-        registrar.add(new AnimationController<>(this, "dino_controller", 10, event -> {
-            if (this.isUnconscious()) {
-                return event.setAndContinue(RawAnimation.begin().thenLoop("sleep"));
-            }
-            if (event.isMoving()) {
-                return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
-            }
-            return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
-        }));
-    }
-
-    // AgeableMob required method
-    @Nullable
-    @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob ageableMob) {
-        return null; // Implemented by concrete dino species
     }
 }
