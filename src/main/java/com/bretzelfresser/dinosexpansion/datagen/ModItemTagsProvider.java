@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.datagen;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.common.init.Tags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -24,5 +25,6 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .addTag(ItemTags.AXES)
                 .add(Items.BOW)
                 .add(Items.CROSSBOW);
+        tag(ItemTags.ARROWS).add(ModItems.TRANQUILIZER_ARROW.getKey());
     }
 }

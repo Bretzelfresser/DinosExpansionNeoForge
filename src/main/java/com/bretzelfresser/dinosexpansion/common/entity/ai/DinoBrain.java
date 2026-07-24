@@ -26,6 +26,7 @@ public class DinoBrain {
         initCoreActivity(brain);
         initIdleActivity(brain);
         initUnconsciousActivity(brain);
+        initSleepActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
         brain.useDefaultActivity();

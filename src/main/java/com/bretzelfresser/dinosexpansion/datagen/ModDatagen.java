@@ -60,5 +60,6 @@ public class ModDatagen {
 
         generator.addProvider(event.includeClient(), new ModItemModelProvider(packOutput, event.getExistingFileHelper()));
         generator.addProvider(event.includeClient(), new ModLanguageProvider(packOutput));
+        generator.addProvider(event.includeClient(), new ModParticleProvider(packOutput, event.getExistingFileHelper()));
     }
 }

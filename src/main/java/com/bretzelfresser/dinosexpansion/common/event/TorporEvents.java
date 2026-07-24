@@ -39,12 +39,14 @@ public class TorporEvents {
             ItemStack weaponStack = getWeaponStack(damageSource);
             ItemStack directWeapon = getDirectSourceStack(damageSource);
 
+            if (weaponStack.isEmpty() || directWeapon.isEmpty()) {
+                return;
+            }
+
             float defaultTorpor = directWeapon.getComponents().getOrDefault(ModDataComponents.NARCOTIC_VALUE.get(), 0f);
 
-            defaultTorpor += event.getOriginalDamage() * (float) Config.TORPOR_CONFIG.DAMAGE_SCALING.getAsDouble();
-
-            if (weaponStack.isEmpty()) {
-                return;
+            if (defaultTorpor > 0) {
+                defaultTorpor += event.getOriginalDamage() * (float) Config.TORPOR_CONFIG.DAMAGE_SCALING.getAsDouble();
             }
 
             final float[] torporToApply = {defaultTorpor};
@@ -102,10 +104,7 @@ public class TorporEvents {
 
         // 1. If damage is from a projectile (bow, crossbow, etc.), retrieve the weapon that fired it
         if (damageSource.getDirectEntity() instanceof Projectile projectile) {
-            weaponStack = projectile.getPickResult();
-            if (weaponStack == null) {
-                weaponStack = ItemStack.EMPTY;
-            }
+            weaponStack = projectile.getSlot(0).get();
         }
         // 2. Otherwise, check if it's direct melee damage from a living entity
         else if (damageSource.getEntity() instanceof LivingEntity attacker) {

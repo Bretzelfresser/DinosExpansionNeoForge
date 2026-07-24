@@ -16,7 +16,7 @@ public class Certosaurus extends BaseDinoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {
         registrar.add(new AnimationController<>(this, "dino_controller", 10, event -> {
-            if (this.isUnconscious()) {
+            if (this.isUnconscious() || this.getSleepBehaviour().isSleeping()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("sleep"));
             }
             if (event.isMoving()) {

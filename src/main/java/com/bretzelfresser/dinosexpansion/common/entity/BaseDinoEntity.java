@@ -3,11 +3,8 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
-import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
-import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
+import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
-import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
-import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.google.common.collect.ImmutableList;
@@ -63,9 +60,11 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     protected float stackedTorpor = 0;
     protected final SleepBehaviour sleepBehaviour;
 
+    private int sleepParticleCooldown = 0;
+
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
         super(entityType, level);
-        this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.NONE);
+        this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
         this.inventory = new SimpleContainer(38); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
         this.inventory.addListener(this);
     }
@@ -101,6 +100,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     public float getTorpor() {
         return this.entityData.get(CURRENT_TORPOR);
     }
+
     public float getMissingTorpor() {
         float max = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
         return Math.max(0, max - getTorpor());
@@ -127,6 +127,14 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         return (this.entityData.get(DINO_FLAGS) & (1 << bitPos)) != 0;
     }
 
+    /**
+     * 0 = unconscious
+     * 1 = saddled
+     * 2 = sleep
+     *
+     * @param bitPos
+     * @param value
+     */
     protected void setDinoFlag(int bitPos, boolean value) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
@@ -250,7 +258,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                 // Drain torpor slowly (e.g. 0.1 per tick, can be customized)
                 this.setTorpor(torpor - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE));
             }
-            if (this.stackedTorpor > 0){
+            if (this.stackedTorpor > 0) {
                 float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max((float) Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION.getAsDouble(), stackedTorpor * (float) Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION.getAsDouble())));
                 stackedTorpor -= stackedTorporReduction;
                 this.applyNarcotics(stackedTorporReduction);
@@ -292,6 +300,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                     this.isAttacking = false;
                 }
             }
+        } else if (this.sleepBehaviour.isSleeping()) {
+            spawnSleepingParticles();
         }
     }
 
@@ -450,6 +460,24 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getBoolean, this::setUnconscious);
         NbtUtils.setIfExists(tag, "stackedTorpor", CompoundTag::getFloat, f -> this.stackedTorpor = f);
         NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> ContainerHelper.loadAllItems(t, inventory.getItems(), level().registryAccess()));
+    }
+
+    @Override
+    public boolean isSleeping() {
+        return this.sleepBehaviour.isSleeping();
+    }
+
+    protected void spawnSleepingParticles() {
+        if (!this.sleepBehaviour.isSleeping()) return;
+        if (sleepParticleCooldown > 0) {
+            sleepParticleCooldown--;
+            return;
+        }
+        sleepParticleCooldown = 40 + this.random.nextInt(40);
+        double x = this.getX();
+        double y = this.getY() + this.getBbHeight() + 0.5D;
+        double z = this.getZ();
+        this.level().addParticle(ModParticles.SLEEPING_PARTICLES.get(), x, y, z, 0f, 0.4f, 0);
     }
 
     @Nullable

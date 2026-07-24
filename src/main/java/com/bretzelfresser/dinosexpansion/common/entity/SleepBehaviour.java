@@ -2,10 +2,9 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;
-import org.jetbrains.annotations.Nullable;
 
 public class SleepBehaviour {
-    
+
     protected final BaseDinoEntity dino;
     protected SleepRhythm rhythm;
     private int sleepCooldown = 0;
@@ -18,10 +17,9 @@ public class SleepBehaviour {
     /**
      * Returns the sleeping state, or null if the rhythm is NONE.
      */
-    @Nullable
-    public Boolean isSleeping() {
+    public boolean isSleeping() {
         if (this.rhythm == SleepRhythm.NONE) {
-            return null;
+            return false;
         }
         return dino.getDinoFlag(2);
     }
@@ -44,7 +42,7 @@ public class SleepBehaviour {
         if (this.rhythm == SleepRhythm.NONE) {
             return;
         }
-        if (Boolean.TRUE.equals(this.isSleeping())) {
+        if (this.isSleeping()) {
             this.setSleeping(false);
         }
         this.sleepCooldown = ticks;
@@ -82,18 +80,18 @@ public class SleepBehaviour {
             }
 
             if (shouldSleep) {
-                if (this.canSleep() && !Boolean.TRUE.equals(this.isSleeping()) && !dino.isUnconscious()) {
+                if (this.canSleep() && !this.isSleeping() && !dino.isUnconscious()) {
                     this.setSleeping(true);
                 }
             } else {
-                if (Boolean.TRUE.equals(this.isSleeping())) {
+                if (this.isSleeping()) {
                     this.setSleeping(false);
                 }
             }
         }
 
         // Force the sleep flag to false if we are on a sleep cooldown
-        if (this.sleepCooldown > 0 && Boolean.TRUE.equals(this.isSleeping())) {
+        if (this.sleepCooldown > 0 && this.isSleeping()) {
             this.setSleeping(false);
         }
     }

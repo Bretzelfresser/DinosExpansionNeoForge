@@ -1,10 +1,12 @@
 package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
+import com.bretzelfresser.dinosexpansion.client.particle.SleepingParticle;
 import com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer;
 import com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
+import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -13,7 +15,9 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -40,14 +44,21 @@ public class DinosExpansionClient {
     }
 
     @SubscribeEvent
-    static void registerRenderers(net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+    static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.TEST_DINO.get(), CertosaurusRenderer::new);
-        event.registerEntityRenderer(ModEntities.TRANQUILIZER_ARROW.get(), manager -> new ArrowRenderer<>(manager) {
+        event.registerEntityRenderer(
+            ModEntities.TRANQUILIZER_ARROW.get(),
+            manager -> new ArrowRenderer<>(manager) {
                 @Override
                 public ResourceLocation getTextureLocation(TranquilizerArrow entity) {
                     return ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "textures/entity/arrow/tranquilizer_arrow.png");
                 }
             }
         );
+    }
+
+    @SubscribeEvent
+    static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.SLEEPING_PARTICLES.get(), SleepingParticle.Factory::new);
     }
 }
