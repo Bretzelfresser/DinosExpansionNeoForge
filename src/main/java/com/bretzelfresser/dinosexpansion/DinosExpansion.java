@@ -1,12 +1,15 @@
 package com.bretzelfresser.dinosexpansion;
 
+import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
+import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import org.slf4j.Logger;
 
@@ -44,9 +47,6 @@ public class DinosExpansion {
         ModStructures.register(modEventBus);
         ModFeatures.FEATURE_CONFIGS.register(modEventBus);
 
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
-
 
         // Register our custom items
         ModItems.ITEMS.register(modEventBus);
@@ -79,27 +79,12 @@ public class DinosExpansion {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    private void registerCommands(net.neoforged.neoforge.event.RegisterCommandsEvent event) {
-        com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand.register(event.getDispatcher());
+    private void registerCommands(RegisterCommandsEvent event) {
+        KnockoutCommand.register(event.getDispatcher());
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.TEST_DINO.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
-
-
-
-        if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-        }
-
-        LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
-
-        Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

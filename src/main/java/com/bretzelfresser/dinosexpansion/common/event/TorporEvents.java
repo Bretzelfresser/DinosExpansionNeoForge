@@ -2,7 +2,9 @@ package com.bretzelfresser.dinosexpansion.common.event;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModEnchantmentEffectComponents;
+import com.bretzelfresser.dinosexpansion.config.Config;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,12 +37,17 @@ public class TorporEvents {
 
             var damageSource = event.getSource();
             ItemStack weaponStack = getWeaponStack(damageSource);
+            ItemStack directWeapon = getDirectSourceStack(damageSource);
+
+            float defaultTorpor = directWeapon.getComponents().getOrDefault(ModDataComponents.NARCOTIC_VALUE.get(), 0f);
+
+            defaultTorpor += event.getOriginalDamage() * (float) Config.TORPOR_CONFIG.DAMAGE_SCALING.getAsDouble();
 
             if (weaponStack.isEmpty()) {
                 return;
             }
 
-            final float[] torporToApply = {0.0F};
+            final float[] torporToApply = {defaultTorpor};
 
             // 3. Iterate over the weapon's enchantments and process our custom component
             EnchantmentHelper.runIterationOnItem(weaponStack, (enchantmentHolder, level) -> {
@@ -70,6 +77,8 @@ public class TorporEvents {
 
             if (torporToApply[0] > 0.0F) {
                 dino.applyBufferedNarcotics(torporToApply[0]);
+                //only applying 10% of the original damage if we have torpor
+                event.setNewDamage(event.getOriginalDamage() * (float) Config.TORPOR_CONFIG.DAMAGE_REDUCTION.getAsDouble());
             }
         }
     }
@@ -80,6 +89,23 @@ public class TorporEvents {
         // 1. If damage is from a projectile (bow, crossbow, etc.), retrieve the weapon that fired it
         if (damageSource.getDirectEntity() instanceof Projectile projectile) {
             weaponStack = projectile.getWeaponItem();
+        }
+        // 2. Otherwise, check if it's direct melee damage from a living entity
+        else if (damageSource.getEntity() instanceof LivingEntity attacker) {
+            weaponStack = attacker.getMainHandItem();
+        }
+        return weaponStack;
+    }
+
+    private static ItemStack getDirectSourceStack(DamageSource damageSource) {
+        ItemStack weaponStack = ItemStack.EMPTY;
+
+        // 1. If damage is from a projectile (bow, crossbow, etc.), retrieve the weapon that fired it
+        if (damageSource.getDirectEntity() instanceof Projectile projectile) {
+            weaponStack = projectile.getPickResult();
+            if (weaponStack == null) {
+                weaponStack = ItemStack.EMPTY;
+            }
         }
         // 2. Otherwise, check if it's direct melee damage from a living entity
         else if (damageSource.getEntity() instanceof LivingEntity attacker) {

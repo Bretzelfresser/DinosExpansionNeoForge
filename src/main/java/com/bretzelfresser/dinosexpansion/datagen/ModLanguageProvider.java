@@ -3,7 +3,10 @@ package com.bretzelfresser.dinosexpansion.datagen;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
+import com.bretzelfresser.dinosexpansion.config.Config;
 import net.minecraft.data.PackOutput;
+import net.neoforged.fml.loading.FMLConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class ModLanguageProvider extends LanguageProvider {
@@ -13,6 +16,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
+
         // Items
         add(ModItems.TEST_DINO_SADDLE.get(), "Test Dino Saddle");
         add(ModItems.NARCOTICS.get(), "Narcotics");
@@ -31,15 +35,23 @@ public class ModLanguageProvider extends LanguageProvider {
         add("dinosexpansion.narcotic_value", "Narcotic Value: +%s Torpor");
         add("enchantment.dinosexpansion.torpor_enchantment", "Torpor");
 
-        // Inherited Existing Manual Translations
-        add("block.dinosexpansion.example_block", "Example Block");
-        add("item.dinosexpansion.example_item", "Example Item");
-        add("dinosexpansion.configuration.title", "Dinos Expansion Configs");
-        add("dinosexpansion.configuration.section.dinosexpansion.common.toml", "Dinos Expansion Configs");
-        add("dinosexpansion.configuration.section.dinosexpansion.common.toml.title", "Dinos Expansion Configs");
-        add("dinosexpansion.configuration.items", "Item List");
-        add("dinosexpansion.configuration.logDirtBlock", "Log Dirt Block");
-        add("dinosexpansion.configuration.magicNumberIntroduction", "Magic Number Text");
-        add("dinosexpansion.configuration.magicNumber", "Magic Number");
+
+        addConfigValue("Torpor", "Torpor Configurations");
+        addConfigValue(Config.TORPOR_CONFIG.DAMAGE_REDUCTION, "Torpor Damage Reduction");
+        addConfigValue(Config.TORPOR_CONFIG.DAMAGE_SCALING, "Torpor Damage Scaling");
+        addConfigValue("Dinosaurs", "Dinosaur Entity Configurations");
+
+        addConfigValue(Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION, "Buffered Torpor Reduction");
+        addConfigValue(Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION, "Min Buffered Torpor Reduction");
+
+
+    }
+
+    protected void addConfigValue(ModConfigSpec.ConfigValue<?> configKey, String translation){
+        addConfigValue(configKey.getPath().get(configKey.getPath().size() - 1), translation);
+    }
+
+    protected void addConfigValue(String configKey, String translation){
+        add(DinosExpansion.MODID + ".configuration." + configKey, translation);
     }
 }

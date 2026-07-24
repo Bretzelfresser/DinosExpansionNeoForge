@@ -7,6 +7,7 @@ import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
+import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
@@ -227,12 +228,12 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         if (!this.level().isClientSide()) {
             // Torpor draining over time
             float torpor = this.getTorpor();
-            if (torpor > 0 && this.stackedTorpor <= 0) {
+            if (torpor > 0 && (this.stackedTorpor <= 0) || this.isUnconscious()) {
                 // Drain torpor slowly (e.g. 0.1 per tick, can be customized)
                 this.setTorpor(torpor - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE));
             }
             if (this.stackedTorpor > 0){
-                float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max(0.5f, stackedTorpor * .2f)));
+                float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max((float) Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION.getAsDouble(), stackedTorpor * (float) Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION.getAsDouble())));
                 stackedTorpor -= stackedTorporReduction;
                 this.applyNarcotics(stackedTorporReduction);
             }
