@@ -45,10 +45,9 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> CURRENT_HUNGER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Boolean> IS_UNCONSCIOUS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DINO_FLAGS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> TAMING_PROGRESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TAMING_EFFECTIVENESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Boolean> IS_SADDLED = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BOOLEAN);
 
     protected final SimpleContainer inventory;
     
@@ -80,10 +79,9 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         super.defineSynchedData(builder);
         builder.define(CURRENT_TORPOR, 0.0f);
         builder.define(CURRENT_HUNGER, 100.0f);
-        builder.define(IS_UNCONSCIOUS, false);
+        builder.define(DINO_FLAGS, 0);
         builder.define(TAMING_PROGRESS, 0.0f);
         builder.define(TAMING_EFFECTIVENESS, 1.0f);
-        builder.define(IS_SADDLED, false);
     }
 
     // Getters and Setters for stats
@@ -105,12 +103,32 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         this.entityData.set(CURRENT_HUNGER, Math.clamp(val, 0.0f, max));
     }
 
+    public boolean getDinoFlag(int bitPos) {
+        if (bitPos < 0 || bitPos > 31) {
+            throw new IllegalArgumentException("Bit position must be between 0 and 31");
+        }
+        return (this.entityData.get(DINO_FLAGS) & (1 << bitPos)) != 0;
+    }
+
+    public void setDinoFlag(int bitPos, boolean value) {
+        if (bitPos < 0 || bitPos > 31) {
+            throw new IllegalArgumentException("Bit position must be between 0 and 31");
+        }
+        int flags = this.entityData.get(DINO_FLAGS);
+        if (value) {
+            flags |= (1 << bitPos);
+        } else {
+            flags &= ~(1 << bitPos);
+        }
+        this.entityData.set(DINO_FLAGS, flags);
+    }
+
     public boolean isUnconscious() {
-        return this.entityData.get(IS_UNCONSCIOUS);
+        return this.getDinoFlag(0);
     }
 
     public void setUnconscious(boolean unconscious) {
-        this.entityData.set(IS_UNCONSCIOUS, unconscious);
+        this.setDinoFlag(0, unconscious);
         if (unconscious) {
             // Remove passengers when falling unconscious
             this.ejectPassengers();
@@ -134,11 +152,11 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     }
 
     public boolean isSaddled() {
-        return this.entityData.get(IS_SADDLED);
+        return this.getDinoFlag(1);
     }
 
     public void setSaddled(boolean saddled) {
-        this.entityData.set(IS_SADDLED, saddled);
+        this.setDinoFlag(1, saddled);
     }
 
     public int getInventorySize() {
@@ -407,6 +425,12 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                 this.inventory.setItem(slot, ItemStack.parseOptional(this.registryAccess(), itemTag));
             }
         }
+    }
+
+    @Nullable
+    @Override
+    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+        return null;
     }
 
     // GeckoLib Implementation
