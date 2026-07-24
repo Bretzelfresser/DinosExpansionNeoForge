@@ -20,6 +20,7 @@ public class ModLanguageProvider extends LanguageProvider {
         // Items
         add(ModItems.TEST_DINO_SADDLE.get(), "Test Dino Saddle");
         add(ModItems.NARCOTICS.get(), "Narcotics");
+        add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
 
         // Entities
         add(ModEntities.TEST_DINO.get(), "Test Dinosaur");

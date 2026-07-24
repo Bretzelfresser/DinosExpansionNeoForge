@@ -13,4 +13,7 @@ public class ModItems {
 
     public static final DeferredItem<Item> NARCOTICS = ITEMS.register("narcotics",
             () -> new Item(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
+
+    public static final DeferredItem<Item> TRANQUILIZER_ARROW = ITEMS.register("tranquilizer_arrow",
+            () -> new net.minecraft.world.item.ArrowItem(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
 }

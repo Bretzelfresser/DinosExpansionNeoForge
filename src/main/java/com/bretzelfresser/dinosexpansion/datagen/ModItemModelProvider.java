@@ -15,5 +15,6 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         //basicItem(ModItems.TEST_DINO_SADDLE.get());
         basicItem(ModItems.NARCOTICS.get());
+        basicItem(ModItems.TRANQUILIZER_ARROW.get());
     }
 }

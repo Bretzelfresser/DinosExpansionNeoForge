@@ -44,6 +44,11 @@ public class ModDatagen {
                 new ModBiomeTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
         );
 
+        generator.addProvider(
+                event.includeServer(),
+                new ModRecipeProvider(packOutput, lookupProvider)
+        );
+
         var blockTags = generator.addProvider(
                 event.includeServer(),
                 new ModBlockTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
