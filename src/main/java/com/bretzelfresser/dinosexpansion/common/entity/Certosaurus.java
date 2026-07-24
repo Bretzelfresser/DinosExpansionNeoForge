@@ -23,6 +23,6 @@ public class Certosaurus extends BaseDinoEntity {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             }
             return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
-        }));
+        }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
     }
 }

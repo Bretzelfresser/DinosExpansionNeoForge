@@ -33,4 +33,12 @@ public class DinosExpansionClient {
     static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.DINO_MENU.get(), DinoScreen::new);
     }
+
+    @SubscribeEvent
+    static void registerRenderers(net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(
+            com.bretzelfresser.dinosexpansion.common.init.ModEntities.TEST_DINO.get(),
+            com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer::new
+        );
+    }
 }

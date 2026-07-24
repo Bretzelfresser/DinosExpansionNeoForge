@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.datagen.ModDatagen;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -29,6 +30,10 @@ public class DinosExpansion {
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
+
+    public static ResourceLocation modLoc(String name){
+        return ResourceLocation.fromNamespaceAndPath(MODID, name);
+    }
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
@@ -66,11 +71,15 @@ public class DinosExpansion {
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (DinosExpansion) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        //NeoForge.EVENT_BUS.register(this);
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(this::registerCommands);
         modEventBus.addListener(ModDatagen::gatherData);
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    }
+
+    private void registerCommands(net.neoforged.neoforge.event.RegisterCommandsEvent event) {
+        com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand.register(event.getDispatcher());
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
