@@ -20,6 +20,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
@@ -347,6 +348,14 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).get(stack.getItem());
     }
 
+    @Override
+    protected void actuallyHurt(DamageSource damageSource, float damageAmount) {
+        if (this.sleepBehaviour.isSleeping() && damageAmount > 0){
+            this.sleepBehaviour.forceAwake(200 + this.random.nextInt(200));
+        }
+        super.actuallyHurt(damageSource, damageAmount);
+    }
+
     public void applyNarcotics(float amount) {
         // Narcotics increase torpor
         this.setTorpor(this.getTorpor() + amount);
@@ -475,7 +484,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         }
         sleepParticleCooldown = 40 + this.random.nextInt(40);
         double x = this.getX();
-        double y = this.getY() + this.getBbHeight() + 0.5D;
+        double y = this.getY() + this.getBbHeight() + 0.15D;
         double z = this.getZ();
         this.level().addParticle(ModParticles.SLEEPING_PARTICLES.get(), x, y, z, 0f, 0.4f, 0);
     }
