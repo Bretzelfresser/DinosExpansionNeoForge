@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
+import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
@@ -12,9 +14,18 @@ import net.minecraft.world.entity.ai.behavior.RandomStroll;
 import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.Swim;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
 
+import java.util.Set;
+
 public class DinoBrain {
+
+    public static void eraseMovementGoals(Brain<BaseDinoEntity> brain){
+        brain.eraseMemory(MemoryModuleType.LOOK_TARGET);
+        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+    }
 
     public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
         initCoreActivity(brain);
@@ -44,10 +55,16 @@ public class DinoBrain {
         ));
     }
 
-    private static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
+    /**
+     * adds the unconscious activity, which has the requiroment that the {@link ModMemoryModules#UNCONSCIOUS} module is present and then does nothing
+     * @param brain
+     */
+    public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
         // When unconscious, do absolutely nothing but sleep
-        brain.addActivity(Activity.REST, ImmutableList.of(
+        brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
                 Pair.of(0, new DoNothing(100, 200))
+        ), Set.of(
+                Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
         ));
     }
 

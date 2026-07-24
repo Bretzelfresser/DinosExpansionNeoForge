@@ -1,7 +1,12 @@
 package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
+import com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer;
+import com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow;
+import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -36,16 +41,11 @@ public class DinosExpansionClient {
 
     @SubscribeEvent
     static void registerRenderers(net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(
-            com.bretzelfresser.dinosexpansion.common.init.ModEntities.TEST_DINO.get(),
-            com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer::new
-        );
-        event.registerEntityRenderer(
-            com.bretzelfresser.dinosexpansion.common.init.ModEntities.TRANQUILIZER_ARROW.get(),
-            manager -> new net.minecraft.client.renderer.entity.ArrowRenderer<com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow>(manager) {
+        event.registerEntityRenderer(ModEntities.TEST_DINO.get(), CertosaurusRenderer::new);
+        event.registerEntityRenderer(ModEntities.TRANQUILIZER_ARROW.get(), manager -> new ArrowRenderer<>(manager) {
                 @Override
-                public net.minecraft.resources.ResourceLocation getTextureLocation(com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow entity) {
-                    return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "textures/entity/arrow/tranquilizer_arrow.png");
+                public ResourceLocation getTextureLocation(TranquilizerArrow entity) {
+                    return ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "textures/entity/arrow/tranquilizer_arrow.png");
                 }
             }
         );
