@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
+import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
@@ -11,6 +12,7 @@ import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.util.Unit;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -141,6 +143,18 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         if (unconscious) {
             // Remove passengers when falling unconscious
             this.ejectPassengers();
+            // Stop any active navigation/movement immediately
+            this.getNavigation().stop();
+            // Erase brain memories for target, walk target, look target, path, and attack target
+            this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+            this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
+            this.getBrain().eraseMemory(MemoryModuleType.PATH);
+            this.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            // Write unconscious status to brain memory
+            this.getBrain().setMemory(ModMemoryModules.UNCONSCIOUS.get(), Unit.INSTANCE);
+        } else {
+            // Erase unconscious status from brain memory
+            this.getBrain().eraseMemory(ModMemoryModules.UNCONSCIOUS.get());
         }
     }
 
@@ -190,7 +204,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                         MemoryModuleType.WALK_TARGET,
                         MemoryModuleType.LOOK_TARGET,
                         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                        MemoryModuleType.PATH
+                        MemoryModuleType.PATH,
+                        ModMemoryModules.UNCONSCIOUS.get()
                 ),
                 ImmutableList.of(
                         SensorType.NEAREST_PLAYERS,

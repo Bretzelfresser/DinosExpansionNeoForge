@@ -38,10 +38,12 @@ public class DinoBrain {
     }
 
     private static void initCoreActivity(Brain<BaseDinoEntity> brain) {
-        brain.addActivity(Activity.CORE, ImmutableList.of(
+        brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                 Pair.of(0, new Swim(0.8F)),
                 Pair.of(1, new LookAtTargetSink(45, 90)),
                 Pair.of(2, new MoveToTargetSink())
+        ), ImmutableSet.of(
+                Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT)
         ));
     }
 
