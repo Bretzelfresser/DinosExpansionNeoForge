@@ -19,4 +19,12 @@ public class Tags {
             return TagKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
         }
     }
+
+    public static final class Items {
+        public static final TagKey<net.minecraft.world.item.Item> TORPOR_WEAPONS = create("enchantable/torpor_weapon");
+
+        public static TagKey<net.minecraft.world.item.Item> create(String name){
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
+        }
+    }
 }

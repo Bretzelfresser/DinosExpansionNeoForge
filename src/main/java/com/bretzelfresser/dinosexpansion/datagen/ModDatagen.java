@@ -26,6 +26,7 @@ public class ModDatagen {
             .add(Registries.CONFIGURED_FEATURE, ModConfiguredFeatures::generate)
             .add(Registries.STRUCTURE, ModStructures::bootstrapStructures)
             .add(Registries.STRUCTURE_SET, ModStructures::bootstrapStructureSets)
+            .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
             .add(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoods::bootstrap);
 
     public static void gatherData(GatherDataEvent event) {
@@ -41,6 +42,15 @@ public class ModDatagen {
         generator.addProvider(
                 event.includeServer(),
                 new ModBiomeTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
+        );
+
+        var blockTags = generator.addProvider(
+                event.includeServer(),
+                new ModBlockTagsProvider(packOutput, lookupProvider, event.getExistingFileHelper())
+        );
+        generator.addProvider(
+                event.includeServer(),
+                new ModItemTagsProvider(packOutput, lookupProvider, blockTags.contentsGetter(), event.getExistingFileHelper())
         );
 
         generator.addProvider(event.includeClient(), new ModItemModelProvider(packOutput, event.getExistingFileHelper()));

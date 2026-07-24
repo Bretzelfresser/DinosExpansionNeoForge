@@ -29,6 +29,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
         // Custom Tooltips
         add("dinosexpansion.narcotic_value", "Narcotic Value: +%s Torpor");
+        add("enchantment.dinosexpansion.torpor_enchantment", "Torpor");
 
         // Inherited Existing Manual Translations
         add("block.dinosexpansion.example_block", "Example Block");

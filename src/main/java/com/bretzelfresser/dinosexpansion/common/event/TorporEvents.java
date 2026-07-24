@@ -3,18 +3,19 @@ package com.bretzelfresser.dinosexpansion.common.event;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModEnchantmentEffectComponents;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ConditionalEffect;
-import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.effects.EnchantmentValueEffect;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -33,16 +34,7 @@ public class TorporEvents {
             }
 
             var damageSource = event.getSource();
-            ItemStack weaponStack = ItemStack.EMPTY;
-
-            // 1. If damage is from a projectile (bow, crossbow, etc.), retrieve the weapon that fired it
-            if (damageSource.getDirectEntity() instanceof Projectile projectile) {
-                weaponStack = projectile.getWeaponItem();
-            }
-            // 2. Otherwise, check if it's direct melee damage from a living entity
-            else if (damageSource.getEntity() instanceof LivingEntity attacker) {
-                weaponStack = attacker.getMainHandItem();
-            }
+            ItemStack weaponStack = getWeaponStack(damageSource);
 
             if (weaponStack.isEmpty()) {
                 return;
@@ -77,8 +69,22 @@ public class TorporEvents {
             });
 
             if (torporToApply[0] > 0.0F) {
-                dino.applyNarcotics(torporToApply[0]);
+                dino.applyBufferedNarcotics(torporToApply[0]);
             }
         }
+    }
+
+    private static ItemStack getWeaponStack(DamageSource damageSource) {
+        ItemStack weaponStack = ItemStack.EMPTY;
+
+        // 1. If damage is from a projectile (bow, crossbow, etc.), retrieve the weapon that fired it
+        if (damageSource.getDirectEntity() instanceof Projectile projectile) {
+            weaponStack = projectile.getWeaponItem();
+        }
+        // 2. Otherwise, check if it's direct melee damage from a living entity
+        else if (damageSource.getEntity() instanceof LivingEntity attacker) {
+            weaponStack = attacker.getMainHandItem();
+        }
+        return weaponStack;
     }
 }

@@ -10,6 +10,7 @@ import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -51,10 +52,12 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     private static final EntityDataAccessor<Float> TAMING_EFFECTIVENESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
 
     protected final SimpleContainer inventory;
-    
+
     // Attack duration tracker (server ticks)
     protected int attackTicks = 0;
     protected boolean isAttacking = false;
+
+    protected float stackedTorpor = 0;
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
         super(entityType, level);
@@ -88,6 +91,10 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     // Getters and Setters for stats
     public float getTorpor() {
         return this.entityData.get(CURRENT_TORPOR);
+    }
+    public float getMissingTorpor() {
+        float max = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
+        return Math.max(0, max - getTorpor());
     }
 
     public void setTorpor(float val) {
@@ -220,9 +227,14 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         if (!this.level().isClientSide()) {
             // Torpor draining over time
             float torpor = this.getTorpor();
-            if (torpor > 0) {
+            if (torpor > 0 && this.stackedTorpor <= 0) {
                 // Drain torpor slowly (e.g. 0.1 per tick, can be customized)
                 this.setTorpor(torpor - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE));
+            }
+            if (this.stackedTorpor > 0){
+                float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max(0.5f, stackedTorpor * .2f)));
+                stackedTorpor -= stackedTorporReduction;
+                this.applyNarcotics(stackedTorporReduction);
             }
 
             // Unconsciousness state machine
@@ -274,7 +286,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
 
                 // Eat food
                 this.setHunger(this.getHunger() + hungerVal); // Restore hunger
-                
+
                 if (!this.isTame() && this.isUnconscious()) {
                     // Wild & asleep: eating increases taming progress
                     float progressGain = tamingVal * this.getTamingEffectiveness();
@@ -284,7 +296,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                         this.setUnconscious(false); // Wake up
                     }
                 }
-                
+
                 stack.shrink(1);
                 break;
             }
@@ -311,6 +323,16 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         this.setTorpor(this.getTorpor() + amount);
     }
 
+    /**
+     * applys torpor value to the entity but in a stacked way.
+     * this value will be added to a buffer, and then slowly added to the real entity torpor, this also prevents the entity from reducing torpor while something is buffered
+     *
+     * @param amount
+     */
+    public void applyBufferedNarcotics(float amount) {
+        this.stackedTorpor += amount;
+    }
+
     protected void doMeleeDamage() {
         // Deal attack damage to attack target
         if (this.getTarget() != null) {
@@ -329,7 +351,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        
+
         if (this.isUnconscious()) {
             // If unconscious, we can force-feed narcotics or preferred food directly
             if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
@@ -340,7 +362,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                 }
                 return InteractionResult.SUCCESS;
             }
-            
+
             // Otherwise, open its inventory/taming menu
             if (!this.level().isClientSide()) {
                 this.openDinoInventory(player);
@@ -393,19 +415,10 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         tag.putBoolean("Unconscious", this.isUnconscious());
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
-        
-        // Save items
-        ListTag listTag = new ListTag();
-        for (int i = 0; i < this.inventory.getContainerSize(); ++i) {
-            ItemStack itemstack = this.inventory.getItem(i);
-            if (!itemstack.isEmpty()) {
-                CompoundTag itemTag = new CompoundTag();
-                itemTag.putByte("Slot", (byte) i);
-                itemstack.save(this.registryAccess(), itemTag);
-                listTag.add(itemTag);
-            }
-        }
-        tag.put("Inventory", listTag);
+        tag.putFloat("stackedTorpor", this.stackedTorpor);
+        var inventoryTag = new CompoundTag();
+        ContainerHelper.saveAllItems(inventoryTag, this.inventory.getItems(), this.level().registryAccess());
+        tag.put("inventory", inventoryTag);
     }
 
     @Override
@@ -416,16 +429,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         NbtUtils.setIfExists(tag, "TamingProgress", CompoundTag::getFloat, this::setTamingProgress);
         NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
         NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getBoolean, this::setUnconscious);
-        
-        // Load items
-        ListTag listTag = tag.getList("Inventory", 10);
-        for (int i = 0; i < listTag.size(); ++i) {
-            CompoundTag itemTag = listTag.getCompound(i);
-            int slot = itemTag.getByte("Slot") & 255;
-            if (slot < this.inventory.getContainerSize()) {
-                this.inventory.setItem(slot, ItemStack.parseOptional(this.registryAccess(), itemTag));
-            }
-        }
+        NbtUtils.setIfExists(tag, "stackedTorpor", CompoundTag::getFloat, f -> this.stackedTorpor = f);
+        NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> ContainerHelper.loadAllItems(t, inventory.getItems(), level().registryAccess()));
     }
 
     @Nullable
