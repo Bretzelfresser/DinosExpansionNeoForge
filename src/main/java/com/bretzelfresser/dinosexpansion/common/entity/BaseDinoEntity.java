@@ -103,14 +103,14 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         this.entityData.set(CURRENT_HUNGER, Math.clamp(val, 0.0f, max));
     }
 
-    public boolean getDinoFlag(int bitPos) {
+    protected boolean getDinoFlag(int bitPos) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
         }
         return (this.entityData.get(DINO_FLAGS) & (1 << bitPos)) != 0;
     }
 
-    public void setDinoFlag(int bitPos, boolean value) {
+    protected void setDinoFlag(int bitPos, boolean value) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
         }
