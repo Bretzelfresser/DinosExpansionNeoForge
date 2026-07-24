@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -15,5 +16,5 @@ public class ModItems {
             () -> new Item(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
 
     public static final DeferredItem<Item> TRANQUILIZER_ARROW = ITEMS.register("tranquilizer_arrow",
-            () -> new net.minecraft.world.item.ArrowItem(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
+            () -> new com.bretzelfresser.dinosexpansion.common.item.TranquilizerArrowItem(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
 }

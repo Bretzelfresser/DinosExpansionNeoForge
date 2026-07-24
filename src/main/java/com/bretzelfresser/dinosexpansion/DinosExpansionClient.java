@@ -40,5 +40,14 @@ public class DinosExpansionClient {
             com.bretzelfresser.dinosexpansion.common.init.ModEntities.TEST_DINO.get(),
             com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer::new
         );
+        event.registerEntityRenderer(
+            com.bretzelfresser.dinosexpansion.common.init.ModEntities.TRANQUILIZER_ARROW.get(),
+            manager -> new net.minecraft.client.renderer.entity.ArrowRenderer<com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow>(manager) {
+                @Override
+                public net.minecraft.resources.ResourceLocation getTextureLocation(com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow entity) {
+                    return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "textures/entity/arrow/tranquilizer_arrow.png");
+                }
+            }
+        );
     }
 }
