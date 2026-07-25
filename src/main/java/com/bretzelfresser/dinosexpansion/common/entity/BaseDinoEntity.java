@@ -21,10 +21,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -35,7 +33,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import org.jetbrains.annotations.Nullable;
+import oshi.jna.platform.windows.NtDll;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -43,7 +43,11 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity, ContainerListener {
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+public abstract class BaseDinoEntity extends Animal implements GeoEntity, ContainerListener, OwnableEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
@@ -51,6 +55,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     private static final EntityDataAccessor<Integer> DINO_FLAGS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> TAMING_PROGRESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TAMING_EFFECTIVENESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Optional<UUID>> UNCONSCIOUS_OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
     protected final SimpleContainer inventory;
 
@@ -62,6 +68,8 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
     protected final SleepBehaviour sleepBehaviour;
 
     private int sleepParticleCooldown = 0;
+
+    protected Optional<UUID> lastHitPlayer = Optional.empty();
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
         super(entityType, level);
@@ -95,6 +103,37 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         builder.define(DINO_FLAGS, 0);
         builder.define(TAMING_PROGRESS, 0.0f);
         builder.define(TAMING_EFFECTIVENESS, 1.0f);
+        builder.define(OWNER, Optional.empty());
+        builder.define(UNCONSCIOUS_OWNER, Optional.empty());
+    }
+
+    /**
+     *
+     * @param player the player this should be owned to, null of set to untamed, will overwrite existing owners
+     */
+    public void setTamedBy(@Nullable Player player) {
+        this.setTamedBy(player == null ? null : player.getUUID());
+    }
+
+    protected void setTamedBy(@Nullable UUID player) {
+        this.entityData.set(OWNER, Optional.ofNullable(player));
+    }
+
+    public boolean isTamed() {
+        return this.getOwnerUUID() != null;
+    }
+
+    @Override
+    public @Nullable UUID getOwnerUUID() {
+        return this.entityData.get(OWNER).orElse(null);
+    }
+
+    public Optional<UUID> getUnconsciousOwnerUUID() {
+        return this.entityData.get(UNCONSCIOUS_OWNER);
+    }
+
+    public Optional<LivingEntity> getUnconsciousOwner() {
+        return this.entityData.get(UNCONSCIOUS_OWNER).map(id -> level().getPlayerByUUID(id));
     }
 
     // Getters and Setters for stats
@@ -149,11 +188,24 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         this.entityData.set(DINO_FLAGS, flags);
     }
 
+    public void setUnconsciousFrom(@Nullable Player owner) {
+        setUnconsciousFrom(owner == null ? null : owner.getUUID());
+    }
+
+    /**
+     *
+     * @param entity only use UUIDS from players, cause there is no way to retrieve another entity from UUID, null to wake up the entity
+     */
+    protected void setUnconsciousFrom(@Nullable UUID entity) {
+        this.entityData.set(UNCONSCIOUS_OWNER, Optional.ofNullable(entity));
+        this.setUnconscious(entity != null);
+    }
+
     public boolean isUnconscious() {
         return this.getDinoFlag(0);
     }
 
-    public void setUnconscious(boolean unconscious) {
+    private void setUnconscious(boolean unconscious) {
         this.setDinoFlag(0, unconscious);
         if (unconscious) {
             // Remove passengers when falling unconscious
@@ -165,6 +217,9 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         } else {
             // Erase unconscious status from brain memory
             this.getBrain().eraseMemory(ModMemoryModules.UNCONSCIOUS.get());
+            if (getUnconsciousOwnerUUID().isPresent()) {
+                this.entityData.set(UNCONSCIOUS_OWNER, Optional.empty());
+            }
         }
     }
 
@@ -263,16 +318,18 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
                 float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max((float) Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION.getAsDouble(), stackedTorpor * (float) Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION.getAsDouble())));
                 stackedTorpor -= stackedTorporReduction;
                 this.applyNarcotics(stackedTorporReduction);
+            } else if (this.lastHitPlayer.isPresent()) {
+                this.lastHitPlayer = Optional.empty();
             }
 
             // Unconsciousness state machine
             float maxTorpor = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
             if (!this.isUnconscious() && this.getTorpor() >= maxTorpor) {
-                this.setUnconscious(true);
+                this.setUnconscious(true);//TODO add the last one who hit this entity as unconscious owner
             } else if (this.isUnconscious() && this.getTorpor() <= maxTorpor * getAttributeValue(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)) {
-                this.setUnconscious(false);
+                this.setUnconsciousFrom((UUID) null);
                 // When waking up wild, reset taming progress slightly
-                if (!this.isTame()) {
+                if (!this.isTamed()) {
                     this.setTamingProgress(this.getTamingProgress() * 0.5f);
                 }
             }
@@ -311,19 +368,20 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
             ItemStack stack = this.inventory.getItem(i);
             if (!stack.isEmpty() && this.isPreferredFood(stack)) {
                 DinoFoodEntry.FoodValues values = this.getFoodValues(stack);
-                float hungerVal = values != null ? values.hungerValue() : 50.0F;
-                float tamingVal = values != null ? values.tamingValue() : 0.05F;
+                Objects.requireNonNull(values);
+                float hungerVal = values.hungerValue();
+                float tamingVal = values.tamingValue();
 
                 // Eat food
                 this.setHunger(this.getHunger() + hungerVal); // Restore hunger
 
-                if (!this.isTame() && this.isUnconscious()) {
+                if (!this.isTamed() && this.isUnconscious()) {
                     // Wild & asleep: eating increases taming progress
                     float progressGain = tamingVal * this.getTamingEffectiveness();
                     this.setTamingProgress(this.getTamingProgress() + progressGain);
                     if (this.getTamingProgress() >= 1.0f) {
-                        this.tame(null); // Tame it!
-                        this.setUnconscious(false); // Wake up
+                        this.setTamedBy(this.getUnconsciousOwnerUUID().orElse(null)); // Tame it!
+                        this.setUnconsciousFrom((UUID) null); // Wake up
                     }
                 }
 
@@ -350,8 +408,11 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
 
     @Override
     protected void actuallyHurt(DamageSource damageSource, float damageAmount) {
-        if (this.sleepBehaviour.isSleeping() && damageAmount > 0){
+        if (this.sleepBehaviour.isSleeping() && damageAmount > 0) {
             this.sleepBehaviour.forceAwake(200 + this.random.nextInt(200));
+        }
+        if (damageSource.getEntity() instanceof Player player) {
+            this.lastHitPlayer = Optional.of(player.getUUID());
         }
         super.actuallyHurt(damageSource, damageAmount);
     }
@@ -409,7 +470,7 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         }
 
         // Tamed and active interaction
-        if (this.isTame()) {
+        if (this.isTamed()) {
             if (player.isSecondaryUseActive()) {
                 // Shift-right click: open inventory
                 if (!this.level().isClientSide()) {
@@ -454,6 +515,9 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
         tag.putFloat("stackedTorpor", this.stackedTorpor);
+        NbtUtils.putIfPresent(tag, "owner", CompoundTag::putUUID, this.entityData.get(OWNER));
+        NbtUtils.putIfPresent(tag, "unconscious_owner", CompoundTag::putUUID, this.entityData.get(UNCONSCIOUS_OWNER));
+        NbtUtils.putIfPresent(tag, "last_hit_player", CompoundTag::putUUID, this.lastHitPlayer);
         var inventoryTag = new CompoundTag();
         ContainerHelper.saveAllItems(inventoryTag, this.inventory.getItems(), this.level().registryAccess());
         tag.put("inventory", inventoryTag);
@@ -469,6 +533,10 @@ public abstract class BaseDinoEntity extends TamableAnimal implements GeoEntity,
         NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getBoolean, this::setUnconscious);
         NbtUtils.setIfExists(tag, "stackedTorpor", CompoundTag::getFloat, f -> this.stackedTorpor = f);
         NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> ContainerHelper.loadAllItems(t, inventory.getItems(), level().registryAccess()));
+
+        NbtUtils.setIfExists(tag, "owner", CompoundTag::getUUID, uuid -> entityData.set(OWNER, Optional.of(uuid)));
+        NbtUtils.setIfExists(tag, "unconscious_owner", CompoundTag::getUUID, this::setUnconsciousFrom);
+        NbtUtils.setIfExists(tag, "last_hit_player", CompoundTag::getUUID, id -> this.lastHitPlayer = Optional.of(id));
     }
 
     @Override

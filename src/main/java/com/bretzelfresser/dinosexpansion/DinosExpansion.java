@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
+import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
@@ -86,6 +87,7 @@ public class DinosExpansion {
 
     private void registerCommands(RegisterCommandsEvent event) {
         KnockoutCommand.register(event.getDispatcher());
+        TameCommand.register(event.getDispatcher());
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {

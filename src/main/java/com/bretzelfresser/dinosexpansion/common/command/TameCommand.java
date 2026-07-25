@@ -13,10 +13,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public class KnockoutCommand {
+public class TameCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
-            Commands.literal("knockout")
+            Commands.literal("tame")
                 .requires(source -> source.hasPermission(2))
                 .executes(context -> execute(context.getSource()))
         );
@@ -40,9 +40,9 @@ public class KnockoutCommand {
         );
 
         if (hitResult != null && hitResult.getEntity() instanceof BaseDinoEntity dino) {
-            dino.setUnconsciousFrom(player);
+            dino.setTamedBy(player);
             dino.setTorpor((float) dino.getAttributeValue(ModAttributes.MAX_TORPOR));
-            source.sendSuccess(() -> Component.literal("Successfully knocked out " + dino.getName().getString()), true);
+            source.sendSuccess(() -> Component.literal("Successfully Tamed " + dino.getName().getString()), true);
             return 1;
         } else {
             source.sendFailure(Component.literal("No dinosaur in sight!"));
