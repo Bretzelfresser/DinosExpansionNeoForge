@@ -1,12 +1,14 @@
 package com.bretzelfresser.dinosexpansion.util;
 
+import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
+import dev.ftb.mods.ftbteams.api.Team;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,9 +19,11 @@ public class PlayerTeamUtils {
             return true;
         }
 
-        // 1. Try FTB Teams Integration reflectively
-        if (arePlayersInSameFTBTeam(uuid1, uuid2)) {
-            return true;
+        // 1. Try FTB Teams Integration
+        if (ModList.get().isLoaded("ftbteams")) {
+            if (arePlayersInSameFTBTeam(uuid1, uuid2)) {
+                return true;
+            }
         }
 
         // 2. Try Vanilla Scoreboard Teams
@@ -28,53 +32,17 @@ public class PlayerTeamUtils {
 
     private static boolean arePlayersInSameFTBTeam(UUID uuid1, UUID uuid2) {
         try {
-            Class<?> apiClass = Class.forName("dev.ftb.mods.ftbteams.api.FTBTeamsAPI");
-            Object apiInstance = apiClass.getMethod("api").invoke(null);
-            if (apiInstance == null) return false;
-
-            Object manager = apiInstance.getClass().getMethod("getManager").invoke(apiInstance);
-            if (manager == null) return false;
-
-            Method getTeamMethod = getGetTeamMethod(manager);
-            if (getTeamMethod == null) return false;
-
-            Object team1Opt = getTeamMethod.invoke(manager, uuid1);
-            Object team2Opt = getTeamMethod.invoke(manager, uuid2);
-            if (team1Opt == null || team2Opt == null) return false;
-
-            Object team1 = team1Opt instanceof Optional ? ((Optional<?>) team1Opt).orElse(null) : team1Opt;
-            Object team2 = team2Opt instanceof Optional ? ((Optional<?>) team2Opt).orElse(null) : team2Opt;
-            if (team1 == null || team2 == null) return false;
-
-            java.lang.reflect.Method getIdMethod = team1.getClass().getMethod("getId");
-            UUID id1 = (UUID) getIdMethod.invoke(team1);
-            UUID id2 = (UUID) getIdMethod.invoke(team2);
-
-            return id1 != null && id1.equals(id2);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private static @Nullable Method getGetTeamMethod(Object manager) {
-        Method getTeamMethod = null;
-        try {
-            getTeamMethod = manager.getClass().getMethod("getTeamForPlayerID", UUID.class);
-        } catch (NoSuchMethodException e) {
-            try {
-                getTeamMethod = manager.getClass().getMethod("getTeamForPlayer", UUID.class);
-            } catch (NoSuchMethodException ex) {
-                for (Method m : manager.getClass().getMethods()) {
-                    if ((m.getName().equals("getTeamForPlayer") || m.getName().equals("getTeamForPlayerID"))
-                            && m.getParameterCount() == 1
-                            && m.getParameterTypes()[0] == UUID.class) {
-                        getTeamMethod = m;
-                        break;
-                    }
-                }
+            Optional<Team> team1Opt = FTBTeamsAPI.api().getManager().getTeamForPlayerID(uuid1);
+            Optional<Team> team2Opt = FTBTeamsAPI.api().getManager().getTeamForPlayerID(uuid2);
+            if (team1Opt.isPresent() && team2Opt.isPresent()) {
+                Team team1 = team1Opt.get();
+                Team team2 = team2Opt.get();
+                return team1.getId() != null && team1.getId().equals(team2.getId());
             }
+        } catch (Throwable t) {
+            // Fallback in case of class loading / version differences at runtime
         }
-        return getTeamMethod;
+        return false;
     }
 
     private static boolean arePlayersInSameVanillaTeam(Level level, UUID uuid1, UUID uuid2) {

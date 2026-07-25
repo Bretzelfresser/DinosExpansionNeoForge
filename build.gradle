@@ -35,6 +35,14 @@ repositories {
             includeGroup("software.bernie.geckolib")
         }
     }
+    maven {
+        name = 'FTB Maven'
+        url = 'https://maven.ftb.dev/releases'
+    }
+    maven {
+        name = 'Architectury Maven'
+        url = 'https://maven.architectury.dev/'
+    }
 }
 
 base {
@@ -126,6 +134,10 @@ configurations {
 
 dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.9.2"
+
+    // FTB Teams optional integration
+    compileOnly "dev.ftb.mods:ftb-teams-neoforge:2101.1.9"
+    localRuntime "dev.ftb.mods:ftb-teams-neoforge:2101.1.9"
 
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
