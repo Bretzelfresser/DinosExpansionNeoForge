@@ -76,7 +76,7 @@ public class DinoContainerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return this.dino != null && this.dino.isAlive() && this.dino.distanceTo(player) < 8.0F;
+        return this.dino != null && this.dino.isAlive() && this.dino.distanceTo(player) < 8.0F && this.dino.canPlayerAccess(player);
     }
 
     @Override

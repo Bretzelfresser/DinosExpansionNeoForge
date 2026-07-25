@@ -22,6 +22,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -325,7 +327,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
             // Unconsciousness state machine
             float maxTorpor = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
             if (!this.isUnconscious() && this.getTorpor() >= maxTorpor) {
-                this.setUnconscious(true);//TODO add the last one who hit this entity as unconscious owner
+                this.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
             } else if (this.isUnconscious() && this.getTorpor() <= maxTorpor * getAttributeValue(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)) {
                 this.setUnconsciousFrom((UUID) null);
                 // When waking up wild, reset taming progress slightly
@@ -452,6 +454,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         ItemStack stack = player.getItemInHand(hand);
 
         if (this.isUnconscious()) {
+            if (!this.canPlayerAccess(player)) {
+                if (!this.level().isClientSide()) {
+                    player.sendSystemMessage(Component.literal("You do not have access to this unconscious dinosaur!"));
+                }
+                return InteractionResult.FAIL;
+            }
+
             // If unconscious, we can force-feed narcotics or preferred food directly
             if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
                 float val = stack.get(ModDataComponents.NARCOTIC_VALUE.get());
@@ -471,6 +480,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
 
         // Tamed and active interaction
         if (this.isTamed()) {
+            if (!this.canPlayerAccess(player)) {
+                if (!this.level().isClientSide()) {
+                    player.sendSystemMessage(Component.literal("You do not own this dinosaur!"));
+                }
+                return InteractionResult.FAIL;
+            }
+
             if (player.isSecondaryUseActive()) {
                 // Shift-right click: open inventory
                 if (!this.level().isClientSide()) {
@@ -560,6 +576,115 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+        return null;
+    }
+
+    public boolean canPlayerAccess(Player player) {
+        // Creative mode / OP bypass
+        if (player.getAbilities().instabuild || player.hasPermissions(2)) {
+            return true;
+        }
+
+        UUID targetUUID = null;
+        if (this.isUnconscious()) {
+            targetUUID = this.getUnconsciousOwnerUUID().orElse(null);
+        } else if (this.isTamed()) {
+            targetUUID = this.getOwnerUUID();
+        }
+
+        if (targetUUID == null) {
+            return true;
+        }
+
+        return arePlayersInSameTeam(player.getUUID(), targetUUID);
+    }
+
+    private boolean arePlayersInSameTeam(UUID uuid1, UUID uuid2) {
+        if (uuid1.equals(uuid2)) {
+            return true;
+        }
+
+        // 1. Try FTB Teams Integration reflectively
+        if (arePlayersInSameFTBTeam(uuid1, uuid2)) {
+            return true;
+        }
+
+        // 2. Try Vanilla Scoreboard Teams
+        return arePlayersInSameVanillaTeam(uuid1, uuid2);
+    }
+
+    private boolean arePlayersInSameFTBTeam(UUID uuid1, UUID uuid2) {
+        try {
+            Class<?> apiClass = Class.forName("dev.ftb.mods.ftbteams.api.FTBTeamsAPI");
+            Object apiInstance = apiClass.getMethod("api").invoke(null);
+            if (apiInstance == null) return false;
+
+            Object manager = apiInstance.getClass().getMethod("getManager").invoke(apiInstance);
+            if (manager == null) return false;
+
+            java.lang.reflect.Method getTeamMethod = null;
+            try {
+                getTeamMethod = manager.getClass().getMethod("getTeamForPlayerID", UUID.class);
+            } catch (NoSuchMethodException e) {
+                try {
+                    getTeamMethod = manager.getClass().getMethod("getTeamForPlayer", UUID.class);
+                } catch (NoSuchMethodException ex) {
+                    for (java.lang.reflect.Method m : manager.getClass().getMethods()) {
+                        if ((m.getName().equals("getTeamForPlayer") || m.getName().equals("getTeamForPlayerID"))
+                                && m.getParameterCount() == 1
+                                && m.getParameterTypes()[0] == UUID.class) {
+                            getTeamMethod = m;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (getTeamMethod == null) return false;
+
+            Object team1Opt = getTeamMethod.invoke(manager, uuid1);
+            Object team2Opt = getTeamMethod.invoke(manager, uuid2);
+            if (team1Opt == null || team2Opt == null) return false;
+
+            Object team1 = team1Opt instanceof Optional ? ((Optional<?>) team1Opt).orElse(null) : team1Opt;
+            Object team2 = team2Opt instanceof Optional ? ((Optional<?>) team2Opt).orElse(null) : team2Opt;
+            if (team1 == null || team2 == null) return false;
+
+            java.lang.reflect.Method getIdMethod = team1.getClass().getMethod("getId");
+            UUID id1 = (UUID) getIdMethod.invoke(team1);
+            UUID id2 = (UUID) getIdMethod.invoke(team2);
+
+            return id1 != null && id1.equals(id2);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean arePlayersInSameVanillaTeam(UUID uuid1, UUID uuid2) {
+        Scoreboard scoreboard = this.level().getScoreboard();
+        
+        String name1 = getPlayerNameForTeam(uuid1);
+        String name2 = getPlayerNameForTeam(uuid2);
+        if (name1 == null || name2 == null) {
+            return false;
+        }
+
+        PlayerTeam team1 = scoreboard.getPlayersTeam(name1);
+        PlayerTeam team2 = scoreboard.getPlayersTeam(name2);
+        
+        return team1 != null && team2 != null && team1.isAlliedTo(team2);
+    }
+
+    private String getPlayerNameForTeam(UUID uuid) {
+        Player player = this.level().getPlayerByUUID(uuid);
+        if (player != null) {
+            return player.getScoreboardName();
+        }
+        if (this.level().getServer() != null) {
+            var profile = this.level().getServer().getProfileCache().get(uuid).orElse(null);
+            if (profile != null) {
+                return profile.getName();
+            }
+        }
         return null;
     }
 
