@@ -87,7 +87,7 @@ public class DinoScreen extends AbstractContainerScreen<DinoContainerMenu> {
         drawStatBar(guiGraphics, statsX, statsY + 28, 64, 8, hunger / maxHunger, 0xFFFFA500, "Hunger: " + (int)hunger);
 
         // Taming Bar (Only show if wild and unconscious)
-        if (!dino.isTame() && dino.isUnconscious()) {
+        if (!dino.isTamed() && dino.isUnconscious()) {
             float taming = dino.getTamingProgress();
             drawStatBar(guiGraphics, statsX, statsY + 42, 64, 8, taming, 0xFF00FFFF, "Taming: " + (int)(taming * 100) + "%");
         }
