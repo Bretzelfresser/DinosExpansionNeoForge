@@ -122,6 +122,11 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+
+    unitTest {
+        enable()
+        testedMod = mods."${mod_id}"
+    }
 }
 
 // Sets up a dependency configuration called 'localRuntime'.
@@ -134,6 +139,9 @@ configurations {
 
 dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-1.21.1:4.9.2"
+
+    testImplementation "net.neoforged:testframework:${project.neo_version}"
+    compileOnly "net.neoforged:testframework:${project.neo_version}"
 
     // FTB Teams optional integration
     compileOnly "dev.ftb.mods:ftb-teams-neoforge:2101.1.9"
@@ -210,4 +218,9 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+tasks.register('generateEmptyStructure', JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.bretzelfresser.dinosexpansion.scratch.CreateEmptyStructure'
 }

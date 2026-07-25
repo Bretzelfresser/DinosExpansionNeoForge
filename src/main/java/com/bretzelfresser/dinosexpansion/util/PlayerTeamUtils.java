@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.util;
 
 import com.bretzelfresser.dinosexpansion.ftb_teams.FtbTeamsUtil;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.PlayerTeam;
@@ -27,11 +29,12 @@ public class PlayerTeamUtils {
         return arePlayersInSameVanillaTeam(level, uuid1, uuid2);
     }
 
-    private static boolean arePlayersInSameVanillaTeam(Level level, UUID uuid1, UUID uuid2) {
+    public static boolean arePlayersInSameVanillaTeam(Level level, UUID uuid1, UUID uuid2) {
         Scoreboard scoreboard = level.getScoreboard();
 
         String name1 = getPlayerNameForTeam(level, uuid1);
         String name2 = getPlayerNameForTeam(level, uuid2);
+
         if (name1 == null || name2 == null) {
             return false;
         }
@@ -48,9 +51,24 @@ public class PlayerTeamUtils {
             return player.getScoreboardName();
         }
         if (level.getServer() != null) {
-            var profile = level.getServer().getProfileCache().get(uuid).orElse(null);
-            if (profile != null) {
-                return profile.getName();
+            Player serverPlayer = level.getServer().getPlayerList().getPlayer(uuid);
+            if (serverPlayer != null) {
+                return serverPlayer.getScoreboardName();
+            }
+        }
+        if (level instanceof ServerLevel serverLevel) {
+            Entity entity = serverLevel.getEntity(uuid);
+            if (entity instanceof Player playerEntity) {
+                return playerEntity.getScoreboardName();
+            }
+        }
+        if (level.getServer() != null) {
+            var cache = level.getServer().getProfileCache();
+            if (cache != null) {
+                var profile = cache.get(uuid).orElse(null);
+                if (profile != null) {
+                    return profile.getName();
+                }
             }
         }
         return null;
