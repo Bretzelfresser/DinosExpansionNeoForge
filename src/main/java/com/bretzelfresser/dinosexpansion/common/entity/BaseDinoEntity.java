@@ -37,6 +37,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.level.NoteBlockEvent;
+import net.neoforged.neoforge.server.permission.PermissionAPI;
 import org.jetbrains.annotations.Nullable;
 import oshi.jna.platform.windows.NtDll;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -582,8 +583,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     }
 
     public boolean canPlayerAccess(Player player) {
-        // Creative mode / OP bypass
-        if (player.getAbilities().instabuild || player.hasPermissions(2)) {
+        // OP bypass
+        if (player.hasPermissions(2)) {
             return true;
         }
 
