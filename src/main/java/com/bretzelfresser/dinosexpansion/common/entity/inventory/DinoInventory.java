@@ -2,14 +2,17 @@ package com.bretzelfresser.dinosexpansion.common.entity.inventory;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
+
+import java.util.Collection;
 
 public class DinoInventory extends CombinedInvWrapper {
 
 
     protected DinoEquipmentInventory equipmentInventory;
-    protected ItemStackHandler inventory;
+    protected DynamicInventory inventory;
     protected final BaseDinoEntity dino;
 
     public DinoInventory(BaseDinoEntity dino) {
@@ -17,6 +20,7 @@ public class DinoInventory extends CombinedInvWrapper {
         this.dino = dino;
         equipmentInventory = new DinoEquipmentInventory(dino.getEquipments());
         equipmentInventory.addListener(this::updateEquipment);
+
 
     }
 
@@ -34,7 +38,7 @@ public class DinoInventory extends CombinedInvWrapper {
         return inventory;
     }
 
-    public void updateInventorySize(int newSize){
-        inventory.
+    public Collection<ItemStack> updateInventorySize(int newSize){
+        return inventory.updateSize(newSize);
     }
 }
