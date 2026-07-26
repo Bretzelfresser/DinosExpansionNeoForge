@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.gametest;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;

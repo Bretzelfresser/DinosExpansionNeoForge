@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity;
 
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animation.AnimatableManager;

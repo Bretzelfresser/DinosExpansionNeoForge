@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.config.Config;
@@ -74,6 +74,7 @@ public class SurvivalBehaviour {
         float maxTorpor = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
         if (!dino.isUnconscious() && dino.getTorpor() >= maxTorpor) {
             dino.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
+            dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore
         } else if (dino.isUnconscious() && dino.getTorpor() <= maxTorpor * dino.getAttributeValue(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)) {
             dino.setUnconsciousFrom((UUID) null);
             if (!dino.isTamed()) {

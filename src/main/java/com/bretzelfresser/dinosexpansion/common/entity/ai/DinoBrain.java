@@ -1,6 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +21,21 @@ import net.minecraft.world.entity.schedule.Activity;
 import java.util.Set;
 
 public class DinoBrain {
+
+
+    /**
+     *
+     * @return a builder of an immutable list of all the essential memory modules a dino should have
+     */
+    public static ImmutableList.Builder<MemoryModuleType<?>> baseDinoMemoryModules() {
+        return ImmutableList.<MemoryModuleType<?>>builder()
+                .add(MemoryModuleType.WALK_TARGET)
+                .add(MemoryModuleType.LOOK_TARGET)
+                .add(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
+                .add(MemoryModuleType.PATH)
+                .add(ModMemoryModules.UNCONSCIOUS.get())
+                .add(ModMemoryModules.SLEEPING.get());
+    }
 
     public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
         initCoreActivity(brain);

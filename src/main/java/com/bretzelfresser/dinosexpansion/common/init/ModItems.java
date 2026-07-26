@@ -14,8 +14,8 @@ public class ModItems {
             () -> new Item(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> NARCOTICS = ITEMS.register("narcotics",
-            () -> new Item(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
+            () -> new Item(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F)));
 
     public static final DeferredItem<Item> TRANQUILIZER_ARROW = ITEMS.register("tranquilizer_arrow",
-            () -> new TranquilizerArrowItem(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 40.0F)));
+            () -> new TranquilizerArrowItem(new Item.Properties().component(ModDataComponents.NARCOTIC_VALUE.get(), 10.0F)));
 }

@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;

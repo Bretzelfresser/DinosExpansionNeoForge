@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.client.gui;
 
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
-import com.bretzelfresser.dinosexpansion.common.entity.DinoGender;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoGender;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import net.minecraft.client.gui.GuiGraphics;
@@ -75,22 +75,22 @@ public class DinoScreen extends AbstractContainerScreen<DinoContainerMenu> {
         // Health Bar
         float maxHealth = dino.getMaxHealth();
         float health = dino.getHealth();
-        drawStatBar(guiGraphics, statsX, statsY, 64, 8, health / maxHealth, 0xFFFF2222, "HP: " + (int)health);
+        drawStatBar(guiGraphics, statsX, statsY, 64, 8, health / maxHealth, 0xFFFF2222, "HP: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(health));
 
         // Torpor Bar
         float maxTorpor = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
         float torpor = dino.getTorpor();
-        drawStatBar(guiGraphics, statsX, statsY + 14, 64, 8, torpor / maxTorpor, 0xFFA020F0, "Torpor: " + (int)torpor);
+        drawStatBar(guiGraphics, statsX, statsY + 14, 64, 8, torpor / maxTorpor, 0xFFA020F0, "Torpor: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(torpor));
 
         // Hunger Bar
         float maxHunger = (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER);
         float hunger = dino.getHunger();
-        drawStatBar(guiGraphics, statsX, statsY + 28, 64, 8, hunger / maxHunger, 0xFFFFA500, "Hunger: " + (int)hunger);
+        drawStatBar(guiGraphics, statsX, statsY + 28, 64, 8, hunger / maxHunger, 0xFFFFA500, "Hunger: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(hunger));
 
         // Taming Bar (Only show if wild and unconscious)
         if (!dino.isTamed() && dino.isUnconscious()) {
             float taming = dino.getTamingProgress();
-            drawStatBar(guiGraphics, statsX, statsY + 42, 64, 8, taming, 0xFF00FFFF, "Taming: " + (int)(taming * 100) + "%");
+            drawStatBar(guiGraphics, statsX, statsY + 42, 64, 8, taming, 0xFF00FFFF, "Taming: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(taming * 100f) + "%");
         }
     }
 

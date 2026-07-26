@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.misc;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;

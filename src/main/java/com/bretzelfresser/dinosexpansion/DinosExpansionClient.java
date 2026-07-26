@@ -3,7 +3,7 @@ package com.bretzelfresser.dinosexpansion;
 import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
 import com.bretzelfresser.dinosexpansion.client.particle.SleepingParticle;
 import com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer;
-import com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow;
+import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
 import com.bretzelfresser.dinosexpansion.common.init.ModParticles;

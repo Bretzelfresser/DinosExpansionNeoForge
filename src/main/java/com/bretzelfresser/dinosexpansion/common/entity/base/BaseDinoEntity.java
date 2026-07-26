@@ -1,19 +1,15 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
-import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
-import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.util.Unit;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -23,9 +19,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,19 +29,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.level.NoteBlockEvent;
-import net.neoforged.neoforge.server.permission.PermissionAPI;
 import org.jetbrains.annotations.Nullable;
-import oshi.jna.platform.windows.NtDll;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.lang.reflect.Method;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -189,6 +174,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         this.entityData.set(CURRENT_HUNGER, Math.clamp(val, 0.0f, max));
     }
 
+    public float getMissingHunger() {
+        float max = (float) this.getAttributeValue(ModAttributes.MAX_HUNGER);
+        return Math.max(0, max - getHunger());
+    }
+
+    public boolean canEat(DinoFoodEntry.FoodValues value){
+        return getMissingHunger() >= value.hungerValue();
+    }
+
     protected boolean getDinoFlag(int bitPos) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
@@ -294,14 +288,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     @Override
     protected Brain.Provider<?> brainProvider() {
         return Brain.provider(
-                ImmutableList.of(
-                        MemoryModuleType.WALK_TARGET,
-                        MemoryModuleType.LOOK_TARGET,
-                        MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-                        MemoryModuleType.PATH,
-                        ModMemoryModules.UNCONSCIOUS.get(),
-                        ModMemoryModules.SLEEPING.get()
-                ),
+                DinoBrain.baseDinoMemoryModules().build(),
                 ImmutableList.of(
                         SensorType.NEAREST_PLAYERS,
                         SensorType.NEAREST_LIVING_ENTITIES
@@ -413,7 +400,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
 
             // If unconscious, we can force-feed narcotics or preferred food directly
             if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
-                float val = stack.get(ModDataComponents.NARCOTIC_VALUE.get());
+                float val = stack.getOrDefault(ModDataComponents.NARCOTIC_VALUE.get(), 0f);
                 this.applyNarcotics((int) val);
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);

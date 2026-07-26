@@ -3,7 +3,7 @@ package com.bretzelfresser.dinosexpansion.client.renderer;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.client.layer.CustomLayer;
 import com.bretzelfresser.dinosexpansion.client.model.CertosaurusModel;
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.Certosaurus;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;

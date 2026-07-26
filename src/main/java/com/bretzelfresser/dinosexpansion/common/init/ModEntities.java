@@ -2,7 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.Certosaurus;
-import com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow;
+import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

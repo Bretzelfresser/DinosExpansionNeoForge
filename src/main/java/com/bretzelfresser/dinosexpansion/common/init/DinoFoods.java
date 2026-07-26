@@ -24,7 +24,7 @@ public class DinoFoods {
     public static void bootstrap(BootstrapContext<DinoFoodEntry> context) {
 
 
-        context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
+        context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ModEntities.CERATOSAURS.getKey())
                 .addFood(Items.BEEF, 10.0F, 0.05F)
                 .addFood(Items.COOKED_BEEF, 15.0F, 0.10F)
                 .build()

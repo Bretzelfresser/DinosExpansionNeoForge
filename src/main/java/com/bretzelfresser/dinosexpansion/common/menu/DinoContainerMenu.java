@@ -1,6 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.menu;
 
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
 import net.minecraft.world.Container;

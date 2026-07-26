@@ -1,6 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.item;
 
-import com.bretzelfresser.dinosexpansion.common.entity.TranquilizerArrow;
+import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ArrowItem;

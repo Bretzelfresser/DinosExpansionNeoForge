@@ -1,6 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.menu;
 
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 

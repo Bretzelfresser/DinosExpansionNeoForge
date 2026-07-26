@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.event;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModEnchantmentEffectComponents;
 import com.bretzelfresser.dinosexpansion.config.Config;

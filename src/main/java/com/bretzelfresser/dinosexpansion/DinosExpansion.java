@@ -2,7 +2,7 @@ package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
-import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.config.Config;

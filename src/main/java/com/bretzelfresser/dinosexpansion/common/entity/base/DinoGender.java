@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 public enum DinoGender {
     MALE,
