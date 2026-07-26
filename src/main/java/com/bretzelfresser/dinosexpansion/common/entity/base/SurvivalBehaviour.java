@@ -88,32 +88,16 @@ public class SurvivalBehaviour {
         // Torpor draining over time
         float torpor = dino.getTorpor();
 
-        if (this.stackedTorpor < 0.001f) {
-            this.stackedTorpor = 0;
-        }
-
+        //second condition is there to add some kind of buff to torpor, cause the dino cant reduce torpor when stacked torpor is applied
+        //this doesnt work anymore once it is unconscious
         if (torpor > 0 && (this.stackedTorpor <= 0 || dino.isUnconscious())) {
             dino.setTorpor(torpor - (float) dino.getAttributeValue(ModAttributes.TORPOR_DECREASE));
         }
 
         if (this.stackedTorpor > 0) {
-            float max = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
-            float missingTorpor = Math.max(0, max - dino.getTorpor());
-            float flatRate = (float) Config.DINOSAUR_CONFIG.FLAT_BUFFERED_TORPOR_REDUCTION.getAsDouble();
-            float pctRate = (float) Config.DINOSAUR_CONFIG.PERCENTAGE_BUFFERED_TORPOR_REDUCTION.getAsDouble();
-            float stackedTorporReduction = Math.min(
-                    missingTorpor,
-                    Math.min(
-                            this.stackedTorpor,
-                            flatRate + pctRate * this.stackedTorpor
-                    )
-            );
+            float stackedTorporReduction = getStackedTorporReduction();
             this.stackedTorpor -= stackedTorporReduction;
             dino.applyNarcotics(stackedTorporReduction);
-
-            if (this.stackedTorpor < 0.001f) {
-                this.stackedTorpor = 0;
-            }
         } else if (this.lastHitPlayer.isPresent()) {
             this.lastHitPlayer = Optional.empty();
         }
@@ -133,6 +117,14 @@ public class SurvivalBehaviour {
         } else {
             dino.hurt(dino.damageSources().starve(), 1.0F);
         }
+    }
+
+    public float getStackedTorporReduction() {
+        float missingTorpor = dino.getMissingTorpor();
+        float flatRate = (float) Config.DINOSAUR_CONFIG.FLAT_BUFFERED_TORPOR_REDUCTION.getAsDouble();
+        float pctRate = (float) Config.DINOSAUR_CONFIG.PERCENTAGE_BUFFERED_TORPOR_REDUCTION.getAsDouble();
+        float percentageReduction = pctRate * this.stackedTorpor;
+        return Math.clamp(flatRate + (percentageReduction > 0.001f ? percentageReduction : 0), 0, Math.min(missingTorpor, stackedTorpor));
     }
 
     protected void onTorporFull() {
