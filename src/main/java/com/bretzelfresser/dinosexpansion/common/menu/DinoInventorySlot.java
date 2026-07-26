@@ -8,16 +8,16 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class DinoInventorySlot extends SlotItemHandler {
     private final BaseDinoEntity dino;
-    private final int dinoSlotIndex;
 
-    public DinoInventorySlot(IItemHandlerModifiable container, int index, int x, int y, BaseDinoEntity dino, int dinoSlotIndex) {
-        super(container, index, x, y);
+    public DinoInventorySlot(BaseDinoEntity dino, int index, int x, int y) {
+        super(dino.getChestInventory(), index, x, y);
         this.dino = dino;
-        this.dinoSlotIndex = dinoSlotIndex;
     }
+
+
 
     @Override
     public boolean isActive() {
-        return this.dinoSlotIndex < this.dino.getInventorySize();
+        return this.index < this.dino.getChestInventory().getSlots();
     }
 }

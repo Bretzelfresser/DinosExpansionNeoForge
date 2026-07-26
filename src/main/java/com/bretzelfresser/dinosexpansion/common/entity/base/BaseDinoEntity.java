@@ -210,7 +210,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
      * 1 = saddled
      * 2 = sleep
      * 3 = saddled
-     * 4 = armored
      *
      * @param bitPos
      * @param value
@@ -285,11 +284,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public void setSaddled(boolean saddled) {
         this.setDinoFlag(1, saddled);
-    }
-
-    public int getInventorySize() {
-        // If saddled, we have 36 slots available
-        return this.isSaddled() ? 36 : 0;
     }
 
     public DynamicInventory getChestInventory() {

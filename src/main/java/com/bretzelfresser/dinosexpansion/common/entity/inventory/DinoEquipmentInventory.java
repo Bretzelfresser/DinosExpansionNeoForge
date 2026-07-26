@@ -63,6 +63,17 @@ public class DinoEquipmentInventory extends ItemStackHandler {
         return itemList;
     }
 
+    public int getSlot(DinoEquipment eq){
+        if (!hasEquipment(eq))
+            throw new IllegalArgumentException("dino inventory doesnt support Equipment: " + eq.name());
+        return this.equipmentMapper.get(eq);
+    }
+
+    @Override
+    public int getSlotLimit(int slot) {
+        return 1;
+    }
+
     public boolean hasEquipment(DinoEquipment equipment){
         return this.equipments.containsKey(equipment);
     }

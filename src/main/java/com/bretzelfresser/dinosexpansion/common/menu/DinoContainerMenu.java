@@ -1,8 +1,13 @@
 package com.bretzelfresser.dinosexpansion.common.menu;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
+import com.bretzelfresser.dinosexpansion.common.menu.slot.DinoEquipmentSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -15,13 +20,13 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class DinoContainerMenu extends AbstractContainerMenu {
     public final BaseDinoEntity dino;
-    public final IItemHandlerModifiable dinoInventory;
+    public final DinoInventory dinoInventory;
 
     public DinoContainerMenu(int windowId, Inventory playerInv, int entityId) {
         super(ModMenus.DINO_MENU.get(), windowId);
         Player player = playerInv.player;
         this.dino = (BaseDinoEntity) player.level().getEntity(entityId);
-        
+
         if (this.dino != null) {
             this.dinoInventory = this.dino.getTotalInventory();
         } else {
@@ -29,38 +34,15 @@ public class DinoContainerMenu extends AbstractContainerMenu {
         }
 
         // Slot 0: Saddle Slot
-        this.addSlot(new SlotItemHandler(this.dinoInventory, 0, 8, 18) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return stack.is(ModItems.TEST_DINO_SADDLE.get());
-            }
-
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        });
-
+        this.addSlot(new DinoEquipmentSlot(this.dino.getEquipmentInventory(), DinoEquipment.SADDLE, 8, 18));
         // Slot 1: Armor Slot
-        this.addSlot(new SlotItemHandler(this.dinoInventory, 1, 8, 36) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return false; // Can define specific armor items later
-            }
+        this.addSlot(new DinoEquipmentSlot(this.dino.getEquipmentInventory(), DinoEquipment.CHEST, 8, 18));
 
-            @Override
-            public int getMaxStackSize() {
-                return 1;
-            }
-        });
-
-        // Slots 2-37: Dino Main Inventory (6 columns x 6 rows)
-        int dinoInvStartIndex = 2;
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 6; col++) {
-                int slotIdx = dinoInvStartIndex + (row * 6) + col;
+                int slotIdx = row * 6 + col;
                 // Position starting at x=80, y=18
-                this.addSlot(new DinoInventorySlot(this.dinoInventory, slotIdx, 80 + col * 18, 18 + row * 18, this.dino, slotIdx - dinoInvStartIndex));
+                this.addSlot(new DinoInventorySlot(this.dino, slotIdx, 80 + col * 18, 18 + row * 18));
             }
         }
 
@@ -89,7 +71,7 @@ public class DinoContainerMenu extends AbstractContainerMenu {
         if (slot != null && slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-            
+
             // If clicking a dino slot (0-37)
             if (index < 38) {
                 // Move to player inventory/hotbar
@@ -106,7 +88,7 @@ public class DinoContainerMenu extends AbstractContainerMenu {
                 }
                 // Else try to put in main dino inventory slots (2 to 2 + active size)
                 else {
-                    int activeDinoSlots = this.dino.getInventorySize();
+                    int activeDinoSlots = this.dino.getChestInventory().getSlots();
                     if (activeDinoSlots > 0) {
                         if (!this.moveItemStackTo(itemstack1, 2, 2 + activeDinoSlots, false)) {
                             return ItemStack.EMPTY;
