@@ -16,12 +16,6 @@ public class TamingBehaviour {
         this.dino = dino;
     }
 
-    public void tick() {
-        if (dino.getHunger() <= (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER)) {
-            this.tryToEatFromInventory();
-        }
-    }
-
     public void tryToEatFromInventory() {
         Container inventory = dino.getInventory();
         List<Pair<Integer, DinoFoodEntry.FoodValues>> foundFoodValues = new LinkedList<>();

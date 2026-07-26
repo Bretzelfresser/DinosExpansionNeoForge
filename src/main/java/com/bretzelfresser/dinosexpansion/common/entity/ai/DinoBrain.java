@@ -67,7 +67,8 @@ public class DinoBrain {
 
     private static void initIdleActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivity(Activity.IDLE, ImmutableList.of(
-                Pair.of(0, new RunOne<>(ImmutableList.of(
+                Pair.of(0, new DinoEatBehavior()),
+                Pair.of(1, new RunOne<>(ImmutableList.of(
                         Pair.of(RandomStroll.stroll(1.0F), 2),
                         Pair.of(SetEntityLookTarget.create(6.0F), 1),
                         Pair.of(new DoNothing(30, 60), 1)
@@ -81,9 +82,11 @@ public class DinoBrain {
      * @param brain
      */
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
-        // When unconscious, do absolutely nothing but sleep
+        // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
-                Pair.of(0, new DoNothing(100, 200))
+                Pair.of(0, new DinoUnconsciousEatNarcoticsBehavior()),
+                Pair.of(1, new DinoEatBehavior()),
+                Pair.of(2, new DoNothing(100, 200))
         ), Set.of(
                 Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
         ));

@@ -325,7 +325,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         if (!this.level().isClientSide()) {
             this.sleepBehaviour.tick();
             this.survivalBehaviour.tick();
-            this.tamingBehaviour.tick();
 
             // Attack ticks handling
             if (this.isAttacking) {
