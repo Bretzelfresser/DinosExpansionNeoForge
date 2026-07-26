@@ -41,7 +41,6 @@ public class TameCommand {
 
         if (hitResult != null && hitResult.getEntity() instanceof BaseDinoEntity dino) {
             dino.setTamedBy(player);
-            dino.setTorpor((float) dino.getAttributeValue(ModAttributes.MAX_TORPOR));
             source.sendSuccess(() -> Component.literal("Successfully Tamed " + dino.getName().getString()), true);
             return 1;
         } else {

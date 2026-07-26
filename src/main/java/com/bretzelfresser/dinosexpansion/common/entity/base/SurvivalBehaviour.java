@@ -128,8 +128,11 @@ public class SurvivalBehaviour {
     }
 
     protected void onTorporFull() {
-        dino.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
-        dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore
+        if (this.lastHitPlayer.isPresent()) {
+            dino.setUnconsciousFrom(this.lastHitPlayer.get());
+            if (!this.lastHitPlayer.get().equals(dino.getOwnerUUID()))
+                dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore if the one downing it
+        }
     }
 
     protected void onWakeUpFromTorpor() {

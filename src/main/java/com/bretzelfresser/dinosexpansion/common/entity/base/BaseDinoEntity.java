@@ -182,6 +182,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return this.entityData.get(UNCONSCIOUS_OWNER).map(id -> level().getPlayerByUUID(id));
     }
 
+    public boolean isChested(){
+        return this.getEquipmentInventory().hasEquipment(DinoEquipment.CHEST) && !this.getEquipmentInventory().getEquipment(DinoEquipment.CHEST).isEmpty();
+    }
+
     // Getters and Setters for stats
     public float getTorpor() {
         return this.entityData.get(CURRENT_TORPOR);
