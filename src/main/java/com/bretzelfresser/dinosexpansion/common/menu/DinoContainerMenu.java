@@ -67,29 +67,37 @@ public class DinoContainerMenu extends AbstractContainerMenu {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            // If clicking a dino slot (0-37)
-            if (index < 38) {
+            // Dynamically calculate slot counts
+            int numEquipmentSlots = 0;
+            int numDinoInventorySlots = 0;
+            for (Slot s : this.slots) {
+                if (s instanceof DinoEquipmentSlot) {
+                    numEquipmentSlots++;
+                } else if (s instanceof DinoInventorySlot) {
+                    numDinoInventorySlots++;
+                }
+            }
+            int totalDinoSlots = numEquipmentSlots + numDinoInventorySlots;
+
+            // If clicking a dino slot (equipment or inventory)
+            if (index < totalDinoSlots) {
                 // Move to player inventory/hotbar
-                if (!this.moveItemStackTo(itemstack1, 38, 74, true)) {
+                if (!this.moveItemStackTo(itemstack1, totalDinoSlots, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
                 // Clicking player inventory
-                // If it is a saddle, try to put in saddle slot (0)
-                if (itemstack1.is(ModItems.TEST_DINO_SADDLE.get())) {
-                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
+                // First try to put in equipment slots
+                if (numEquipmentSlots > 0) {
+                    this.moveItemStackTo(itemstack1, 0, numEquipmentSlots, false);
                 }
-                // Else try to put in main dino inventory slots (2 to 2 + active size)
-                else {
+
+                // If still not empty, try to put in active dino inventory slots
+                if (!itemstack1.isEmpty()) {
                     int activeDinoSlots = this.dino.getChestInventory().getSlots();
                     if (activeDinoSlots > 0) {
-                        if (!this.moveItemStackTo(itemstack1, 2, 2 + activeDinoSlots, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else {
-                        return ItemStack.EMPTY;
+                        int limit = Math.min(numDinoInventorySlots, activeDinoSlots);
+                        this.moveItemStackTo(itemstack1, numEquipmentSlots, numEquipmentSlots + limit, false);
                     }
                 }
             }
