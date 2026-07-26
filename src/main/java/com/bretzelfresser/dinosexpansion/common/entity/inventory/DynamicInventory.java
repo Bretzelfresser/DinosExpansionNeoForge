@@ -4,11 +4,17 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class DynamicInventory extends ItemStackHandler {
+
+    protected Optional<BiPredicate<Integer, ItemStack>> validItem = Optional.empty();
 
     public DynamicInventory() {
     }
@@ -22,6 +28,25 @@ public class DynamicInventory extends ItemStackHandler {
     }
 
 
+    public DynamicInventory addFilter(@NotNull BiPredicate<Integer, ItemStack> filter) {
+        this.validItem = Optional.of(filter);
+        return this;
+    }
+
+    public DynamicInventory addFilter(@NotNull Predicate<ItemStack> filter) {
+        return addFilter((i, s) -> filter.test(s));
+    }
+
+    public DynamicInventory removeFilter() {
+        this.validItem = Optional.empty();
+        return this;
+    }
+
+    @Override
+    public boolean isItemValid(int slot, ItemStack stack) {
+        return validItem.map(c -> c.test(slot, stack)).orElse(super.isItemValid(slot, stack));
+    }
+
     /**
      *
      * @param newSize the new size of the inventory
@@ -34,9 +59,9 @@ public class DynamicInventory extends ItemStackHandler {
 
         this.stacks = NonNullList.withSize(newSize, ItemStack.EMPTY);
 
-        for (var stack : oldStacks){
+        for (var stack : oldStacks) {
             var remainingSDtack = ItemHandlerHelper.insertItemStacked(this, stack, false);
-            if (!remainingSDtack.isEmpty()){
+            if (!remainingSDtack.isEmpty()) {
                 notInsertedIntoNewSize.add(remainingSDtack);
             }
         }

@@ -1,6 +1,9 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
+import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
@@ -31,7 +34,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
-import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -42,7 +44,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class BaseDinoEntity extends Animal implements GeoEntity, ContainerListener, OwnableEntity {
+public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
@@ -54,7 +56,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Byte> GENDER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BYTE);
 
-    protected final SimpleContainer inventory;
+    protected final DinoInventory inventory;
 
     // Attack duration tracker (server ticks)
     protected int attackTicks = 0;
@@ -67,12 +69,16 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     private int sleepParticleCooldown = 0;
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
+        this(entityType, level, 2);
+    }
+
+
+    protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level, int basInventorySize) {
         super(entityType, level);
         this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
-        this.inventory = new SimpleContainer(38); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
-        this.inventory.addListener(this);
+        this.inventory = new DinoInventory(this, basInventorySize); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -80,7 +86,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         }
     }
 
-    public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments(){
+    public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
         return new EnumMap<>(DinoEquipment.class);
     }
 
@@ -188,7 +194,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         return Math.max(0, max - getHunger());
     }
 
-    public boolean canEat(DinoFoodEntry.FoodValues value){
+    public boolean canEat(DinoFoodEntry.FoodValues value) {
         return getMissingHunger() >= value.hungerValue();
     }
 
@@ -286,18 +292,16 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         return this.isSaddled() ? 36 : 0;
     }
 
-    public IItemHandlerModifiable getChestInventory() {
-        return new RangedWrapper(new InvWrapper(this.inventory), 2, this.inventory.getContainerSize());//TODO use the actual dino inventory, which is in construction
+    public DynamicInventory getChestInventory() {
+        return this.inventory.getChestInventory();//TODO use the actual dino inventory, which is in construction
     }
 
-    public IItemHandlerModifiable getTotalInventory() {
-        return new InvWrapper(this.inventory);//TODO use the actual dino inventory, which is in construction
+    public DinoEquipmentInventory getEquipmentInventory() {
+        return this.inventory.getEquipmentInventory();//TODO use the actual dino inventory, which is in construction
     }
 
-    @Override
-    public void containerChanged(Container container) {
-        ItemStack saddle = container.getItem(0);
-        this.setSaddled(!saddle.isEmpty() && saddle.is(ModItems.TEST_DINO_SADDLE.get()));
+    public DinoInventory getTotalInventory() {
+        return this.inventory;//TODO use the actual dino inventory, which is in construction
     }
 
     @Override
@@ -485,9 +489,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         this.survivalBehaviour.save(tag);
         NbtUtils.putIfPresent(tag, "owner", CompoundTag::putUUID, this.entityData.get(OWNER));
         NbtUtils.putIfPresent(tag, "unconscious_owner", CompoundTag::putUUID, this.entityData.get(UNCONSCIOUS_OWNER));
-        var inventoryTag = new CompoundTag();
-        ContainerHelper.saveAllItems(inventoryTag, this.inventory.getItems(), this.level().registryAccess());
-        tag.put("inventory", inventoryTag);
+        tag.put("inventory", this.inventory.serializeNBT(level().registryAccess()));
     }
 
     @Override
@@ -500,10 +502,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         NbtUtils.setIfExists(tag, "Unconscious", CompoundTag::getBoolean, this::setUnconscious);
         NbtUtils.setIfExists(tag, "Gender", CompoundTag::getByte, b -> this.setGender(DinoGender.byId(b)));
         this.survivalBehaviour.load(tag);
-        NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> ContainerHelper.loadAllItems(t, inventory.getItems(), level().registryAccess()));
-
         NbtUtils.setIfExists(tag, "owner", CompoundTag::getUUID, uuid -> entityData.set(OWNER, Optional.of(uuid)));
         NbtUtils.setIfExists(tag, "unconscious_owner", CompoundTag::getUUID, this::setUnconsciousFrom);
+
+
+        NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> inventory.deserializeNBT(level().registryAccess(), t));
     }
 
     @Override
