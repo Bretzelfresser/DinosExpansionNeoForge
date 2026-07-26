@@ -27,7 +27,8 @@ public class ModDatagen {
             .add(Registries.STRUCTURE, ModStructures::bootstrapStructures)
             .add(Registries.STRUCTURE_SET, ModStructures::bootstrapStructureSets)
             .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
-            .add(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoods::bootstrap);
+            .add(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoods::bootstrap)
+            .add(DinoChests.DINO_CHEST_REGISTRY_KEY, DinoChests::bootstrap);
 
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

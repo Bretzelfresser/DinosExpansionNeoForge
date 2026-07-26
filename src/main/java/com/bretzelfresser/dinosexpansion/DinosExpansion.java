@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion;
 
+import com.bretzelfresser.dinosexpansion.common.chest.DinoChestEntry;
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
@@ -106,5 +107,6 @@ public class DinosExpansion {
 
     private void registerDatapackRegistries(net.neoforged.neoforge.registries.DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(DinoFoods.DINO_FOOD_REGISTRY_KEY, DinoFoodEntry.CODEC, DinoFoodEntry.CODEC);
+        event.dataPackRegistry(DinoChests.DINO_CHEST_REGISTRY_KEY, DinoChestEntry.CODEC, DinoChestEntry.CODEC);
     }
 }
