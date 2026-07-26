@@ -161,6 +161,14 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return this.getOwnerUUID() != null;
     }
 
+    /**
+     *
+     * @return true when this entity is unconscious and currently on the progress of taming
+     */
+    public boolean currentlyTaming(){
+        return !isTamed() && isUnconscious() && getUnconsciousOwner().isPresent();
+    }
+
     @Override
     public @Nullable UUID getOwnerUUID() {
         return this.entityData.get(OWNER).orElse(null);
@@ -347,6 +355,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         if (!this.level().isClientSide()) {
             this.sleepBehaviour.tick();
             this.survivalBehaviour.tick();
+            this.tamingBehaviour.tick();
 
             // Attack ticks handling
             if (this.isAttacking) {

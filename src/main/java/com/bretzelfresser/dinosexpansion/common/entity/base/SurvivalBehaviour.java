@@ -101,13 +101,9 @@ public class SurvivalBehaviour {
         // Unconsciousness state machine
         float maxTorpor = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
         if (!dino.isUnconscious() && dino.getTorpor() >= maxTorpor) {
-            dino.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
-            dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore
+            onTorporFull();
         } else if (shouldWakeUpFromUnconscious()) {
-            dino.setUnconsciousFrom((UUID) null);
-            if (!dino.isTamed()) {
-                dino.setTamingProgress(dino.getTamingProgress() * 0.5f);
-            }
+            onWakeUpFromTorpor();
         }
 
         // Hunger depletion over time
@@ -116,6 +112,18 @@ public class SurvivalBehaviour {
             dino.setHunger(hunger - (float) dino.getAttributeValue(ModAttributes.HUNGER_DECREASE));
         } else {
             dino.hurt(dino.damageSources().starve(), 1.0F);
+        }
+    }
+
+    protected void onTorporFull() {
+        dino.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
+        dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore
+    }
+
+    protected void onWakeUpFromTorpor() {
+        dino.setUnconsciousFrom((UUID) null);
+        if (!dino.isTamed()) {
+            dino.setTamingProgress(dino.getTamingProgress() * 0.5f);
         }
     }
 
