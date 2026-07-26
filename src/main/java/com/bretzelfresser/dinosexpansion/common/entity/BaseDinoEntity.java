@@ -62,6 +62,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     private static final EntityDataAccessor<Float> TAMING_EFFECTIVENESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Optional<UUID>> UNCONSCIOUS_OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Byte> GENDER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BYTE);
 
     protected final SimpleContainer inventory;
 
@@ -69,22 +70,44 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
     protected int attackTicks = 0;
     protected boolean isAttacking = false;
 
-    protected float stackedTorpor = 0;
     protected final SleepBehaviour sleepBehaviour;
+    protected final TamingBehaviour tamingBehaviour;
+    protected final SurvivalBehaviour survivalBehaviour;
 
     private int sleepParticleCooldown = 0;
-
-    protected Optional<UUID> lastHitPlayer = Optional.empty();
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
         super(entityType, level);
         this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
+        this.tamingBehaviour = new TamingBehaviour(this);
+        this.survivalBehaviour = new SurvivalBehaviour(this);
         this.inventory = new SimpleContainer(38); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
         this.inventory.addListener(this);
+
+        // Randomize gender on server spawn
+        if (!level.isClientSide()) {
+            this.setGender(level.random.nextBoolean() ? DinoGender.MALE : DinoGender.FEMALE);
+        }
     }
 
     public SleepBehaviour getSleepBehaviour() {
         return this.sleepBehaviour;
+    }
+
+    public TamingBehaviour getTamingBehaviour() {
+        return this.tamingBehaviour;
+    }
+
+    public SurvivalBehaviour getSurvivalBehaviour() {
+        return this.survivalBehaviour;
+    }
+
+    public DinoGender getGender() {
+        return DinoGender.byId(this.entityData.get(GENDER));
+    }
+
+    public void setGender(DinoGender gender) {
+        this.entityData.set(GENDER, (byte) gender.ordinal());
     }
 
     public static AttributeSupplier.Builder createDinoDefaultAttributes() {
@@ -110,6 +133,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         builder.define(TAMING_EFFECTIVENESS, 1.0f);
         builder.define(OWNER, Optional.empty());
         builder.define(UNCONSCIOUS_OWNER, Optional.empty());
+        builder.define(GENDER, (byte) 0);
     }
 
     /**
@@ -313,45 +337,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
 
         if (!this.level().isClientSide()) {
             this.sleepBehaviour.tick();
-            // Torpor draining over time
-            float torpor = this.getTorpor();
-            if (torpor > 0 && (this.stackedTorpor <= 0) || this.isUnconscious()) {
-                // Drain torpor slowly (e.g. 0.1 per tick, can be customized)
-                this.setTorpor(torpor - (float) getAttributeValue(ModAttributes.TORPOR_DECREASE));
-            }
-            if (this.stackedTorpor > 0) {
-                float stackedTorporReduction = Math.min(this.getMissingTorpor(), Math.min(stackedTorpor, Math.max((float) Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION.getAsDouble(), stackedTorpor * (float) Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION.getAsDouble())));
-                stackedTorpor -= stackedTorporReduction;
-                this.applyNarcotics(stackedTorporReduction);
-            } else if (this.lastHitPlayer.isPresent()) {
-                this.lastHitPlayer = Optional.empty();
-            }
-
-            // Unconsciousness state machine
-            float maxTorpor = (float) this.getAttributeValue(ModAttributes.MAX_TORPOR);
-            if (!this.isUnconscious() && this.getTorpor() >= maxTorpor) {
-                this.setUnconsciousFrom(this.lastHitPlayer.orElse(null));
-            } else if (this.isUnconscious() && this.getTorpor() <= maxTorpor * getAttributeValue(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)) {
-                this.setUnconsciousFrom((UUID) null);
-                // When waking up wild, reset taming progress slightly
-                if (!this.isTamed()) {
-                    this.setTamingProgress(this.getTamingProgress() * 0.5f);
-                }
-            }
-
-            // Hunger depletion over time
-            float hunger = this.getHunger();
-            if (hunger > 0) {
-                this.setHunger(hunger - (float) getAttributeValue(ModAttributes.HUNGER_DECREASE)); // Drain hunger slowly
-            } else {
-                // Starving - lose health
-                this.hurt(this.damageSources().starve(), 1.0F);
-            }
-
-            // Dino eats preferred food when hungry and unconscious (wild or tamed)
-            if (this.getHunger() <= (float) this.getAttributeValue(ModAttributes.MAX_HUNGER) - 50.0f) {
-                this.tryToEatFromInventory();
-            }
+            this.survivalBehaviour.tick();
+            this.tamingBehaviour.tick();
 
             // Attack ticks handling
             if (this.isAttacking) {
@@ -368,47 +355,9 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         }
     }
 
-    protected void tryToEatFromInventory() {
-        for (int i = 2; i < 38; i++) {
-            ItemStack stack = this.inventory.getItem(i);
-            if (!stack.isEmpty() && this.isPreferredFood(stack)) {
-                DinoFoodEntry.FoodValues values = this.getFoodValues(stack);
-                Objects.requireNonNull(values);
-                float hungerVal = values.hungerValue();
-                float tamingVal = values.tamingValue();
-
-                // Eat food
-                this.setHunger(this.getHunger() + hungerVal); // Restore hunger
-
-                if (!this.isTamed() && this.isUnconscious()) {
-                    // Wild & asleep: eating increases taming progress
-                    float progressGain = tamingVal * this.getTamingEffectiveness();
-                    this.setTamingProgress(this.getTamingProgress() + progressGain);
-                    if (this.getTamingProgress() >= 1.0f) {
-                        this.setTamedBy(this.getUnconsciousOwnerUUID().orElse(null)); // Tame it!
-                        this.setUnconsciousFrom((UUID) null); // Wake up
-                    }
-                }
-
-                stack.shrink(1);
-                break;
-            }
-        }
-    }
-
     @Override
     public boolean isFood(ItemStack stack) {
-        return this.isPreferredFood(stack);
-    }
-
-    protected boolean isPreferredFood(ItemStack stack) {
-        if (stack.isEmpty()) return false;
-        return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).containsKey(stack.getItem());
-    }
-
-    protected DinoFoodEntry.FoodValues getFoodValues(ItemStack stack) {
-        if (stack.isEmpty()) return null;
-        return DinoFoodCache.getFoodsFor(this.getType(), this.level().registryAccess()).get(stack.getItem());
+        return this.tamingBehaviour.isPreferredFood(stack);
     }
 
     @Override
@@ -416,9 +365,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         if (this.sleepBehaviour.isSleeping() && damageAmount > 0) {
             this.sleepBehaviour.forceAwake(200 + this.random.nextInt(200));
         }
-        if (damageSource.getEntity() instanceof Player player) {
-            this.lastHitPlayer = Optional.of(player.getUUID());
-        }
+        this.survivalBehaviour.onHurt(damageSource, damageAmount);
         super.actuallyHurt(damageSource, damageAmount);
     }
 
@@ -434,7 +381,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
      * @param amount
      */
     public void applyBufferedNarcotics(float amount) {
-        this.stackedTorpor += amount;
+        this.survivalBehaviour.applyBufferedNarcotics(amount);
     }
 
     protected void doMeleeDamage() {
@@ -533,10 +480,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         tag.putBoolean("Unconscious", this.isUnconscious());
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
-        tag.putFloat("stackedTorpor", this.stackedTorpor);
+        tag.putByte("Gender", (byte) this.getGender().ordinal());
+        this.survivalBehaviour.save(tag);
         NbtUtils.putIfPresent(tag, "owner", CompoundTag::putUUID, this.entityData.get(OWNER));
         NbtUtils.putIfPresent(tag, "unconscious_owner", CompoundTag::putUUID, this.entityData.get(UNCONSCIOUS_OWNER));
-        NbtUtils.putIfPresent(tag, "last_hit_player", CompoundTag::putUUID, this.lastHitPlayer);
         var inventoryTag = new CompoundTag();
         ContainerHelper.saveAllItems(inventoryTag, this.inventory.getItems(), this.level().registryAccess());
         tag.put("inventory", inventoryTag);
@@ -549,13 +496,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getFloat, this::setHunger);
         NbtUtils.setIfExists(tag, "TamingProgress", CompoundTag::getFloat, this::setTamingProgress);
         NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
-        NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getBoolean, this::setUnconscious);
-        NbtUtils.setIfExists(tag, "stackedTorpor", CompoundTag::getFloat, f -> this.stackedTorpor = f);
+        NbtUtils.setIfExists(tag, "Unconscious", CompoundTag::getBoolean, this::setUnconscious);
+        NbtUtils.setIfExists(tag, "Gender", CompoundTag::getByte, b -> this.setGender(DinoGender.byId(b)));
+        this.survivalBehaviour.load(tag);
         NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> ContainerHelper.loadAllItems(t, inventory.getItems(), level().registryAccess()));
 
         NbtUtils.setIfExists(tag, "owner", CompoundTag::getUUID, uuid -> entityData.set(OWNER, Optional.of(uuid)));
         NbtUtils.setIfExists(tag, "unconscious_owner", CompoundTag::getUUID, this::setUnconsciousFrom);
-        NbtUtils.setIfExists(tag, "last_hit_player", CompoundTag::getUUID, id -> this.lastHitPlayer = Optional.of(id));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.client.gui;
 
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.DinoGender;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import net.minecraft.client.gui.GuiGraphics;
@@ -116,6 +117,15 @@ public class DinoScreen extends AbstractContainerScreen<DinoContainerMenu> {
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         // Draw Dino Name/Title
         guiGraphics.drawString(this.font, this.title, 8, 6, 0xFFFFFFFF, false);
+
+        BaseDinoEntity dino = this.menu.dino;
+        if (dino != null) {
+            String genderText = dino.getGender() == DinoGender.FEMALE ? "♀" : "♂";
+            int genderColor = dino.getGender() == DinoGender.FEMALE ? 0xFFFF69B4 : 0xFF1E90FF; // Pink vs Light Blue
+            int width = this.font.width(this.title);
+            guiGraphics.drawString(this.font, genderText, 8 + width + 5, 6, genderColor, false);
+        }
+
         // Draw Player Inventory Title
         guiGraphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFF888888, false);
     }
