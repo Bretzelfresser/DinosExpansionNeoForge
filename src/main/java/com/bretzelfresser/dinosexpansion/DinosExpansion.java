@@ -17,14 +17,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -91,7 +88,7 @@ public class DinosExpansion {
     }
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(ModEntities.TEST_DINO.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
+        event.put(ModEntities.CERATOSAURS.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

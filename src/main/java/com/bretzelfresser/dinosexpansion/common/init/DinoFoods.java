@@ -25,8 +25,8 @@ public class DinoFoods {
 
 
         context.register(CERATOSDAURUS_FOOD, new DinoFoodEntry.Builder(ResourceKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "test_dino")))
-                .addFood(Items.BEEF, 50.0F, 0.05F)
-                .addFood(Items.COOKED_BEEF, 80.0F, 0.10F)
+                .addFood(Items.BEEF, 10.0F, 0.05F)
+                .addFood(Items.COOKED_BEEF, 15.0F, 0.10F)
                 .build()
         );
     }

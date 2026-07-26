@@ -5,7 +5,6 @@ import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import net.minecraft.data.PackOutput;
-import net.neoforged.fml.loading.FMLConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -23,7 +22,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
 
         // Entities
-        add(ModEntities.TEST_DINO.get(), "Test Dinosaur");
+        add(ModEntities.CERATOSAURS.get(), "Test Dinosaur");
 
         // Attributes
         add("attribute.name.dinosexpansion.max_torpor", "Max Torpor");

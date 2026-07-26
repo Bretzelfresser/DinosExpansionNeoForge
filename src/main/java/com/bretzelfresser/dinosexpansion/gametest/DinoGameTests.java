@@ -3,19 +3,14 @@ package com.bretzelfresser.dinosexpansion.gametest;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
-import com.bretzelfresser.dinosexpansion.ftb_teams.FtbTeamsUtil;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.ftb.mods.ftblibrary.icon.Color4I;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
-import dev.ftb.mods.ftbteams.api.TeamRank;
-import dev.ftb.mods.ftbteams.api.property.TeamProperties;
 import dev.ftb.mods.ftbteams.data.TeamManagerImpl;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.AfterBatch;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
@@ -42,7 +37,7 @@ public class DinoGameTests {
     @GameTest(template = "empty", batch = "ownership tests")
     public static void testTamedDinoAccessNoTeam(GameTestHelper helper) {
         BlockPos pos = new BlockPos(2, 2, 2);
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
 
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         Player other = helper.makeMockPlayer(GameType.SURVIVAL);
@@ -70,7 +65,7 @@ public class DinoGameTests {
         helper.getLevel().addFreshEntity(other);
 
         // 1. Tame the dino
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
         dino.setTamedBy(owner);
 
         // 2. Create scoreboard team and add both players
@@ -99,7 +94,7 @@ public class DinoGameTests {
         }
 
         BlockPos pos = new BlockPos(2, 2, 2);
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
 
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         Player other = helper.makeMockPlayer(GameType.SURVIVAL);
@@ -135,7 +130,7 @@ public class DinoGameTests {
     @GameTest(template = "empty", batch = "ownership tests")
     public static void testUnconsciousDinoAccessNoTeam(GameTestHelper helper) {
         BlockPos pos = new BlockPos(2, 2, 2);
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
 
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         Player other = helper.makeMockPlayer(GameType.SURVIVAL);
@@ -158,7 +153,7 @@ public class DinoGameTests {
     @GameTest(template = "empty", batch = "ownership tests")
     public static void testUnconsciousDinoAccessScoreboardTeam(GameTestHelper helper) {
         BlockPos pos = new BlockPos(2, 2, 2);
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
 
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         Player other = helper.makeMockPlayer(GameType.SURVIVAL);
@@ -195,7 +190,7 @@ public class DinoGameTests {
         }
 
         BlockPos pos = new BlockPos(2, 2, 2);
-        BaseDinoEntity dino = helper.spawn(ModEntities.TEST_DINO.get(), pos);
+        BaseDinoEntity dino = helper.spawn(ModEntities.CERATOSAURS.get(), pos);
 
         Player owner = helper.makeMockPlayer(GameType.SURVIVAL);
         Player other = helper.makeMockPlayer(GameType.SURVIVAL);

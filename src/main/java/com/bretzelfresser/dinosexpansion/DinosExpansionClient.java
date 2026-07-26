@@ -45,7 +45,7 @@ public class DinosExpansionClient {
 
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(ModEntities.TEST_DINO.get(), CertosaurusRenderer::new);
+        event.registerEntityRenderer(ModEntities.CERATOSAURS.get(), CertosaurusRenderer::new);
         event.registerEntityRenderer(
             ModEntities.TRANQUILIZER_ARROW.get(),
             manager -> new ArrowRenderer<>(manager) {
