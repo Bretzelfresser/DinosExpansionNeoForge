@@ -33,6 +33,15 @@ public class DinoInventory extends CombinedInvWrapper implements INBTSerializabl
         if (equipment == DinoEquipment.SADDLE) {
             dino.setSaddled(!equipmentInventory.getEquipment(equipment).isEmpty());
         }
+        if (equipment == DinoEquipment.CHEST){
+            int newSize = dino.getChestSize(equipmentInventory.getEquipment(equipment));
+            if (this.inventory.getSlots() != newSize) {
+                var items = this.updateInventorySize(newSize);
+                for (var item : items) {
+                    this.dino.spawnAtLocation(item, 1.0f);
+                }
+            }
+        }
     }
 
     public DinoEquipmentInventory getEquipmentInventory() {

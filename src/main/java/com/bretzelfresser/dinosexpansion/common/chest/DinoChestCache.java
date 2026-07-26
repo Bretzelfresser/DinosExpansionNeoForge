@@ -2,7 +2,9 @@ package com.bretzelfresser.dinosexpansion.common.chest;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.init.DinoChests;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -13,13 +15,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.OptionalInt;
+import java.util.*;
 
 @EventBusSubscriber(modid = DinosExpansion.MODID)
 public class DinoChestCache {
-    private static Map<EntityType<?>, Map<Item, Integer>> cache = null;
+    private static Map<EntityType<?>, List<Pair<HolderSet<Item>, Integer>>> cache = null;
 
     @SubscribeEvent
     public static void onTagsUpdated(TagsUpdatedEvent event) {
@@ -27,30 +27,30 @@ public class DinoChestCache {
         cache = null;
     }
 
-    public static OptionalInt getSlotsFor(EntityType<?> type, ItemStack stack, RegistryAccess registryAccess) {
-        if (stack.isEmpty()) return OptionalInt.empty();
-        return getSlotsFor(type, stack.getItem(), registryAccess);
-    }
-
-    public static OptionalInt getSlotsFor(EntityType<?> type, Item item, RegistryAccess registryAccess) {
+    public static OptionalInt getSlotsFor(EntityType<?> type, ItemStack item, RegistryAccess registryAccess) {
         if (cache == null) {
             rebuild(registryAccess);
         }
-        Map<Item, Integer> itemMap = cache.get(type);
-        if (itemMap != null && itemMap.containsKey(item)) {
-            return OptionalInt.of(itemMap.get(item));
+        var chests = cache.get(type);
+        if (chests != null) {
+            for (var entry : chests){
+                if (item.is(entry.getFirst())){
+                    return OptionalInt.of(entry.getSecond());
+                }
+            }
+
         }
         return OptionalInt.empty();
     }
 
-    public static boolean isValidChest(EntityType<?> type, Item item, RegistryAccess registryAccess) {
+    public static boolean isValidChest(EntityType<?> type, ItemStack item, RegistryAccess registryAccess) {
         return getSlotsFor(type, item, registryAccess).isPresent();
     }
 
     private static synchronized void rebuild(RegistryAccess registryAccess) {
         if (cache != null) return;
 
-        Map<EntityType<?>, Map<Item, Integer>> newCache = new HashMap<>();
+        Map<EntityType<?>, List<Pair<HolderSet<Item>, Integer>>> newCache = new HashMap<>();
         Registry<DinoChestEntry> registry = registryAccess.registryOrThrow(DinoChests.DINO_CHEST_REGISTRY_KEY);
         Registry<EntityType<?>> entityTypes = registryAccess.registryOrThrow(Registries.ENTITY_TYPE);
 
@@ -58,14 +58,10 @@ public class DinoChestCache {
             EntityType<?> entityType = entityTypes.get(entry.dinoType());
             if (entityType == null) continue;
 
-            Map<Item, Integer> itemMap = newCache.computeIfAbsent(entityType, k -> new HashMap<>());
+            var chestList = newCache.computeIfAbsent(entityType, k -> new LinkedList<>());
 
             for (DinoChestEntry.ChestEntry chest : entry.chests()) {
-                int slots = chest.slots();
-                for (Holder<Item> holder : chest.items()) {
-                    Item item = holder.value();
-                    itemMap.put(item, slots);
-                }
+                chestList.add(Pair.of(chest.items(), chest.slots()));
             }
         }
         cache = Map.copyOf(newCache);

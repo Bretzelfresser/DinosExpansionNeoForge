@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
+import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
@@ -69,7 +70,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private int sleepParticleCooldown = 0;
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
-        this(entityType, level, 5);
+        this(entityType, level, 2);
     }
 
 
@@ -88,6 +89,14 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
         return new EnumMap<>(DinoEquipment.class);
+    }
+
+    public boolean isValidChest(ItemStack stack){
+        return DinoChestCache.isValidChest(this.getType(), stack, this.level().registryAccess());
+    }
+
+    public int getChestSize(ItemStack stack){
+        return DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(2);
     }
 
     public SleepBehaviour getSleepBehaviour() {

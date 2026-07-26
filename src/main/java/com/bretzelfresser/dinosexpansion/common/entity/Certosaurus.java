@@ -24,8 +24,7 @@ public class Certosaurus extends BaseDinoEntity {
     @Override
     public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
         return Util.make(super.getEquipments(), map -> {
-                    map.put(DinoEquipment.CHEST, s -> s.is(Tags.Items.CHESTS));
-                    map.put(DinoEquipment.ARMOR, s -> false);
+                    map.put(DinoEquipment.CHEST, this::isValidChest);
                     map.put(DinoEquipment.SADDLE, s -> s.is(Items.SADDLE));
                 }
         );

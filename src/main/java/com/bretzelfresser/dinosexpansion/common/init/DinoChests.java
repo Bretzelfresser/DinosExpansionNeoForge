@@ -13,7 +13,7 @@ public class DinoChests {
             ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "dino_chest")
     );
 
-    public static final ResourceKey<DinoChestEntry> CERATOSAURUS_CHEST = create("ceratosaurus_chest");
+    public static final ResourceKey<DinoChestEntry> CERATOSAURUS_CHEST = create("ceratosaurus_chests");
 
     public static ResourceKey<DinoChestEntry> create(String name) {
         return ResourceKey.create(DINO_CHEST_REGISTRY_KEY, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
