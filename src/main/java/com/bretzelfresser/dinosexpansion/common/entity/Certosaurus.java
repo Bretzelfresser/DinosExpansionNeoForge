@@ -1,11 +1,19 @@
 package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import net.minecraft.Util;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.Tags;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
+
+import java.util.EnumMap;
+import java.util.function.Predicate;
 
 public class Certosaurus extends BaseDinoEntity {
     public Certosaurus(EntityType<? extends Certosaurus> entityType, Level level) {
@@ -13,6 +21,15 @@ public class Certosaurus extends BaseDinoEntity {
     }
 
 
+    @Override
+    public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
+        return Util.make(super.getEquipments(), map -> {
+                    map.put(DinoEquipment.CHEST, s -> s.is(Tags.Items.CHESTS));
+                    map.put(DinoEquipment.ARMOR, s -> false);
+                    map.put(DinoEquipment.SADDLE, s -> s.is(Items.SADDLE));
+                }
+        );
+    }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar registrar) {

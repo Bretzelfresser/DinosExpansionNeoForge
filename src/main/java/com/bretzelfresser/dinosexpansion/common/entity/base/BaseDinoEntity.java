@@ -7,6 +7,7 @@ import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.util.Unit;
 import net.minecraft.nbt.CompoundTag;
@@ -34,8 +35,10 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.EnumMap;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public abstract class BaseDinoEntity extends Animal implements GeoEntity, ContainerListener, OwnableEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -73,6 +76,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         if (!level.isClientSide()) {
             this.setGender(level.random.nextBoolean() ? DinoGender.MALE : DinoGender.FEMALE);
         }
+    }
+
+    public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments(){
+        return new EnumMap<>(DinoEquipment.class);
     }
 
     public SleepBehaviour getSleepBehaviour() {
@@ -194,6 +201,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
      * 0 = unconscious
      * 1 = saddled
      * 2 = sleep
+     * 3 = saddled
+     * 4 = armored
      *
      * @param bitPos
      * @param value
