@@ -2,21 +2,16 @@ package com.bretzelfresser.dinosexpansion.common.menu;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
-import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
-import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
 import com.bretzelfresser.dinosexpansion.common.menu.slot.DinoEquipmentSlot;
-import net.minecraft.world.Container;
+import com.bretzelfresser.dinosexpansion.common.menu.slot.DinoInventorySlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerCopySlot;
-import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class DinoContainerMenu extends AbstractContainerMenu {
     public final BaseDinoEntity dino;
@@ -36,7 +31,7 @@ public class DinoContainerMenu extends AbstractContainerMenu {
         // Slot 0: Saddle Slot
         this.addSlot(new DinoEquipmentSlot(this.dino.getEquipmentInventory(), DinoEquipment.SADDLE, 8, 18));
         // Slot 1: Armor Slot
-        this.addSlot(new DinoEquipmentSlot(this.dino.getEquipmentInventory(), DinoEquipment.CHEST, 8, 18));
+        this.addSlot(new DinoEquipmentSlot(this.dino.getEquipmentInventory(), DinoEquipment.CHEST, 8, 36));
 
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 6; col++) {

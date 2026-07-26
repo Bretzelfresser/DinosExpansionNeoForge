@@ -15,6 +15,7 @@ public class DinoEquipmentSlot extends SlotItemHandler {
     public DinoEquipmentSlot(DinoEquipmentInventory dinoEquipmentInventory, DinoEquipment equipment, int xPosition, int yPosition) {
         super(dinoEquipmentInventory, 0, xPosition, yPosition);
         this.slot = equipment;
+        this.inventory = dinoEquipmentInventory;
     }
 
     @Override

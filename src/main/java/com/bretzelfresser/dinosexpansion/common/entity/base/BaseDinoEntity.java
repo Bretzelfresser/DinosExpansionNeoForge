@@ -69,7 +69,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private int sleepParticleCooldown = 0;
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level) {
-        this(entityType, level, 2);
+        this(entityType, level, 5);
     }
 
 
@@ -287,15 +287,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     public DynamicInventory getChestInventory() {
-        return this.inventory.getChestInventory();//TODO use the actual dino inventory, which is in construction
+        return this.inventory.getChestInventory();
     }
 
     public DinoEquipmentInventory getEquipmentInventory() {
-        return this.inventory.getEquipmentInventory();//TODO use the actual dino inventory, which is in construction
+        return this.inventory.getEquipmentInventory();
     }
 
     public DinoInventory getTotalInventory() {
-        return this.inventory;//TODO use the actual dino inventory, which is in construction
+        return this.inventory;
     }
 
     @Override

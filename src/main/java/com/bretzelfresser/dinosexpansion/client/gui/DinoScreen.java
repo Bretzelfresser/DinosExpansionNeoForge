@@ -64,7 +64,7 @@ public class DinoScreen extends AbstractContainerScreen<DinoContainerMenu> {
         }
         // Armor Slot (8, 36) - draw shield/armor outline if empty
         if (!this.menu.slots.get(1).hasItem()) {
-            guiGraphics.drawString(this.font, "A", left + 8 + 5, top + 36 + 4, 0xFF555555, false);
+            guiGraphics.drawString(this.font, "C", left + 8 + 5, top + 36 + 4, 0xFF555555, false);
         }
 
         // RENDER STATS (Left Side, under equipment slots)
