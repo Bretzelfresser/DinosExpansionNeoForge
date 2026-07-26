@@ -2,10 +2,10 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
-import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import java.util.*;
 
@@ -17,10 +17,10 @@ public class TamingBehaviour {
     }
 
     public void tryToEatFromInventory() {
-        Container inventory = dino.getInventory();
+        IItemHandlerModifiable inventory = dino.getChestInventory();
         List<Pair<Integer, DinoFoodEntry.FoodValues>> foundFoodValues = new LinkedList<>();
-        for (int i = 2; i < inventory.getContainerSize(); i++) {
-            ItemStack stack = inventory.getItem(i);
+        for (int i = 2; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty() && this.isPreferredFood(stack)) {
                 foundFoodValues.add(Pair.of(i, this.getFoodValues(stack)));
             }
@@ -41,7 +41,7 @@ public class TamingBehaviour {
             float tamingVal = foundFoodValues.get(eatingIndex).getSecond().tamingValue();
             dino.setHunger(dino.getHunger() + hungerVal);
 
-            var stack = inventory.getItem(foundFoodValues.get(eatingIndex).getFirst());
+            var stack = inventory.getStackInSlot(foundFoodValues.get(eatingIndex).getFirst());
 
             stack.shrink(1);
             if (stack.isEmpty()){

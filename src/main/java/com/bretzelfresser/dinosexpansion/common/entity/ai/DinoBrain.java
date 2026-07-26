@@ -2,22 +2,25 @@ package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.behavior.DoNothing;
-import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
-import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
-import net.minecraft.world.entity.ai.behavior.RandomStroll;
-import net.minecraft.world.entity.ai.behavior.RunOne;
-import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
-import net.minecraft.world.entity.ai.behavior.Swim;
+import net.minecraft.world.entity.ai.behavior.*;
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import org.antlr.v4.runtime.misc.Triple;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 public class DinoBrain {
@@ -67,7 +70,6 @@ public class DinoBrain {
 
     private static void initIdleActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivity(Activity.IDLE, ImmutableList.of(
-                Pair.of(0, new DinoEatBehavior()),
                 Pair.of(1, new RunOne<>(ImmutableList.of(
                         Pair.of(RandomStroll.stroll(1.0F), 2),
                         Pair.of(SetEntityLookTarget.create(6.0F), 1),
@@ -77,15 +79,14 @@ public class DinoBrain {
     }
 
     /**
-     * adds the unconscious activity, which has the requiroment that the {@link ModMemoryModules#UNCONSCIOUS} module is present and then does nothing
+     * adds the unconscious activity, which has the requiroment that the {@link ModMemoryModules#UNCONSCIOUS} module is present and then will just eat narcotics when possible
      *
      * @param brain
      */
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
-                Pair.of(0, new DinoUnconsciousEatNarcoticsBehavior()),
-                Pair.of(1, new DinoEatBehavior()),
+                Pair.of(0, eatNarcotics(true)),
                 Pair.of(2, new DoNothing(100, 200))
         ), Set.of(
                 Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
@@ -104,5 +105,58 @@ public class DinoBrain {
     public static void updateActivity(BaseDinoEntity dino) {
         Brain<BaseDinoEntity> brain = dino.getBrain();
         brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.IDLE));
+    }
+
+    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold) {
+        return BehaviorBuilder.create(instance -> instance.group(instance.registered(ModMemoryModules.UNCONSCIOUS.get())).apply(instance, (unconsciousMemory) ->
+                        (serverLevel, dino, gameTime) -> {
+                            IItemHandlerModifiable inventory = dino.getChestInventory();
+                            float missingTorpor = dino.getMissingTorpor();
+                            if (missingTorpor <= 0) {
+                                return false;
+                            }
+
+                            List<Triple<Integer, ItemStack, Float>> narcoticStacks = new ArrayList<>();
+
+                            for (int i = 0; i < inventory.getSlots(); i++) {
+                                ItemStack stack = inventory.getStackInSlot(i);
+                                if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
+                                    float val = stack.getOrDefault(ModDataComponents.NARCOTIC_VALUE.get(), 0f);
+                                    narcoticStacks.add(new Triple<>(i, stack, val));
+                                }
+                            }
+                            if (narcoticStacks.isEmpty())
+                                return false;
+
+                            if (findBiggestBelowThreshold) {
+                                narcoticStacks.sort(Comparator.<Triple<Integer, ItemStack, Float>>comparingDouble(t -> t.c)
+                                        .reversed()
+                                        .thenComparingInt(t -> t.a));
+                            }
+                            int narcoticIndex = 0;
+
+                            while (narcoticIndex < narcoticStacks.size()) {
+                                var stack = narcoticStacks.get(narcoticIndex).b;
+                                var narcoticValue = narcoticStacks.get(narcoticIndex).c;
+
+                                missingTorpor = dino.getSurvivalBehaviour().getTotalMissingTorpor();
+
+
+                                if (!dino.getSurvivalBehaviour().shouldWakeUpFromUnconscious(1) && missingTorpor < narcoticValue){
+                                    break;
+                                }
+
+                                dino.getSurvivalBehaviour().applyBufferedNarcotics(narcoticValue);
+                                stack.shrink(1);
+                                if (stack.isEmpty()){
+                                    narcoticIndex++;
+                                }
+
+                            }
+                            return true;
+                        }
+                )
+
+        );
     }
 }

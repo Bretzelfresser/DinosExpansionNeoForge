@@ -9,10 +9,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerCopySlot;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class DinoContainerMenu extends AbstractContainerMenu {
     public final BaseDinoEntity dino;
-    public final Container dinoInventory;
+    public final IItemHandlerModifiable dinoInventory;
 
     public DinoContainerMenu(int windowId, Inventory playerInv, int entityId) {
         super(ModMenus.DINO_MENU.get(), windowId);
@@ -20,13 +23,13 @@ public class DinoContainerMenu extends AbstractContainerMenu {
         this.dino = (BaseDinoEntity) player.level().getEntity(entityId);
         
         if (this.dino != null) {
-            this.dinoInventory = this.dino.getInventory();
+            this.dinoInventory = this.dino.getTotalInventory();
         } else {
             throw new IllegalArgumentException("Dino Entity with ID " + entityId + " not found!");
         }
 
         // Slot 0: Saddle Slot
-        this.addSlot(new Slot(this.dinoInventory, 0, 8, 18) {
+        this.addSlot(new SlotItemHandler(this.dinoInventory, 0, 8, 18) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.is(ModItems.TEST_DINO_SADDLE.get());
@@ -39,7 +42,7 @@ public class DinoContainerMenu extends AbstractContainerMenu {
         });
 
         // Slot 1: Armor Slot
-        this.addSlot(new Slot(this.dinoInventory, 1, 8, 36) {
+        this.addSlot(new SlotItemHandler(this.dinoInventory, 1, 8, 36) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return false; // Can define specific armor items later

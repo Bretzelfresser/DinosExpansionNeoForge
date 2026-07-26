@@ -7,7 +7,6 @@ import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.util.Unit;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +29,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.RangedWrapper;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -284,8 +286,12 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Contai
         return this.isSaddled() ? 36 : 0;
     }
 
-    public SimpleContainer getInventory() {
-        return this.inventory;
+    public IItemHandlerModifiable getChestInventory() {
+        return new RangedWrapper(new InvWrapper(this.inventory), 2, this.inventory.getContainerSize());//TODO use the actual dino inventory, which is in construction
+    }
+
+    public IItemHandlerModifiable getTotalInventory() {
+        return new InvWrapper(this.inventory);//TODO use the actual dino inventory, which is in construction
     }
 
     @Override
