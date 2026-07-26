@@ -45,7 +45,19 @@ public class SurvivalBehaviour {
     }
 
     public void applyBufferedNarcotics(float amount) {
-        this.stackedTorpor += amount;
+        float maxTorpor = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
+        float currentTotal = dino.getTorpor() + this.stackedTorpor;
+        float effectiveness = (float) Config.TORPOR_CONFIG.OVER_MAX_LIMIT_EFFECTIVENESS.getAsDouble();
+
+        if (currentTotal >= maxTorpor) {
+            this.stackedTorpor += amount * effectiveness;
+        } else if (currentTotal + amount > maxTorpor) {
+            float below = maxTorpor - currentTotal;
+            float above = amount - below;
+            this.stackedTorpor += below + above * effectiveness;
+        } else {
+            this.stackedTorpor += amount;
+        }
     }
 
     public void onHurt(DamageSource damageSource, float damageAmount) {
@@ -75,6 +87,11 @@ public class SurvivalBehaviour {
     public void tick() {
         // Torpor draining over time
         float torpor = dino.getTorpor();
+
+        if (this.stackedTorpor < 0.001f) {
+            this.stackedTorpor = 0;
+        }
+
         if (torpor > 0 && (this.stackedTorpor <= 0 || dino.isUnconscious())) {
             dino.setTorpor(torpor - (float) dino.getAttributeValue(ModAttributes.TORPOR_DECREASE));
         }
@@ -82,18 +99,21 @@ public class SurvivalBehaviour {
         if (this.stackedTorpor > 0) {
             float max = (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR);
             float missingTorpor = Math.max(0, max - dino.getTorpor());
+            float flatRate = (float) Config.DINOSAUR_CONFIG.FLAT_BUFFERED_TORPOR_REDUCTION.getAsDouble();
+            float pctRate = (float) Config.DINOSAUR_CONFIG.PERCENTAGE_BUFFERED_TORPOR_REDUCTION.getAsDouble();
             float stackedTorporReduction = Math.min(
                     missingTorpor,
                     Math.min(
                             this.stackedTorpor,
-                            Math.max(
-                                    (float) Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION.getAsDouble(),
-                                    this.stackedTorpor * (float) Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION.getAsDouble()
-                            )
+                            flatRate + pctRate * this.stackedTorpor
                     )
             );
             this.stackedTorpor -= stackedTorporReduction;
             dino.applyNarcotics(stackedTorporReduction);
+
+            if (this.stackedTorpor < 0.001f) {
+                this.stackedTorpor = 0;
+            }
         } else if (this.lastHitPlayer.isPresent()) {
             this.lastHitPlayer = Optional.empty();
         }

@@ -39,10 +39,11 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue("Torpor", "Torpor Configurations");
         addConfigValue(Config.TORPOR_CONFIG.DAMAGE_REDUCTION, "Torpor Damage Reduction");
         addConfigValue(Config.TORPOR_CONFIG.DAMAGE_SCALING, "Torpor Damage Scaling");
+        addConfigValue(Config.TORPOR_CONFIG.OVER_MAX_LIMIT_EFFECTIVENESS, "Over Max Limit Effectiveness");
         addConfigValue("Dinosaurs", "Dinosaur Entity Configurations");
 
-        addConfigValue(Config.DINOSAUR_CONFIG.BUFFERED_TORPOR_REDUCTION, "Buffered Torpor Reduction");
-        addConfigValue(Config.DINOSAUR_CONFIG.MIN_BUFFERED_TORPOR_REDUCTION, "Min Buffered Torpor Reduction");
+        addConfigValue(Config.DINOSAUR_CONFIG.PERCENTAGE_BUFFERED_TORPOR_REDUCTION, "Percentage Buffered Torpor Reduction");
+        addConfigValue(Config.DINOSAUR_CONFIG.FLAT_BUFFERED_TORPOR_REDUCTION, "Flat Buffered Torpor Reduction");
 
 
     }

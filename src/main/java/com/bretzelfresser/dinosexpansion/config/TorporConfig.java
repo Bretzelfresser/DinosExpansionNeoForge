@@ -6,6 +6,7 @@ public class TorporConfig {
 
 
     public final ModConfigSpec.DoubleValue DAMAGE_REDUCTION, DAMAGE_SCALING;
+    public final ModConfigSpec.DoubleValue OVER_MAX_LIMIT_EFFECTIVENESS;
 
     public TorporConfig(ModConfigSpec.Builder builder){
         builder.push("Torpor");
@@ -18,6 +19,8 @@ public class TorporConfig {
         builder.comment("this damage isnt influenced by the damage reduction");
         DAMAGE_SCALING = builder.defineInRange("torpor_damage_scaling", 2, 0, Float.MAX_VALUE);
 
+        builder.comment("The effectiveness of applied stacked torpor when it exceeds the dinosaur's max torpor");
+        OVER_MAX_LIMIT_EFFECTIVENESS = builder.defineInRange("over_max_limit_effectiveness", 0.6, 0.0, 1.0);
 
         builder.pop();
     }
