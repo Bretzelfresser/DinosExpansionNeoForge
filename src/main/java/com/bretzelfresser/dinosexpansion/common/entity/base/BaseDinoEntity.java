@@ -1,29 +1,22 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
-import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.config.Config;
-import com.bretzelfresser.dinosexpansion.util.RandomUtils;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
-import com.bretzelfresser.dinosexpansion.common.init.*;
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
+import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
+import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
-import com.bretzelfresser.dinosexpansion.common.entity.base.DinoStat;
-import com.bretzelfresser.dinosexpansion.util.CodecUtils;
+import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
-import net.minecraft.core.Holder;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.level.ServerLevelAccessor;
+import com.bretzelfresser.dinosexpansion.util.RandomUtils;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.util.Unit;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -31,14 +24,18 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.*;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Unit;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
@@ -46,14 +43,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
+import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -119,11 +114,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     public int getChestSize(ItemStack stack) {
-        if (isValidChest(stack)) {
-            return Math.round((float) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY)) +
-                    DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(0);
-        }
-        return 0;
+        return Math.round((float) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY)) +
+                DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(0);
     }
 
     public SleepBehaviour getSleepBehaviour() {

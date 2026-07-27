@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.inventory;
 
+import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
@@ -36,6 +37,7 @@ public class DinoInventory extends CombinedInvWrapper implements INBTSerializabl
         if (equipment == DinoEquipment.CHEST){
             int newSize = dino.getChestSize(equipmentInventory.getEquipment(equipment));
             if (this.inventory.getSlots() != newSize) {
+                DinosExpansion.LOGGER.debug("fromSize {} to Size {}", this.inventory.getSlots(), newSize);
                 var items = this.updateInventorySize(newSize);
                 if (!this.dino.level().isClientSide()) {
                     for (var item : items) {
