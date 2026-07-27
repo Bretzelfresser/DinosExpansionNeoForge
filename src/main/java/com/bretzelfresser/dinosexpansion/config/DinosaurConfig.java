@@ -26,7 +26,7 @@ public class DinosaurConfig {
         builder.comment("The maximum level with which a wild dinosaur can spawn.");
         MAX_LEVEL = builder.defineInRange("max_level", 150, 1, Integer.MAX_VALUE);
 
-        builder.comment("The average level (peak of Gaussian distribution) with which a wild dinosaur can spawn. Set to -1 to use the midpoint between min and max level.");
+        builder.comment("The average level (peak of Gaussian distribution) with which a wild dinosaur can spawn. Set to sopmething smaller then 0 to use the midpoint between min and max level.");
         AVERAGE_LEVEL = builder.defineInRange("average_level", -1, -1, Integer.MAX_VALUE);
 
         builder.pop();

@@ -375,10 +375,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         int minLvl = Math.max(1, Config.DINOSAUR_CONFIG.MIN_LEVEL.get());
         int maxLvl = Math.max(minLvl + 4, Config.DINOSAUR_CONFIG.MAX_LEVEL.get());
         int avgLvl = Config.DINOSAUR_CONFIG.AVERAGE_LEVEL.get();
-        if (avgLvl == -1) {
+        if (avgLvl < 0) {
             avgLvl = minLvl + (maxLvl - minLvl) / 2;
         } else {
-            avgLvl = Math.max(minLvl, Math.min(avgLvl, maxLvl));
+            avgLvl = Math.clamp(avgLvl, minLvl, maxLvl);
         }
 
         // Generate Gaussian split-normal wild level
