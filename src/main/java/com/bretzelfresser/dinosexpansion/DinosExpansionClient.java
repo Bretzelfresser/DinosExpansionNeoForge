@@ -48,14 +48,13 @@ public class DinosExpansionClient {
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.CERATOSAURS.get(), CertosaurusRenderer::new);
-        event.registerEntityRenderer(
-            ModEntities.TRANQUILIZER_ARROW.get(),
-            manager -> new ArrowRenderer<>(manager) {
-                @Override
-                public ResourceLocation getTextureLocation(TranquilizerArrow entity) {
-                    return ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "textures/entity/arrow/tranquilizer_arrow.png");
+        event.registerEntityRenderer(ModEntities.TRANQUILIZER_ARROW.get(),
+                manager -> new ArrowRenderer<>(manager) {
+                    @Override
+                    public ResourceLocation getTextureLocation(TranquilizerArrow entity) {
+                        return DinosExpansion.modLoc("textures/entity/arrow/tranquilizer_arrow.png");
+                    }
                 }
-            }
         );
     }
 
@@ -66,9 +65,6 @@ public class DinosExpansionClient {
 
     @SubscribeEvent
     static void registerGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(
-            ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "spyglass_scanner"),
-            new SpyglassScannerOverlay()
-        );
+        event.registerAboveAll(DinosExpansion.modLoc("spyglass_scanner"), new SpyglassScannerOverlay());
     }
 }
