@@ -16,6 +16,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.ServerLevelAccessor;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
@@ -104,7 +105,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
-        this.inventory = new DinoInventory(this, basInventorySize); // Slot 0: Saddle, Slot 1: Armor, Slots 2-37: Main Dino Inventory
+        this.inventory = new DinoInventory(this, basInventorySize);
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -122,7 +123,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public int getChestSize(ItemStack stack){
         if (isValidChest(stack)) {
-            return (int) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY);
+            return Math.round((float)this.getAttributeValue(ModAttributes.CARRYING_CAPACITY)) +
+                    DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(0);
         }
         return 0;
     }
@@ -351,7 +353,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.updateAttributesFromLevels();
     }
 
-    private void updateAttributeModifier(Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, ResourceLocation modifierId, double amountPerPoint, int points) {
+    private void updateAttributeModifier(Holder<Attribute> attribute, ResourceLocation modifierId, double amountPerPoint, int points) {
         var instance = this.getAttribute(attribute);
         if (instance != null) {
             instance.removeModifier(modifierId);
