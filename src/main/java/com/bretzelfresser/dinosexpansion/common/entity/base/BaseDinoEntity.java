@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.config.Config;
+import com.bretzelfresser.dinosexpansion.util.RandomUtils;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
@@ -369,8 +371,18 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
 
-        // Wild level generation: 1 to 30
-        int wildLevel = this.random.nextInt(30) + 1;
+        // Resolve level configs
+        int minLvl = Math.max(1, Config.DINOSAUR_CONFIG.MIN_LEVEL.get());
+        int maxLvl = Math.max(minLvl + 4, Config.DINOSAUR_CONFIG.MAX_LEVEL.get());
+        int avgLvl = Config.DINOSAUR_CONFIG.AVERAGE_LEVEL.get();
+        if (avgLvl == -1) {
+            avgLvl = minLvl + (maxLvl - minLvl) / 2;
+        } else {
+            avgLvl = Math.max(minLvl, Math.min(avgLvl, maxLvl));
+        }
+
+        // Generate Gaussian split-normal wild level
+        int wildLevel = RandomUtils.generateLevel(this.random, minLvl, maxLvl, avgLvl);
         this.setDinoLevel(wildLevel);
 
         // Distribute points among stats

@@ -45,6 +45,9 @@ public class ModLanguageProvider extends LanguageProvider {
 
         addConfigValue(Config.DINOSAUR_CONFIG.PERCENTAGE_BUFFERED_TORPOR_REDUCTION, "Percentage Buffered Torpor Reduction");
         addConfigValue(Config.DINOSAUR_CONFIG.FLAT_BUFFERED_TORPOR_REDUCTION, "Flat Buffered Torpor Reduction");
+        addConfigValue(Config.DINOSAUR_CONFIG.MIN_LEVEL, "Spawn Minimum Level");
+        addConfigValue(Config.DINOSAUR_CONFIG.MAX_LEVEL, "Spawn Maximum Level");
+        addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
 
 
     }

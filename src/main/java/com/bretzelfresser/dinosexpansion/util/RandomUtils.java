@@ -29,8 +29,12 @@ public class RandomUtils {
             }
             attempt++;
         } while ((levelSample < minLevel || levelSample > maxLevel) && attempt < maxAttempts);
+        
         // Fallback to averageLevel if it fails to converge within range
-        levelSample = Mth.clamp(levelSample, minLevel, maxAttempts);
-        return (int) Math.round(levelSample);
+        if (levelSample < minLevel || levelSample > maxLevel) {
+            levelSample = averageLevel;
+        }
+        
+        return (int) Math.round(Mth.clamp(levelSample, minLevel, maxLevel));
     }
 }
