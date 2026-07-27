@@ -71,11 +71,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private static final EntityDataAccessor<Float> DINO_XP = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> TAMED_LEVEL_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> AVAILABLE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> HEALTH_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> TORPOR_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> HUNGER_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DAMAGE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> CARRYING_CAPACITY_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private final EnumMap<DinoStat, Integer> statPoints = new EnumMap<>(DinoStat.class);
 
     private static final ResourceLocation HEALTH_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_health");
     private static final ResourceLocation TORPOR_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_torpor");
@@ -102,6 +98,9 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     protected BaseDinoEntity(EntityType<? extends BaseDinoEntity> entityType, Level level, int basInventorySize) {
         super(entityType, level);
+        for (DinoStat stat : DinoStat.values()) {
+            this.statPoints.put(stat, 0);
+        }
         this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
@@ -178,11 +177,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         builder.define(DINO_XP, 0.0f);
         builder.define(TAMED_LEVEL_POINTS, 0);
         builder.define(AVAILABLE_POINTS, 0);
-        builder.define(HEALTH_POINTS, 0);
-        builder.define(TORPOR_POINTS, 0);
-        builder.define(HUNGER_POINTS, 0);
-        builder.define(DAMAGE_POINTS, 0);
-        builder.define(CARRYING_CAPACITY_POINTS, 0);
     }
 
     /**
@@ -282,44 +276,52 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.entityData.set(AVAILABLE_POINTS, val);
     }
 
+    public int getStatPoints(DinoStat stat) {
+        return this.statPoints.getOrDefault(stat, 0);
+    }
+
+    public void setStatPoints(DinoStat stat, int val) {
+        this.statPoints.put(stat, val);
+    }
+
     public int getHealthPoints() {
-        return this.entityData.get(HEALTH_POINTS);
+        return getStatPoints(DinoStat.HEALTH);
     }
 
     public void setHealthPoints(int val) {
-        this.entityData.set(HEALTH_POINTS, val);
+        setStatPoints(DinoStat.HEALTH, val);
     }
 
     public int getTorporPoints() {
-        return this.entityData.get(TORPOR_POINTS);
+        return getStatPoints(DinoStat.TORPOR);
     }
 
     public void setTorporPoints(int val) {
-        this.entityData.set(TORPOR_POINTS, val);
+        setStatPoints(DinoStat.TORPOR, val);
     }
 
     public int getHungerPoints() {
-        return this.entityData.get(HUNGER_POINTS);
+        return getStatPoints(DinoStat.HUNGER);
     }
 
     public void setHungerPoints(int val) {
-        this.entityData.set(HUNGER_POINTS, val);
+        setStatPoints(DinoStat.HUNGER, val);
     }
 
     public int getDamagePoints() {
-        return this.entityData.get(DAMAGE_POINTS);
+        return getStatPoints(DinoStat.DAMAGE);
     }
 
     public void setDamagePoints(int val) {
-        this.entityData.set(DAMAGE_POINTS, val);
+        setStatPoints(DinoStat.DAMAGE, val);
     }
 
     public int getCarryingCapacityPoints() {
-        return this.entityData.get(CARRYING_CAPACITY_POINTS);
+        return getStatPoints(DinoStat.CARRYING_CAPACITY);
     }
 
     public void setCarryingCapacityPoints(int val) {
-        this.entityData.set(CARRYING_CAPACITY_POINTS, val);
+        setStatPoints(DinoStat.CARRYING_CAPACITY, val);
     }
 
     public void distributeWildPoints(int points) {
