@@ -37,8 +37,10 @@ public class DinoInventory extends CombinedInvWrapper implements INBTSerializabl
             int newSize = dino.getChestSize(equipmentInventory.getEquipment(equipment));
             if (this.inventory.getSlots() != newSize) {
                 var items = this.updateInventorySize(newSize);
-                for (var item : items) {
-                    this.dino.spawnAtLocation(item, 1.0f);
+                if (!this.dino.level().isClientSide()) {
+                    for (var item : items) {
+                        this.dino.spawnAtLocation(item, 1.0f);
+                    }
                 }
             }
         }

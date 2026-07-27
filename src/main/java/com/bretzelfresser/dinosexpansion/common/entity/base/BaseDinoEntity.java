@@ -307,8 +307,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         int newSize = (int) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY) + equipmentAddition;
         if (this.inventory.getChestInventory().getSlots() != newSize) {
             var items = this.inventory.updateInventorySize(newSize);
-            for (ItemStack item : items) {
-                this.spawnAtLocation(item, 1.0f);
+            if (!this.level().isClientSide()) {
+                for (ItemStack item : items) {
+                    this.spawnAtLocation(item, 1.0f);
+                }
             }
         }
     }
@@ -494,6 +496,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     public DynamicInventory getChestInventory() {
+        this.updateInventorySizeFromAttributes();
         return this.inventory.getChestInventory();
     }
 
@@ -502,6 +505,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     public DinoInventory getTotalInventory() {
+        this.updateInventorySizeFromAttributes();
         return this.inventory;
     }
 
