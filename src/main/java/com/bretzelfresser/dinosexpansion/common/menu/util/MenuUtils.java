@@ -1,7 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.menu.util;
 
 import net.minecraft.Util;
-import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -11,7 +10,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -91,6 +89,7 @@ public class MenuUtils {
     public static <T> int addSlotField(T handler, int StartIndex, int x, int y, int horizontalAmount, int verticalAmount, int VerticalDistance, ISlotProvider<T> provider, Consumer<Slot> slotAdder) {
         return addSlotField(handler, StartIndex, x, y, horizontalAmount, 18, verticalAmount, VerticalDistance, provider, slotAdder);
     }
+
     public static <T> int addSlotField(T handler, int StartIndex, int x, int y, int horizontalAmount, int verticalAmount, ISlotProvider<T> provider, Consumer<Slot> slotAdder) {
         return addSlotField(handler, StartIndex, x, y, horizontalAmount, verticalAmount, 18, provider, slotAdder);
     }
@@ -137,6 +136,7 @@ public class MenuUtils {
     public static class FilteredItemHandlerSlot extends SlotItemHandler {
 
         protected final Predicate<ItemStack> filter;
+
         public FilteredItemHandlerSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, Predicate<ItemStack> filter) {
             super(itemHandler, index, xPosition, yPosition);
             this.filter = filter;
@@ -146,10 +146,7 @@ public class MenuUtils {
         public boolean mayPlace(ItemStack stack) {
             return filter.test(stack);
         }
-
-
     }
-
 
 
     @FunctionalInterface
@@ -187,11 +184,11 @@ public class MenuUtils {
         return inventory.player.level().getBlockEntity(buffer.readBlockPos());
     }
 
-    public static MutableComponent createMenuDescription(ResourceKey<MenuType<?>> menu){
+    public static MutableComponent createMenuDescription(ResourceKey<MenuType<?>> menu) {
         return createMenuDescription(menu.location());
     }
 
-    public static MutableComponent createMenuDescription(ResourceLocation menu){
+    public static MutableComponent createMenuDescription(ResourceLocation menu) {
         return Component.translatable(Util.makeDescriptionId("menu", menu));
     }
 }
