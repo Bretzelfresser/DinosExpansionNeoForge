@@ -4,6 +4,9 @@ import com.bretzelfresser.dinosexpansion.common.chest.DinoChestEntry;
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.network.DinoLevelUpPayload;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.config.Config;
@@ -81,6 +84,16 @@ public class DinosExpansion {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modEventBus.addListener(this::registerPayloads);
+    }
+
+    private void registerPayloads(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(MODID).versioned("1.0");
+        registrar.playToServer(
+                DinoLevelUpPayload.TYPE,
+                DinoLevelUpPayload.STREAM_CODEC,
+                DinoLevelUpPayload::handle
+        );
     }
 
     private void registerCommands(RegisterCommandsEvent event) {

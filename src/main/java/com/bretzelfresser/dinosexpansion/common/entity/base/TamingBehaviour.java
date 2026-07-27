@@ -93,8 +93,7 @@ public class TamingBehaviour {
                 float progressGain = tamingVal * dino.getTamingEffectiveness();
                 dino.setTamingProgress(dino.getTamingProgress() + progressGain);
                 if (dino.getTamingProgress() >= 1.0f) {
-                    dino.setTamedBy(dino.getUnconsciousOwnerUUID().orElse(null)); // Tame it!
-                    dino.setUnconsciousFrom((UUID) null); // Wake up
+                    dino.onTameCompleted(dino.getTamingEffectiveness(), dino.getUnconsciousOwnerUUID().orElse(null));
                 }
             }
         }

@@ -8,8 +8,13 @@ import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventor
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.bretzelfresser.dinosexpansion.common.init.*;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoStat;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.level.ServerLevelAccessor;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.util.Unit;
@@ -56,6 +61,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private static final EntityDataAccessor<Optional<UUID>> UNCONSCIOUS_OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Optional<UUID>> OWNER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Byte> GENDER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Integer> DINO_LEVEL = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DINO_XP = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> TAMED_LEVEL_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> AVAILABLE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HEALTH_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TORPOR_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> HUNGER_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DAMAGE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> CARRYING_CAPACITY_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
 
     protected final DinoInventory inventory;
 
@@ -96,7 +110,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     public int getChestSize(ItemStack stack){
-        return DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(2);
+        if (isValidChest(stack)) {
+            return (int) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY);
+        }
+        return 0;
     }
 
     public SleepBehaviour getSleepBehaviour() {
@@ -129,6 +146,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 .add(ModAttributes.HUNGER_DECREASE)
                 .add(ModAttributes.TORPOR_DECREASE)
                 .add(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)
+                .add(ModAttributes.CARRYING_CAPACITY, 4.0D)
                 ;
     }
 
@@ -143,6 +161,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         builder.define(OWNER, Optional.empty());
         builder.define(UNCONSCIOUS_OWNER, Optional.empty());
         builder.define(GENDER, (byte) 0);
+        builder.define(DINO_LEVEL, 1);
+        builder.define(DINO_XP, 0.0f);
+        builder.define(TAMED_LEVEL_POINTS, 0);
+        builder.define(AVAILABLE_POINTS, 0);
+        builder.define(HEALTH_POINTS, 0);
+        builder.define(TORPOR_POINTS, 0);
+        builder.define(HUNGER_POINTS, 0);
+        builder.define(DAMAGE_POINTS, 0);
+        builder.define(CARRYING_CAPACITY_POINTS, 0);
     }
 
     /**
@@ -208,6 +235,221 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     public void setHunger(float val) {
         float max = (float) this.getAttributeValue(ModAttributes.MAX_HUNGER);
         this.entityData.set(CURRENT_HUNGER, Math.clamp(val, 0.0f, max));
+    }
+
+    public int getDinoLevel() {
+        return this.entityData.get(DINO_LEVEL);
+    }
+
+    public void setDinoLevel(int val) {
+        this.entityData.set(DINO_LEVEL, val);
+    }
+
+    public float getDinoXp() {
+        return this.entityData.get(DINO_XP);
+    }
+
+    public void setDinoXp(float val) {
+        this.entityData.set(DINO_XP, val);
+    }
+
+    public int getTamedLevelPoints() {
+        return this.entityData.get(TAMED_LEVEL_POINTS);
+    }
+
+    public void setTamedLevelPoints(int val) {
+        this.entityData.set(TAMED_LEVEL_POINTS, val);
+    }
+
+    public int getAvailablePoints() {
+        return this.entityData.get(AVAILABLE_POINTS);
+    }
+
+    public void setAvailablePoints(int val) {
+        this.entityData.set(AVAILABLE_POINTS, val);
+    }
+
+    public int getHealthPoints() {
+        return this.entityData.get(HEALTH_POINTS);
+    }
+
+    public void setHealthPoints(int val) {
+        this.entityData.set(HEALTH_POINTS, val);
+    }
+
+    public int getTorporPoints() {
+        return this.entityData.get(TORPOR_POINTS);
+    }
+
+    public void setTorporPoints(int val) {
+        this.entityData.set(TORPOR_POINTS, val);
+    }
+
+    public int getHungerPoints() {
+        return this.entityData.get(HUNGER_POINTS);
+    }
+
+    public void setHungerPoints(int val) {
+        this.entityData.set(HUNGER_POINTS, val);
+    }
+
+    public int getDamagePoints() {
+        return this.entityData.get(DAMAGE_POINTS);
+    }
+
+    public void setDamagePoints(int val) {
+        this.entityData.set(DAMAGE_POINTS, val);
+    }
+
+    public int getCarryingCapacityPoints() {
+        return this.entityData.get(CARRYING_CAPACITY_POINTS);
+    }
+
+    public void setCarryingCapacityPoints(int val) {
+        this.entityData.set(CARRYING_CAPACITY_POINTS, val);
+    }
+
+    public void distributeWildPoints(int points) {
+        int health = 0;
+        int torpor = 0;
+        int hunger = 0;
+        int damage = 0;
+        int carrying = 0;
+
+        for (int i = 0; i < points; i++) {
+            int roll = this.random.nextInt(100);
+            if (roll < 15) {
+                health++;
+            } else if (roll < 40) { // 15 + 25 = 40
+                torpor++;
+            } else if (roll < 65) { // 40 + 25 = 65
+                hunger++;
+            } else if (roll < 75) { // 65 + 10 = 75
+                damage++;
+            } else {
+                carrying++;
+            }
+        }
+
+        this.setHealthPoints(health);
+        this.setTorporPoints(torpor);
+        this.setHungerPoints(hunger);
+        this.setDamagePoints(damage);
+        this.setCarryingCapacityPoints(carrying);
+
+        this.updateAttributesFromLevels();
+    }
+
+    public void updateAttributesFromLevels() {
+        float maxHealthBefore = this.getMaxHealth();
+        float healthBefore = this.getHealth();
+
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20.0D + this.getHealthPoints() * 2.0D);
+        this.getAttribute(ModAttributes.MAX_TORPOR).setBaseValue(100.0D + this.getTorporPoints() * 10.0D);
+        this.getAttribute(ModAttributes.MAX_HUNGER).setBaseValue(100.0D + this.getHungerPoints() * 10.0D);
+        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(3.0D + this.getDamagePoints() * 0.5D);
+        this.getAttribute(ModAttributes.CARRYING_CAPACITY).setBaseValue(4.0D + this.getCarryingCapacityPoints() * 1.0D);
+
+        float maxHealthAfter = this.getMaxHealth();
+        if (maxHealthBefore > 0) {
+            float ratio = healthBefore / maxHealthBefore;
+            this.setHealth(maxHealthAfter * ratio);
+        } else {
+            this.setHealth(maxHealthAfter);
+        }
+
+        this.updateInventorySizeFromAttributes();
+    }
+
+    public void updateInventorySizeFromAttributes() {
+        if (this.isChested()) {
+            int newSize = (int) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY);
+            if (this.inventory.getChestInventory().getSlots() != newSize) {
+                java.util.Collection<ItemStack> items = this.inventory.updateInventorySize(newSize);
+                for (ItemStack item : items) {
+                    this.spawnAtLocation(item, 1.0f);
+                }
+            }
+        }
+    }
+
+    public float getXpNeededForNextLevel() {
+        int currentTamed = this.getTamedLevelPoints();
+        return 100.0f + currentTamed * 50.0f;
+    }
+
+    public void gainXp(float amount) {
+        if (!this.isTamed()) return;
+
+        float currentXp = this.getDinoXp() + amount;
+        float needed = this.getXpNeededForNextLevel();
+
+        boolean leveledUp = false;
+        while (currentXp >= needed) {
+            currentXp -= needed;
+            this.setTamedLevelPoints(this.getTamedLevelPoints() + 1);
+            this.setDinoLevel(this.getDinoLevel() + 1);
+            this.setAvailablePoints(this.getAvailablePoints() + 1);
+            needed = this.getXpNeededForNextLevel();
+            leveledUp = true;
+        }
+
+        this.setDinoXp(currentXp);
+
+        if (leveledUp && !this.level().isClientSide()) {
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.PLAYER_LEVELUP, SoundSource.NEUTRAL, 1.0f, 1.0f);
+        }
+    }
+
+    public void upgradeStat(DinoStat stat) {
+        if (this.getAvailablePoints() <= 0) return;
+
+        switch (stat) {
+            case HEALTH -> this.setHealthPoints(this.getHealthPoints() + 1);
+            case TORPOR -> this.setTorporPoints(this.getTorporPoints() + 1);
+            case HUNGER -> this.setHungerPoints(this.getHungerPoints() + 1);
+            case DAMAGE -> this.setDamagePoints(this.getDamagePoints() + 1);
+            case CARRYING_CAPACITY -> this.setCarryingCapacityPoints(this.getCarryingCapacityPoints() + 1);
+        }
+
+        this.setAvailablePoints(this.getAvailablePoints() - 1);
+        this.updateAttributesFromLevels();
+    }
+
+    public void onTameCompleted(float effectiveness, @Nullable UUID owner) {
+        this.setTamedBy(owner);
+        this.setUnconsciousFrom((UUID) null); // Wake up
+
+        // Add taming bonus levels
+        int currentLevel = this.getDinoLevel();
+        int bonusLevels = Math.round((currentLevel * 0.5f) * effectiveness);
+        if (bonusLevels > 0) {
+            this.setDinoLevel(currentLevel + bonusLevels);
+            this.distributeWildPoints(bonusLevels);
+        }
+
+        // Reset taming progress and effectiveness for a clean tamed state
+        this.setTamingProgress(0.0f);
+        this.setTamingEffectiveness(1.0f);
+    }
+
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+
+        // Wild level generation: 1 to 30
+        int wildLevel = this.random.nextInt(30) + 1;
+        this.setDinoLevel(wildLevel);
+
+        // Distribute points among stats
+        this.distributeWildPoints(wildLevel - 1);
+
+        // Fill status stats to max/min
+        this.setHealth(this.getMaxHealth());
+        this.setHunger((float) this.getAttributeValue(ModAttributes.MAX_HUNGER));
+        this.setTorpor(0.0f);
+
+        return spawnGroupData;
     }
 
     public float getMissingHunger() {
@@ -361,6 +603,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             this.survivalBehaviour.tick();
             this.tamingBehaviour.tick();
 
+            if (this.isTamed()) {
+                this.gainXp(0.01f); // Passive XP
+            }
+
             // Attack ticks handling
             if (this.isAttacking) {
                 this.attackTicks--;
@@ -502,6 +748,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
         tag.putByte("Gender", (byte) this.getGender().ordinal());
+        tag.putInt("DinoLevel", this.getDinoLevel());
+        tag.putFloat("DinoXp", this.getDinoXp());
+        tag.putInt("TamedLevelPoints", this.getTamedLevelPoints());
+        tag.putInt("AvailablePoints", this.getAvailablePoints());
+        tag.putInt("HealthPoints", this.getHealthPoints());
+        tag.putInt("TorporPoints", this.getTorporPoints());
+        tag.putInt("HungerPoints", this.getHungerPoints());
+        tag.putInt("DamagePoints", this.getDamagePoints());
+        tag.putInt("CarryingCapacityPoints", this.getCarryingCapacityPoints());
         this.survivalBehaviour.save(tag);
         NbtUtils.putIfPresent(tag, "owner", CompoundTag::putUUID, this.entityData.get(OWNER));
         NbtUtils.putIfPresent(tag, "unconscious_owner", CompoundTag::putUUID, this.entityData.get(UNCONSCIOUS_OWNER));
@@ -517,12 +772,23 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
         NbtUtils.setIfExists(tag, "Unconscious", CompoundTag::getBoolean, this::setUnconscious);
         NbtUtils.setIfExists(tag, "Gender", CompoundTag::getByte, b -> this.setGender(DinoGender.byId(b)));
+        NbtUtils.setIfExists(tag, "DinoLevel", CompoundTag::getInt, this::setDinoLevel);
+        NbtUtils.setIfExists(tag, "DinoXp", CompoundTag::getFloat, this::setDinoXp);
+        NbtUtils.setIfExists(tag, "TamedLevelPoints", CompoundTag::getInt, this::setTamedLevelPoints);
+        NbtUtils.setIfExists(tag, "AvailablePoints", CompoundTag::getInt, this::setAvailablePoints);
+        NbtUtils.setIfExists(tag, "HealthPoints", CompoundTag::getInt, this::setHealthPoints);
+        NbtUtils.setIfExists(tag, "TorporPoints", CompoundTag::getInt, this::setTorporPoints);
+        NbtUtils.setIfExists(tag, "HungerPoints", CompoundTag::getInt, this::setHungerPoints);
+        NbtUtils.setIfExists(tag, "DamagePoints", CompoundTag::getInt, this::setDamagePoints);
+        NbtUtils.setIfExists(tag, "CarryingCapacityPoints", CompoundTag::getInt, this::setCarryingCapacityPoints);
         this.survivalBehaviour.load(tag);
         NbtUtils.setIfExists(tag, "owner", CompoundTag::getUUID, uuid -> entityData.set(OWNER, Optional.of(uuid)));
         NbtUtils.setIfExists(tag, "unconscious_owner", CompoundTag::getUUID, this::setUnconsciousFrom);
 
-
         NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> inventory.deserializeNBT(level().registryAccess(), t));
+
+        // Sync attributes after reading data
+        this.updateAttributesFromLevels();
     }
 
     @Override

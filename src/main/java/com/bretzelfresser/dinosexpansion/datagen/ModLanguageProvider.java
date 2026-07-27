@@ -27,6 +27,7 @@ public class ModLanguageProvider extends LanguageProvider {
         // Attributes
         add("attribute.name.dinosexpansion.max_torpor", "Max Torpor");
         add("attribute.name.dinosexpansion.max_hunger", "Max Hunger");
+        add("attribute.name.dinosexpansion.carrying_capacity", "Carrying Capacity");
 
         // Creative Tabs
         add("itemGroup.dinosexpansion", "Dinos Expansion");

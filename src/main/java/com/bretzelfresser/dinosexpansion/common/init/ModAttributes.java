@@ -16,6 +16,9 @@ public class ModAttributes {
     public static final DeferredHolder<Attribute, Attribute> MAX_HUNGER = ATTRIBUTES.register("max_hunger",
             () -> new RangedAttribute("attribute.name.dinosexpansion.max_hunger", 100.0D, 1.0D, 100000.0D).setSyncable(true));
 
+    public static final DeferredHolder<Attribute, Attribute> CARRYING_CAPACITY = ATTRIBUTES.register("carrying_capacity",
+            () -> new RangedAttribute("attribute.name.dinosexpansion.carrying_capacity", 4.0D, 1.0D, 36.0D).setSyncable(true));
+
     public static final DeferredHolder<Attribute, Attribute> HUNGER_DECREASE = ATTRIBUTES.register("hunger_decrease",
             () -> new RangedAttribute("attribute.name.dinosexpansion.hunger_decrease", 0.005, 0, 100000.0D).setSyncable(true));
 
