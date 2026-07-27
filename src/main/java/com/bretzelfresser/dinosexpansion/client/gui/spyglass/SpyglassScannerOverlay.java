@@ -3,6 +3,7 @@ package com.bretzelfresser.dinosexpansion.client.gui.spyglass;
 import com.bretzelfresser.dinosexpansion.client.util.DinoScannerCache;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.item.ZoomItem;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -25,8 +27,10 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
+
+        RenderSystem.enableBlend();
         ItemStack spyglass = mc.player.getUseItem();
-        boolean isVanillaSpyglass = spyglass.is(net.minecraft.world.item.Items.SPYGLASS);
+        boolean isVanillaSpyglass = spyglass.is(Items.SPYGLASS);
         boolean isCustomZoomItem = spyglass.getItem() instanceof ZoomItem;
 
         if (!isVanillaSpyglass && !isCustomZoomItem) {
@@ -52,6 +56,7 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
             DinoStatTypes[] stats = getStatsFor(spyglass);
             renderScannerPanel(guiGraphics, mc.font, dino, stats);
         }
+        RenderSystem.disableBlend();
     }
 
     private DinoStatTypes[] getStatsFor(ItemStack spyglass) {
@@ -61,11 +66,11 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
                 return DinoStatTypes.values();
             } else {
                 // Standard zoom item shows level, gender, owner
-                return new DinoStatTypes[]{ DinoStatTypes.LEVEL, DinoStatTypes.GENDER, DinoStatTypes.OWNER };
+                return new DinoStatTypes[]{DinoStatTypes.LEVEL, DinoStatTypes.GENDER, DinoStatTypes.OWNER};
             }
-        } else if (spyglass.is(net.minecraft.world.item.Items.SPYGLASS)) {
+        } else if (spyglass.is(Items.SPYGLASS)) {
             // Vanilla spyglass shows only level
-            return new DinoStatTypes[]{ DinoStatTypes.LEVEL };
+            return new DinoStatTypes[]{DinoStatTypes.LEVEL};
         }
         return new DinoStatTypes[0];
     }
@@ -94,14 +99,14 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
 
         int panelWidth = 140;
         int panelHeight = 16 + (supportedStats.length * 16);
-        
+
         // Position panel at the right-middle section of the screen, just outside center scope
         int x = graphics.guiWidth() / 2 + 100;
         int y = (graphics.guiHeight() - panelHeight) / 2;
 
         // 1. Semi-transparent modern panel backing
         graphics.fill(x, y, x + panelWidth, y + panelHeight, 0x990A0F1D);
-        
+
         // Outer cyan scanner outline
         graphics.renderOutline(x, y, panelWidth, panelHeight, 0xFF0EA5E9);
 
@@ -128,14 +133,14 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
     private void drawStatBar(GuiGraphics graphics, Font font, int x, int y, int width, int height, float value, float maxValue, int barColor, String label) {
         // Dark bar background
         graphics.fill(x, y, x + width, y + height, 0xFF1E293B);
-        
+
         // Calculate progress ratio
         float pct = maxValue > 0 ? (value / maxValue) : 0f;
         int fillWidth = (int) (width * Math.min(1.0f, Math.max(0.0f, pct)));
-        
+
         // Render fill portion
         graphics.fill(x, y, x + fillWidth, y + height, barColor);
-        
+
         // Thin border outline
         graphics.renderOutline(x, y, width, height, 0x33FFFFFF);
 
