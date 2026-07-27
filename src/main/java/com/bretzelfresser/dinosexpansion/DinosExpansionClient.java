@@ -20,6 +20,8 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import com.bretzelfresser.dinosexpansion.client.gui.spyglass.SpyglassScannerOverlay;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = DinosExpansion.MODID, dist = Dist.CLIENT)
@@ -60,5 +62,13 @@ public class DinosExpansionClient {
     @SubscribeEvent
     static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.SLEEPING_PARTICLES.get(), SleepingParticle.Factory::new);
+    }
+
+    @SubscribeEvent
+    static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(
+            ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "spyglass_scanner"),
+            new SpyglassScannerOverlay()
+        );
     }
 }
