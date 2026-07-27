@@ -112,7 +112,7 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
 
         // 2. Panel Title Header
         String name = dino.getType().getDescription().getString().toUpperCase();
-        graphics.drawString(font, "SCAN: " + name, x + 6, y + 6, 0xFF38BDF8, false);
+        graphics.drawString(font, "Race: " + name, x + 6, y + 6, 0xFF38BDF8, false);
         y += 16;
 
         // 3. Render each individual statistic
@@ -126,6 +126,7 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
                 graphics.drawString(font, text, x + 6, y + 1, 0xFFE2E8F0, false);
             }
             y += 16;
+
         }
     }
 

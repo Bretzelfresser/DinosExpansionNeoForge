@@ -23,6 +23,7 @@ public enum DinoStatTypes {
         }
         return "Tamed";
     }),
+    CARRYING_CAPACITY("Carrying Capacity", dino -> String.valueOf(Math.round(dino.getAttributeValue(ModAttributes.CARRYING_CAPACITY)))),
     HEALTH("Health", BaseDinoEntity::getHealth, BaseDinoEntity::getMaxHealth, 0xFFFF5555),
     HUNGER("Hunger", BaseDinoEntity::getHunger, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER), 0xFF55FF55),
     TORPOR("Torpor", BaseDinoEntity::getTorpor, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR), 0xFFAA00AA);
