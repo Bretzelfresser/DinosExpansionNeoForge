@@ -22,7 +22,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
 
         // Entities
-        add(ModEntities.CERATOSAURS.get(), "Test Dinosaur");
+        add(ModEntities.CERATOSAURS.get(), "Ceratosaurus");
 
         // Attributes
         add("attribute.name.dinosexpansion.max_torpor", "Max Torpor");
