@@ -688,6 +688,12 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         NbtUtils.putIfPresent(tag, "owner", CompoundTag::putUUID, this.entityData.get(OWNER));
         NbtUtils.putIfPresent(tag, "unconscious_owner", CompoundTag::putUUID, this.entityData.get(UNCONSCIOUS_OWNER));
         tag.put("inventory", this.inventory.serializeNBT(level().registryAccess()));
+
+        CompoundTag pointsTag = new CompoundTag();
+        for (DinoStat stat : DinoStat.values()) {
+            pointsTag.putInt(stat.name(), this.getStatPoints(stat));
+        }
+        tag.put("StatPoints", pointsTag);
     }
 
     @Override
@@ -708,7 +714,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         NbtUtils.setIfExists(tag, "unconscious_owner", CompoundTag::getUUID, this::setUnconsciousFrom);
 
         NbtUtils.setIfExists(tag, "inventory", CompoundTag::getCompound, t -> inventory.deserializeNBT(level().registryAccess(), t));
-
+        NbtUtils.setIfExists(tag, "StatPoints", CompoundTag::getCompound, t -> {
+            for (DinoStat stat : DinoStat.values()) {
+                if (t.contains(stat.name())) {
+                    this.setStatPoints(stat, t.getInt(stat.name()));
+                }
+            }
+        });
 
         // Sync attributes after reading data
         this.updateAttributesFromLevels();
