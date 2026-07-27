@@ -45,6 +45,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Optional;
 import java.util.UUID;
@@ -365,7 +366,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         if (this.isChested()) {
             int newSize = (int) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY);
             if (this.inventory.getChestInventory().getSlots() != newSize) {
-                java.util.Collection<ItemStack> items = this.inventory.updateInventorySize(newSize);
+                var items = this.inventory.updateInventorySize(newSize);
                 for (ItemStack item : items) {
                     this.spawnAtLocation(item, 1.0f);
                 }
