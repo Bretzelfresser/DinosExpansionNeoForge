@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
+import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
@@ -11,6 +12,7 @@ import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoStat;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.DifficultyInstance;
@@ -31,6 +33,8 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
@@ -71,6 +75,12 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private static final EntityDataAccessor<Integer> HUNGER_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DAMAGE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CARRYING_CAPACITY_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+
+    private static final ResourceLocation HEALTH_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_health");
+    private static final ResourceLocation TORPOR_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_torpor");
+    private static final ResourceLocation HUNGER_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_hunger");
+    private static final ResourceLocation DAMAGE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_damage");
+    private static final ResourceLocation CARRYING_CAPACITY_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "stat_carrying_capacity");
 
     protected final DinoInventory inventory;
 
@@ -341,15 +351,26 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.updateAttributesFromLevels();
     }
 
+    private void updateAttributeModifier(Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, ResourceLocation modifierId, double amountPerPoint, int points) {
+        var instance = this.getAttribute(attribute);
+        if (instance != null) {
+            instance.removeModifier(modifierId);
+            if (points > 0) {
+                double totalAmount = points * amountPerPoint;
+                instance.addOrReplacePermanentModifier(new AttributeModifier(modifierId, totalAmount, AttributeModifier.Operation.ADD_VALUE));
+            }
+        }
+    }
+
     public void updateAttributesFromLevels() {
         float maxHealthBefore = this.getMaxHealth();
         float healthBefore = this.getHealth();
 
-        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(20.0D + this.getHealthPoints() * 2.0D);
-        this.getAttribute(ModAttributes.MAX_TORPOR).setBaseValue(100.0D + this.getTorporPoints() * 10.0D);
-        this.getAttribute(ModAttributes.MAX_HUNGER).setBaseValue(100.0D + this.getHungerPoints() * 10.0D);
-        this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(3.0D + this.getDamagePoints() * 0.5D);
-        this.getAttribute(ModAttributes.CARRYING_CAPACITY).setBaseValue(4.0D + this.getCarryingCapacityPoints() * 1.0D);
+        this.updateAttributeModifier(Attributes.MAX_HEALTH, HEALTH_MODIFIER_ID, 2.0D, this.getHealthPoints());
+        this.updateAttributeModifier(ModAttributes.MAX_TORPOR, TORPOR_MODIFIER_ID, 10.0D, this.getTorporPoints());
+        this.updateAttributeModifier(ModAttributes.MAX_HUNGER, HUNGER_MODIFIER_ID, 10.0D, this.getHungerPoints());
+        this.updateAttributeModifier(Attributes.ATTACK_DAMAGE, DAMAGE_MODIFIER_ID, 0.5D, this.getDamagePoints());
+        this.updateAttributeModifier(ModAttributes.CARRYING_CAPACITY, CARRYING_CAPACITY_MODIFIER_ID, 1.0D, this.getCarryingCapacityPoints());
 
         float maxHealthAfter = this.getMaxHealth();
         if (maxHealthBefore > 0) {
