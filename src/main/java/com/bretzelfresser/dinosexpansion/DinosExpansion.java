@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.chest.DinoChestEntry;
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoLevelUpPayload;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -95,6 +96,11 @@ public class DinosExpansion {
                 DinoLevelUpPayload.TYPE,
                 DinoLevelUpPayload.STREAM_CODEC,
                 DinoLevelUpPayload::handle
+        );
+        registrar.playToClient(
+                DinoEquipmentSyncPayload.TYPE,
+                DinoEquipmentSyncPayload.STREAM_CODEC,
+                DinoEquipmentSyncPayload::handle
         );
     }
 

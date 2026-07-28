@@ -11,6 +11,8 @@ import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
+import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
+import net.neoforged.neoforge.network.PacketDistributor;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
@@ -100,6 +102,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
         this.inventory = new DinoInventory(this, basInventorySize);
+        if (!level.isClientSide()) {
+            this.getEquipmentInventory().addListener(equipment -> {
+                this.syncEquipment(equipment);
+            });
+        }
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -504,6 +511,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return this.inventory;
     }
 
+    public void syncEquipment(DinoEquipment equipment) {
+        if (!this.level().isClientSide()) {
+            ItemStack stack = this.getEquipmentInventory().getEquipment(equipment);
+            PacketDistributor.sendToPlayersTrackingEntity(this, new DinoEquipmentSyncPayload(this.getId(), equipment.ordinal(), stack));
+        }
+    }
+
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
@@ -740,6 +754,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
         // Sync attributes after reading data
         this.updateAttributesFromLevels();
+
+        // Sync equipment when loaded from NBT data on the server
+        if (!this.level().isClientSide()) {
+            for (DinoEquipment eq : DinoEquipment.values()) {
+                if (this.getEquipmentInventory().hasEquipment(eq)) {
+                    this.syncEquipment(eq);
+                }
+            }
+        }
     }
 
     @Override
