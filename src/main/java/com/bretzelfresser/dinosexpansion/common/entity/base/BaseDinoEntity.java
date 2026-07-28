@@ -16,7 +16,9 @@ import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.config.Config;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
@@ -883,6 +885,17 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 }
             }
         }
+    }
+
+    public List<DinoAttack> getAvailableAttacks() {
+        return new ArrayList<>(this.attacks.values());
+    }
+
+    public Optional<? extends LivingEntity> findAttackTarget() {
+        if (this.getLastHurtByMob() != null && this.getLastHurtByMob().isAlive()) {
+            return Optional.of(this.getLastHurtByMob());
+        }
+        return Optional.empty();
     }
 
     @Override

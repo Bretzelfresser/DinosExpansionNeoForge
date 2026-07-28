@@ -1,6 +1,9 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAcquireTargetBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoMeleeAttackBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTargetValidatorBehavior;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
@@ -44,6 +47,7 @@ public class DinoBrain {
     public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
+        initFightActivity(brain);
         initUnconsciousActivity(brain);
         initSleepActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -56,7 +60,9 @@ public class DinoBrain {
         brain.addActivityAndRemoveMemoriesWhenStopped(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
                         Pair.of(1, new LookAtTargetSink(45, 90)),
-                        Pair.of(2, new MoveToTargetSink())
+                        Pair.of(2, new MoveToTargetSink()),
+                        Pair.of(3, new DinoAcquireTargetBehavior()),
+                        Pair.of(4, new DinoTargetValidatorBehavior())
                 ), ImmutableSet.of(
                         Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT),
                         Pair.of(ModMemoryModules.SLEEPING.get(), MemoryStatus.VALUE_ABSENT)
@@ -103,9 +109,18 @@ public class DinoBrain {
         ));
     }
 
+    public static void initFightActivity(Brain<BaseDinoEntity> brain) {
+        brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
+                Pair.of(0, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.25F)),
+                Pair.of(1, new DinoMeleeAttackBehavior())
+        ), Set.of(
+                Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
+        ));
+    }
+
     public static void updateActivity(BaseDinoEntity dino) {
         Brain<BaseDinoEntity> brain = dino.getBrain();
-        brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.IDLE));
+        brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.FIGHT, Activity.IDLE));
     }
 
     public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold) {

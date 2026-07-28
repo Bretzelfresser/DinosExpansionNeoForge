@@ -47,4 +47,8 @@ public abstract class DinoAttack {
     protected double getAttackRange(BaseDinoEntity attacker) {
         return 3.0D;
     }
+
+    public double getSelectionWeight(BaseDinoEntity attacker, LivingEntity target) {
+        return 1.0D;
+    }
 }
