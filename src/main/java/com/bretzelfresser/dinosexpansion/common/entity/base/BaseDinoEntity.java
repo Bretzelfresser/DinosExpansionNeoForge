@@ -12,12 +12,10 @@ import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
-import net.neoforged.neoforge.network.PacketDistributor;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.bretzelfresser.dinosexpansion.util.RandomUtils;
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -38,7 +36,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -47,7 +44,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -103,10 +100,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.survivalBehaviour = new SurvivalBehaviour(this);
         this.inventory = new DinoInventory(this, basInventorySize);
         if (!level.isClientSide()) {
-            this.getEquipmentInventory().addListener(equipment -> {
-                this.syncEquipment(equipment);
-            });
+            this.getEquipmentInventory().addListener(this::syncEquipment);
         }
+        this.getEquipmentInventory().addListener(equipment -> {
+            //only play the sound if we actually add/replace a saddle
+            if (equipment == DinoEquipment.SADDLE && isSaddled())
+                this.playSound(getSaddleSoundEvent(), 0.5F, 1.0F);
+        });
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -501,9 +501,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     public void equipSaddle(ItemStack stack, @Nullable SoundSource source) {
         this.getEquipmentInventory().setEquipment(DinoEquipment.SADDLE, stack);
-        if (source != null) {
-            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HORSE_SADDLE, source, 0.5F, 1.0F);
-        }
     }
 
     public DynamicInventory getChestInventory() {
@@ -681,12 +678,26 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                     this.openDinoInventory(player);
                 }
                 return InteractionResult.sidedSuccess(this.level().isClientSide());
-            } else if (this.isSaddled() && !this.isBaby()) {
-                // Right click: ride
-                if (!this.level().isClientSide()) {
-                    player.startRiding(this);
+            } else {
+                var heldItem = player.getItemInHand(hand);
+                for (var eq : this.getEquipments().keySet()) {
+                    if (this.inventory.getEquipmentInventory().isEquipmentValid(eq, heldItem)) {
+                        var previousEquipment = this.inventory.getEquipmentInventory().getEquipment(eq);
+                        //no need to switch the same item, but will make the switch if any components mismatch
+                        if (ItemStack.isSameItemSameComponents(heldItem, previousEquipment))
+                            continue;
+                        this.inventory.getEquipmentInventory().setEquipment(eq, heldItem);
+                        player.setItemInHand(hand, previousEquipment);
+                        return InteractionResult.sidedSuccess(this.level().isClientSide());
+                    }
                 }
-                return InteractionResult.sidedSuccess(this.level().isClientSide());
+                if (this.isSaddled() && !this.isBaby()) {
+                    // Right click: ride
+                    if (!this.level().isClientSide()) {
+                        player.startRiding(this);
+                    }
+                    return InteractionResult.sidedSuccess(this.level().isClientSide());
+                }
             }
         }
 

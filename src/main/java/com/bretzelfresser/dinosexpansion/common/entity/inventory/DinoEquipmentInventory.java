@@ -107,6 +107,11 @@ public class DinoEquipmentInventory extends ItemStackHandler {
         return extractItem(slot, amount, simulate);
     }
 
+
+    public boolean isEquipmentValid(DinoEquipment eq, ItemStack stack){
+        return equipments.getOrDefault(eq, s -> false).test(stack);
+    }
+
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
         var optional = slotMapper.getOrDefault(slot, null);
