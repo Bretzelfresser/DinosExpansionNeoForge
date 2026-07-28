@@ -5,6 +5,7 @@ import com.bretzelfresser.dinosexpansion.client.util.DinoScannerCache;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.item.ZoomItem;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -19,8 +20,8 @@ import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class SpyglassScannerOverlay implements LayeredDraw.Layer {
@@ -59,7 +60,7 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         BaseDinoEntity dino = DinoScannerCache.getTargetedDinosaur(mc, 70.0F);
         if (dino != null) {
             DinoStatTypes[] stats = getStatsFor(spyglass);
-            renderScannerPanel(guiGraphics, mc.font, dino, stats);
+            renderScannerPanel(guiGraphics, mc.font, dino, List.of(stats));
         }
         RenderSystem.disableBlend();
     }
@@ -99,18 +100,18 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         guiGraphics.fill(RenderType.guiOverlay(), xEnd, yStart, width, yEnd, -90, -16777216);
     }
 
-    private void renderScannerPanel(GuiGraphics graphics, Font font, BaseDinoEntity dino, DinoStatTypes[] supportedStats) {
-        if (supportedStats == null || supportedStats.length == 0) return;
+    private void renderScannerPanel(GuiGraphics graphics, Font font, BaseDinoEntity dino, List<DinoStatTypes> supportedStats) {
+        if (supportedStats == null || supportedStats.isEmpty()) return;
 
         //ensures relative order persists, and all string stats are before the bar stats
-        Arrays.sort(supportedStats, Comparator.comparing(DinoStatTypes::isBar));
+        supportedStats = supportedStats.stream().filter(s -> s.enabled(dino)).sorted(Comparator.comparing(DinoStatTypes::isBar)).toList();
 
         //insets
         int marginTop = 4;
         int marginBot = 4;
-        int marginBetweenStringBar = 6;
-        int marginBetweenStrings = 3;
-        int marginBetweenBars = 2;
+        int marginBetweenStringBar = 5;
+        int marginBetweenStrings = 2;
+        int marginBetweenBars = 1;
 
         int marginHeader = 6;
 
@@ -121,8 +122,8 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         //16 for the race at the top
         int panelHeight = marginTop + marginBot + marginHeader + 16;
 
-        for (int i = 0; i < supportedStats.length; i++) {
-            var currentStat = supportedStats[i];
+        for (int i = 0; i < supportedStats.size(); i++) {
+            var currentStat = supportedStats.get(i);
 
             if (currentStat.isBar()) {
                 panelHeight += barHeight;
@@ -130,8 +131,8 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
                 panelHeight += stringHeight;
             }
 
-            if (i < supportedStats.length - 1) {
-                var nexStat = supportedStats[i + 1];
+            if (i < supportedStats.size() - 1) {
+                var nexStat = supportedStats.get(i + 1);
 
                 if (currentStat.isBar() && nexStat.isBar()) {
                     panelHeight += marginBetweenBars;
@@ -156,23 +157,23 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
 
         // 2. Panel Title Header
         Component name = dino.getType().getDescription();
-        graphics.drawString(font, Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.race", name), x + 6, y + 6, 0xFF38BDF8, false);
+        var header = Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.race", name);
+        graphics.drawString(font, header.withStyle(ChatFormatting.UNDERLINE), x + (panelWidth - font.width(header)) / 2, y + 6, 0xFF38BDF8, false);
         y += 16 + marginHeader;
 
         // 3. Render each individual statistic
-        for (int i = 0; i < supportedStats.length; i++) {
-            var stat = supportedStats[i];
+        for (int i = 0; i < supportedStats.size(); i++) {
+            var stat = supportedStats.get(i);
+            var text = stat.getValueComponent(dino);
             if (stat.isBar()) {
-                var text = Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.bar", stat.getLabelTranslationComponent(), stat.getFormattedFloatValue(dino), stat.getFormattedMaxValue(dino));
                 drawStatBar(graphics, font, x + 6, y, panelWidth - 12, barHeight, stat.getPercentage(dino), stat.getColor(), text);
                 y += barHeight;
             } else {
-                var textComponent = Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.label", stat.getLabelTranslationComponent(), stat.getValueComponent(dino));
-                graphics.drawString(font, textComponent, x + 6, y, 0xFFE2E8F0, false);
+                graphics.drawString(font, text, x + 6, y, 0xFFE2E8F0, false);
                 y += stringHeight;
             }
-            if (i < supportedStats.length - 1) {
-                var nexStat = supportedStats[i + 1];
+            if (i < supportedStats.size() - 1) {
+                var nexStat = supportedStats.get(i + 1);
 
                 if (stat.isBar() && nexStat.isBar()) {
                     y += marginBetweenBars;
@@ -192,16 +193,13 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         // Dark bar background
         graphics.fill(x, y, x + width, y + height, 0xFF1E293B);
 
-        // Calculate width based on percentage
-        int fillWidth = (int) (width * Math.clamp(percentage, 0.0f, 1.0f));
-
-        // Render fill portion
-        graphics.fill(x, y, x + fillWidth, y + height, barColor);
-
-        // Thin border outline
         graphics.renderOutline(x, y, width, height, 0x33FFFFFF);
+        if (percentage > 0) {
+            int fillWidth = (int) ((width - 1) * Math.clamp(percentage, 0.0f, 1.0f));
+            // Render fill portion
+            graphics.fill(x + 1, y + 1, x + fillWidth, y + height - 1, barColor);
+        }
 
-        // Center overlay text showing absolute stats (e.g. Health: 50/100)
-        graphics.drawString(font, label, x + (width - font.width(label)) / 2, y + (height - font.lineHeight) / 2, 0xFFFFFFFF, false);
+        graphics.drawString(font, label, x + 1 + (width - font.width(label) - 2) / 2, y + (height - font.lineHeight - 2) / 2 + 2, 0xFFFFFFFF, false);
     }
 }

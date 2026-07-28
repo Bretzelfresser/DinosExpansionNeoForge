@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModLanguageProvider extends LanguageProvider {
     public ModLanguageProvider(PackOutput output) {
@@ -44,7 +43,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
         configs();
 
-        spyglassOverlayTranslations();
+        dinoStatTypes();
 
         generica();
 
@@ -75,11 +74,10 @@ public class ModLanguageProvider extends LanguageProvider {
         addEnchantment(ModEnchantments.TORPOR_ENCHANTMENT, "Torpor");
     }
 
-    protected void spyglassOverlayTranslations() {
+    protected void dinoStatTypes() {
         add("spyglass." + DinosExpansion.MODID + ".stat.race", "Race: %s");
-        add("spyglass." + DinosExpansion.MODID + ".stat.bar", "%s: %s/%s");
-        add("spyglass." + DinosExpansion.MODID + ".stat.label", "%s: %s");
-        add("spyglass." + DinosExpansion.MODID + ".stat.value", "%s");
+        add("stat_type." + DinosExpansion.MODID + ".stat.bar", "%s: %s/%s");
+        add("stat_type." + DinosExpansion.MODID + ".stat.label", "%s: %s");
 
 
         add(DinoStatTypes.GENDER, "Gender");
@@ -89,6 +87,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(DinoStatTypes.OWNER, "Owner");
         add(DinoStatTypes.TORPOR, "Torpor");
         add(DinoStatTypes.HUNGER, "Hunger");
+        add(DinoStatTypes.TAMING_PROGRESS, "Tamed");
     }
 
     protected void attributes() {
