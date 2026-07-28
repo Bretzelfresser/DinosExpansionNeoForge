@@ -5,12 +5,11 @@ import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.phys.Vec3;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.Util;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -61,9 +60,9 @@ public class Certosaurus extends BaseDinoEntity {
     }
 
     @Override
-    public @NotNull Vec3 getPassengerRidingPosition(Entity passenger) {
-        // TODO: Modify this to place the rider correctly relative to Certosaurus
-        return super.getPassengerRidingPosition(passenger);
+    protected EntityDimensions getDefaultDimensions(Pose pose) {
+        //TODO move that into registration, but registration is terrible for testing
+        return super.getDefaultDimensions(pose);
     }
 
     @Override

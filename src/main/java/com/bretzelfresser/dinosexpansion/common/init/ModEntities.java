@@ -4,9 +4,8 @@ import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.Certosaurus;
 import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -17,7 +16,9 @@ public class ModEntities {
 
     public static final DeferredHolder<EntityType<?>, EntityType<Certosaurus>> CERATOSAURS = register("ceratosaurs",
             EntityType.Builder.of(Certosaurus::new, MobCategory.CREATURE)
-                    .sized(1.0F, 1.5F));
+                    .sized(1.0F, 2.0F)
+                    .eyeHeight(1.9f)
+                    .attach(EntityAttachment.PASSENGER, new Vec3(0, 2.0f, -0.2f)));
 
     public static final DeferredHolder<EntityType<?>, EntityType<TranquilizerArrow>> TRANQUILIZER_ARROW = register("tranquilizer_arrow",
             EntityType.Builder.<TranquilizerArrow>of(TranquilizerArrow::new, MobCategory.MISC)
