@@ -46,6 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -846,6 +847,12 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     protected Vec3 sleepParticlesRelative() {
         return Vec3.ZERO;
+    }
+
+    @Override
+    public boolean canSwimInFluidType(FluidType type) {
+        //the enttiy actually drowns when made unconscious inside water
+        return !isUnconscious() && super.canSwimInFluidType(type);
     }
 
     @Nullable

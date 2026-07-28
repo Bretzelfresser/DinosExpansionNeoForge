@@ -78,7 +78,7 @@ public class Certosaurus extends BaseDinoEntity {
             return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
         }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
         registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
-            if (event.isMoving()) {
+            if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && event.isMoving()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop(isSprinting() ? "run" : "walk"));
             }
             return PlayState.STOP;
