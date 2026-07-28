@@ -32,6 +32,7 @@ public class SleepBehaviour {
         if (!dino.level().isClientSide()) {
             if (sleeping) {
                 dino.getBrain().setMemory(ModMemoryModules.SLEEPING.get(), Unit.INSTANCE);
+                dino.ejectPassengers();
             } else {
                 dino.getBrain().eraseMemory(ModMemoryModules.SLEEPING.get());
             }
@@ -49,7 +50,7 @@ public class SleepBehaviour {
     }
 
     public boolean canSleep() {
-        return this.sleepCooldown <= 0;
+        return this.sleepCooldown <= 0 && !dino.isVehicle();
     }
 
     public SleepRhythm getRhythm() {

@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
+import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
@@ -26,6 +27,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -543,6 +545,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     @Override
+    public boolean canSprint() {
+        return true;
+    }
+
+    @Override
     protected @NotNull Vec3 getRiddenInput(@NotNull Player player, @NotNull Vec3 travelVector) {
         if (!this.onGround()) {
             return Vec3.ZERO;
@@ -553,7 +560,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 f1 *= 0.25F;
             }
 
-            return new Vec3((double)f, 0.0, (double)f1);
+            return new Vec3((double) f, 0.0, (double) f1);
         }
     }
 
@@ -690,6 +697,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 return InteractionResult.FAIL;
             }
 
+            if (this.sleepBehaviour.isSleeping()) {
+                this.sleepBehaviour.forceAwake(400);
+                return InteractionResult.sidedSuccess(this.level().isClientSide());
+            }
+
             if (player.isSecondaryUseActive()) {
                 // Shift-right click: open inventory
                 if (!this.level().isClientSide()) {
@@ -744,7 +756,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.dropEquipment();
         for (int i = 0; i < this.inventory.getSlots(); i++) {
             var stack = this.inventory.getStackInSlot(i);
-            if (!stack.isEmpty()){
+            if (!stack.isEmpty()) {
                 this.spawnAtLocation(stack);
             }
         }
@@ -825,11 +837,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             sleepParticleCooldown--;
             return;
         }
-        sleepParticleCooldown = 40 + this.random.nextInt(40);
-        double x = this.getX();
-        double y = this.getY() + this.getBbHeight() + 0.15D;
-        double z = this.getZ();
-        this.level().addParticle(ModParticles.SLEEPING_PARTICLES.get(), x, y, z, 0f, 0.4f, 0);
+        sleepParticleCooldown = 40 + random.nextInt(40);
+        var position = getPosition(0f);
+        position = position.add(sleepParticlesRelative().yRot(- Mth.DEG_TO_RAD * this.getYRot()));
+        this.level().addParticle(ModParticles.SLEEPING_PARTICLES.get(), position.x, position.y, position.z, 0f, 0.4f, 0);
+
+    }
+
+    protected Vec3 sleepParticlesRelative() {
+        return Vec3.ZERO;
     }
 
     @Nullable

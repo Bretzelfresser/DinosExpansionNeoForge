@@ -18,6 +18,7 @@ import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
 import java.util.EnumMap;
@@ -59,10 +60,10 @@ public class Certosaurus extends BaseDinoEntity {
         super.customServerAiStep();
     }
 
+
     @Override
-    protected EntityDimensions getDefaultDimensions(Pose pose) {
-        //TODO move that into registration, but registration is terrible for testing
-        return super.getDefaultDimensions(pose);
+    protected Vec3 sleepParticlesRelative() {
+        return new Vec3(-0.1, .8, 1.3f);
     }
 
     @Override
@@ -71,13 +72,16 @@ public class Certosaurus extends BaseDinoEntity {
             if (this.getSleepBehaviour().isSleeping()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("sleep"));
             }
-            if (this.isUnconscious()){
+            if (this.isUnconscious()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("knockedout"));
-            }
-            if (event.isMoving()) {
-                return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             }
             return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
         }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
+        registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
+            if (event.isMoving()) {
+                return event.setAndContinue(RawAnimation.begin().thenLoop(isSprinting() ? "run" : "walk"));
+            }
+            return PlayState.STOP;
+        }));
     }
 }
