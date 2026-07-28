@@ -86,7 +86,7 @@ public class DinoBrain {
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
-                Pair.of(0, eatNarcotics(true)),
+                Pair.of(0, eatNarcotics(true, true)),
                 Pair.of(2, new DoNothing(100, 200))
         ), Set.of(
                 Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
@@ -108,9 +108,15 @@ public class DinoBrain {
     }
 
     public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold) {
+        return eatNarcotics(findBiggestBelowThreshold, true);
+    }
+
+    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold, boolean onlyWhenTaming) {
         return BehaviorBuilder.create(instance -> instance.group(instance.registered(ModMemoryModules.UNCONSCIOUS.get())).apply(instance, (unconsciousMemory) ->
                         (serverLevel, dino, gameTime) -> {
                             IItemHandlerModifiable inventory = dino.getChestInventory();
+                            if (onlyWhenTaming && !dino.currentlyTaming())
+                                return false;
                             float missingTorpor = dino.getMissingTorpor();
                             if (missingTorpor <= 0) {
                                 return false;

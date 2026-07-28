@@ -347,6 +347,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     public void onTameCompleted(float effectiveness, @Nullable UUID owner) {
         this.setTamedBy(owner);
         this.setUnconsciousFrom((UUID) null); // Wake up
+        this.survivalBehaviour.setStackedTorpor(0f);//ensure no stacked torpor is left so it directly goes back to sleep
 
         // Add taming bonus levels
         int currentLevel = this.getDinoLevel();
