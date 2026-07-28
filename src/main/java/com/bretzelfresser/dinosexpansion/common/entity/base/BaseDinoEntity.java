@@ -722,6 +722,17 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     @Override
+    protected void dropEquipment() {
+        super.dropEquipment();
+        for (int i = 0; i < this.inventory.getSlots(); i++) {
+            var stack = this.inventory.getStackInSlot(i);
+            if (!stack.isEmpty()){
+                this.spawnAtLocation(stack);
+            }
+        }
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putFloat("Torpor", this.getTorpor());
