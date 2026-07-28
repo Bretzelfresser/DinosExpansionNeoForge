@@ -539,6 +539,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.tickRidden(rider, travelVector);
         this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        this.setSprinting(rider.isSprinting());
     }
 
     @Override
@@ -558,7 +559,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     @Override
     protected float getRiddenSpeed(Player player) {
-        return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        float baseSpeed = (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+        return player.isSprinting() ? baseSpeed : baseSpeed * 0.5F;
     }
 
     @Override
