@@ -45,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -534,10 +535,25 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     @Override
-    protected void tickRidden(Player rider, Vec3 travelVector) {
+    protected void tickRidden(@NotNull Player rider, @NotNull Vec3 travelVector) {
         super.tickRidden(rider, travelVector);
         this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+    }
+
+    @Override
+    protected @NotNull Vec3 getRiddenInput(@NotNull Player player, @NotNull Vec3 travelVector) {
+        if (!this.onGround()) {
+            return Vec3.ZERO;
+        } else {
+            float f = player.xxa * 0.5F;
+            float f1 = player.zza;
+            if (f1 <= 0.0F) {
+                f1 *= 0.25F;
+            }
+
+            return new Vec3((double)f, 0.0, (double)f1);
+        }
     }
 
     @Override
