@@ -2,12 +2,15 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.Util;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -28,6 +31,11 @@ public class Certosaurus extends BaseDinoEntity {
                     map.put(DinoEquipment.SADDLE, s -> s.is(Items.SADDLE));
                 }
         );
+    }
+
+    @Override
+    protected @NotNull Brain.Provider<?> brainProvider() {
+        return super.brainProvider();
     }
 
     @Override

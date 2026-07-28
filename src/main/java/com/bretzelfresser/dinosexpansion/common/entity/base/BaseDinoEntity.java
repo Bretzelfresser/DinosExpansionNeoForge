@@ -44,6 +44,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -503,7 +504,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     }
 
     @Override
-    protected Brain.Provider<?> brainProvider() {
+    protected @NotNull Brain.Provider<?> brainProvider() {
         return Brain.provider(
                 DinoBrain.baseDinoMemoryModules().build(),
                 ImmutableList.of(
@@ -511,6 +512,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                         SensorType.NEAREST_LIVING_ENTITIES
                 )
         );
+    }
+
+    @Override
+    public boolean isEffectiveAi() {
+        return super.isEffectiveAi();
     }
 
     @SuppressWarnings("unchecked")
