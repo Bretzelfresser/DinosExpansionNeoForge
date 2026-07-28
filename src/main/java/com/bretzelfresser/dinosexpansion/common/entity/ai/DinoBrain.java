@@ -25,14 +25,15 @@ import java.util.Set;
 
 public class DinoBrain {
 
-
+    public static ImmutableList.Builder<MemoryModuleType<?>> baseDinoMemoryModules() {
+        return baseDinoMemoryModules(ImmutableList.builder());
+    }
     /**
      *
      * @return a builder of an immutable list of all the essential memory modules a dino should have
      */
-    public static ImmutableList.Builder<MemoryModuleType<?>> baseDinoMemoryModules() {
-        return ImmutableList.<MemoryModuleType<?>>builder()
-                .add(MemoryModuleType.WALK_TARGET)
+    public static ImmutableList.Builder<MemoryModuleType<?>> baseDinoMemoryModules(ImmutableList.Builder<MemoryModuleType<?>> list) {
+        return list.add(MemoryModuleType.WALK_TARGET)
                 .add(MemoryModuleType.LOOK_TARGET)
                 .add(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
                 .add(MemoryModuleType.PATH)
