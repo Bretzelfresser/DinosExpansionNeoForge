@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record DinoLevelUpPayload(int entityId, int statOrdinal) implements CustomPacketPayload {
-    public static final Type<DinoLevelUpPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, "dino_level_up"));
+    public static final Type<DinoLevelUpPayload> TYPE = new Type<>(DinosExpansion.modLoc("dino_level_up"));
 
     public static final StreamCodec<FriendlyByteBuf, DinoLevelUpPayload> STREAM_CODEC = StreamCodec.of(
             (buf, value) -> {
