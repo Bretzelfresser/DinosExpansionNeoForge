@@ -11,9 +11,13 @@ import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.BiteAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.config.Config;
+import java.util.HashMap;
+import java.util.Map;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.bretzelfresser.dinosexpansion.util.RandomUtils;
@@ -77,9 +81,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     protected final DinoInventory inventory;
 
-    // Attack duration tracker (server ticks)
-    protected int attackTicks = 0;
-    protected boolean isAttacking = false;
+    protected final Map<String, DinoAttack> attacks = new HashMap<>();
+    protected final Map<String, Integer> attackCooldowns = new HashMap<>();
+    @Nullable
+    protected DinoAttack activeAttack = null;
+    protected int attackTimer = 0;
 
     protected final SleepBehaviour sleepBehaviour;
     protected final TamingBehaviour tamingBehaviour;
@@ -111,6 +117,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             if (equipment == DinoEquipment.SADDLE && isSaddled())
                 this.playSound(getSaddleSoundEvent(), 0.5F, 1.0F);
         });
+
+        this.registerAttack(new BiteAttack());
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -601,14 +609,25 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 this.gainXp(0.01f); // Passive XP
             }
 
-            // Attack ticks handling
-            if (this.isAttacking) {
-                this.attackTicks--;
-                if (this.attackTicks == 10) { // Perform damage sweep at frame 10 (halfway through 20 tick animation)
-                    this.doMeleeDamage();
+            // Attack and cooldowns ticking
+            if (!this.level().isClientSide()) {
+                // Tick attack cooldowns
+                for (Map.Entry<String, Integer> entry : this.attackCooldowns.entrySet()) {
+                    if (entry.getValue() > 0) {
+                        this.attackCooldowns.put(entry.getKey(), entry.getValue() - 1);
+                    }
                 }
-                if (this.attackTicks <= 0) {
-                    this.isAttacking = false;
+
+                // Tick active attack execution
+                if (this.activeAttack != null) {
+                    this.attackTimer--;
+                    int elapsed = this.activeAttack.getDurationTicks() - this.attackTimer;
+                    if (elapsed == this.activeAttack.getHitFrameTick()) {
+                        this.activeAttack.executeDamage(this);
+                    }
+                    if (this.attackTimer <= 0) {
+                        this.activeAttack = null;
+                    }
                 }
             }
         } else if (this.sleepBehaviour.isSleeping()) {
@@ -652,11 +671,34 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
     }
 
+    public void registerAttack(DinoAttack attack) {
+        this.attacks.put(attack.getName(), attack);
+    }
+
+    public void performAttack(DinoAttack attack) {
+        if (!this.level().isClientSide() && this.activeAttack == null) {
+            if (this.isAttackOnCooldown(attack.getName())) {
+                return;
+            }
+            this.activeAttack = attack;
+            this.attackTimer = attack.getDurationTicks();
+            this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
+            this.triggerAnim("dino_controller", attack.getAnimationName());
+        }
+    }
+
+    public boolean isAttackOnCooldown(String attackName) {
+        return this.attackCooldowns.getOrDefault(attackName, 0) > 0;
+    }
+
+    public void setAttackCooldown(String attackName, int ticks) {
+        this.attackCooldowns.put(attackName, ticks);
+    }
+
     public void triggerBiteAttack() {
-        if (!this.level().isClientSide()) {
-            this.triggerAnim("dino_controller", "attack");
-            this.isAttacking = true;
-            this.attackTicks = 20; // 1 second total
+        DinoAttack bite = this.attacks.get("bite");
+        if (bite != null) {
+            this.performAttack(bite);
         }
     }
 
@@ -786,6 +828,14 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             pointsTag.putInt(stat.name(), this.getStatPoints(stat));
         }
         tag.put("StatPoints", pointsTag);
+
+        CompoundTag cooldownsTag = new CompoundTag();
+        for (Map.Entry<String, Integer> entry : this.attackCooldowns.entrySet()) {
+            if (entry.getValue() > 0) {
+                cooldownsTag.putInt(entry.getKey(), entry.getValue());
+            }
+        }
+        tag.put("AttackCooldowns", cooldownsTag);
     }
 
     @Override
@@ -813,6 +863,14 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 }
             }
         });
+
+        this.attackCooldowns.clear();
+        if (tag.contains("AttackCooldowns")) {
+            CompoundTag cooldownsTag = tag.getCompound("AttackCooldowns");
+            for (String key : cooldownsTag.getAllKeys()) {
+                this.attackCooldowns.put(key, cooldownsTag.getInt(key));
+            }
+        }
 
         // Sync attributes after reading data
         this.updateAttributesFromLevels();
