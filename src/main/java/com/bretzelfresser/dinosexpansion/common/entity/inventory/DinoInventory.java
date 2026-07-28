@@ -31,9 +31,6 @@ public class DinoInventory extends CombinedInvWrapper implements INBTSerializabl
     }
 
     protected void updateEquipment(DinoEquipment equipment) {
-        if (equipment == DinoEquipment.SADDLE) {
-            dino.setSaddled(!equipmentInventory.getEquipment(equipment).isEmpty());
-        }
         if (equipment == DinoEquipment.CHEST){
             int newSize = dino.getChestSize(equipmentInventory.getEquipment(equipment));
             if (this.inventory.getSlots() != newSize) {

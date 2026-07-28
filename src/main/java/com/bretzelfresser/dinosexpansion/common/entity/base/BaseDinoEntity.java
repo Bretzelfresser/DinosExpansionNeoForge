@@ -58,7 +58,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity {
+public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity, Saddleable {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
@@ -418,9 +418,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     /**
      * 0 = unconscious
-     * 1 = saddled
+     * 1 = (unused, previously saddled)
      * 2 = sleep
-     * 3 = saddled
      *
      * @param bitPos
      * @param value
@@ -489,12 +488,22 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.entityData.set(TAMING_EFFECTIVENESS, Math.clamp(val, 0.0f, 1.0f));
     }
 
+    @Override
     public boolean isSaddled() {
-        return this.getDinoFlag(1);
+        return this.getEquipmentInventory().hasEquipment(DinoEquipment.SADDLE) && !this.getEquipmentInventory().getEquipment(DinoEquipment.SADDLE).isEmpty();
     }
 
-    public void setSaddled(boolean saddled) {
-        this.setDinoFlag(1, saddled);
+    @Override
+    public boolean isSaddleable() {
+        return this.isAlive() && !this.isBaby() && this.isTamed();
+    }
+
+    @Override
+    public void equipSaddle(ItemStack stack, @Nullable SoundSource source) {
+        this.getEquipmentInventory().setEquipment(DinoEquipment.SADDLE, stack);
+        if (source != null) {
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HORSE_SADDLE, source, 0.5F, 1.0F);
+        }
     }
 
     public DynamicInventory getChestInventory() {
