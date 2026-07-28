@@ -44,6 +44,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -503,15 +504,25 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return this.inventory;
     }
 
+    @Nullable
     @Override
-    protected @NotNull Brain.Provider<?> brainProvider() {
-        return Brain.provider(
-                DinoBrain.baseDinoMemoryModules().build(),
-                ImmutableList.of(
-                        SensorType.NEAREST_PLAYERS,
-                        SensorType.NEAREST_LIVING_ENTITIES
-                )
-        );
+    public LivingEntity getControllingPassenger() {
+        if (this.isSaddled() && this.getFirstPassenger() instanceof LivingEntity passenger) {
+            return passenger;
+        }
+        return null;
+    }
+
+    @Override
+    protected void tickRidden(Player rider, Vec3 travelVector) {
+        super.tickRidden(rider, travelVector);
+        this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
+        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+    }
+
+    @Override
+    protected float getRiddenSpeed(Player player) {
+        return (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
     }
 
     @Override
@@ -529,16 +540,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     public Brain<BaseDinoEntity> getBrain() {
         return (Brain<BaseDinoEntity>) super.getBrain();
-    }
-
-    @Override
-    protected void customServerAiStep() {
-        this.level().getProfiler().push("dinoBrain");
-        this.getBrain().tick((ServerLevel) this.level(), this);
-        this.level().getProfiler().pop();
-
-        DinoBrain.updateActivity(this);
-        super.customServerAiStep();
     }
 
     @Override

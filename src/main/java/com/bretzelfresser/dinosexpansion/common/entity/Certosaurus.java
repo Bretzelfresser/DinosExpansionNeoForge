@@ -1,7 +1,13 @@
 package com.bretzelfresser.dinosexpansion.common.entity;
 
+import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.sensing.SensorType;
+import net.minecraft.world.phys.Vec3;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.Util;
 import net.minecraft.world.entity.EntityType;
@@ -35,7 +41,29 @@ public class Certosaurus extends BaseDinoEntity {
 
     @Override
     protected @NotNull Brain.Provider<?> brainProvider() {
-        return super.brainProvider();
+        return Brain.provider(
+                DinoBrain.baseDinoMemoryModules().build(),
+                ImmutableList.of(
+                        SensorType.NEAREST_PLAYERS,
+                        SensorType.NEAREST_LIVING_ENTITIES
+                )
+        );
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        this.level().getProfiler().push("certosaurusBrain");
+        this.getBrain().tick((ServerLevel) this.level(), this);
+        this.level().getProfiler().pop();
+
+        DinoBrain.updateActivity(this);
+        super.customServerAiStep();
+    }
+
+    @Override
+    public @NotNull Vec3 getPassengerRidingPosition(Entity passenger) {
+        // TODO: Modify this to place the rider correctly relative to Certosaurus
+        return super.getPassengerRidingPosition(passenger);
     }
 
     @Override
