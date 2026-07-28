@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.client.gui.spyglass;
 
+import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.client.util.DinoScannerCache;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.item.ZoomItem;
@@ -10,12 +11,16 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+
+import java.util.Arrays;
+import java.util.Comparator;
 
 @OnlyIn(Dist.CLIENT)
 public class SpyglassScannerOverlay implements LayeredDraw.Layer {
@@ -97,8 +102,47 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
     private void renderScannerPanel(GuiGraphics graphics, Font font, BaseDinoEntity dino, DinoStatTypes[] supportedStats) {
         if (supportedStats == null || supportedStats.length == 0) return;
 
+        //ensures relative order persists, and all string stats are before the bar stats
+        Arrays.sort(supportedStats, Comparator.comparing(DinoStatTypes::isBar));
+
+        //insets
+        int marginTop = 4;
+        int marginBot = 4;
+        int marginBetweenStringBar = 6;
+        int marginBetweenStrings = 3;
+        int marginBetweenBars = 2;
+
+        int marginHeader = 6;
+
+        int barHeight = 11;
+        int stringHeight = font.lineHeight;
+
         int panelWidth = 140;
-        int panelHeight = 16 + (supportedStats.length * 16);
+        //16 for the race at the top
+        int panelHeight = marginTop + marginBot + marginHeader + 16;
+
+        for (int i = 0; i < supportedStats.length; i++) {
+            var currentStat = supportedStats[i];
+
+            if (currentStat.isBar()) {
+                panelHeight += barHeight;
+            } else {
+                panelHeight += stringHeight;
+            }
+
+            if (i < supportedStats.length - 1) {
+                var nexStat = supportedStats[i + 1];
+
+                if (currentStat.isBar() && nexStat.isBar()) {
+                    panelHeight += marginBetweenBars;
+                }
+                if (!currentStat.isBar() && nexStat.isBar()) {
+                    panelHeight += marginBetweenStringBar;
+                } else {
+                    panelHeight += marginBetweenStrings;
+                }
+            }
+        }
 
         // Position panel at the right-middle section of the screen, just outside center scope
         int x = graphics.guiWidth() / 2 + 100;
@@ -111,33 +155,45 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         graphics.renderOutline(x, y, panelWidth, panelHeight, 0xFF0EA5E9);
 
         // 2. Panel Title Header
-        String name = dino.getType().getDescription().getString().toUpperCase();
-        graphics.drawString(font, "Race: " + name, x + 6, y + 6, 0xFF38BDF8, false);
-        y += 16;
+        Component name = dino.getType().getDescription();
+        graphics.drawString(font, Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.race", name), x + 6, y + 6, 0xFF38BDF8, false);
+        y += 16 + marginHeader;
 
         // 3. Render each individual statistic
-        for (DinoStatTypes stat : supportedStats) {
+        for (int i = 0; i < supportedStats.length; i++) {
+            var stat = supportedStats[i];
             if (stat.isBar()) {
-                float val = stat.getFloatValue(dino);
-                float max = stat.getMaxValue(dino);
-                drawStatBar(graphics, font, x + 6, y, panelWidth - 12, 10, val, max, stat.getColor(), stat.getLabelName());
+                var text = Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.bar", stat.getLabelTranslationComponent(), stat.getFormattedFloatValue(dino), stat.getFormattedMaxValue(dino));
+                drawStatBar(graphics, font, x + 6, y, panelWidth - 12, barHeight, stat.getPercentage(dino), stat.getColor(), text);
+                y += barHeight;
             } else {
-                String text = stat.getLabelName() + ": " + stat.getValueString(dino);
-                graphics.drawString(font, text, x + 6, y + 1, 0xFFE2E8F0, false);
+                var textComponent = Component.translatable("spyglass." + DinosExpansion.MODID + ".stat.label", stat.getLabelTranslationComponent(), stat.getValueComponent(dino));
+                graphics.drawString(font, textComponent, x + 6, y, 0xFFE2E8F0, false);
+                y += stringHeight;
             }
-            y += 16;
+            if (i < supportedStats.length - 1) {
+                var nexStat = supportedStats[i + 1];
+
+                if (stat.isBar() && nexStat.isBar()) {
+                    y += marginBetweenBars;
+                }
+                if (!stat.isBar() && nexStat.isBar()) {
+                    y += marginBetweenStringBar;
+                } else {
+                    y += marginBetweenStrings;
+                }
+            }
 
         }
     }
 
 
-    private void drawStatBar(GuiGraphics graphics, Font font, int x, int y, int width, int height, float value, float maxValue, int barColor, String label) {
+    private void drawStatBar(GuiGraphics graphics, Font font, int x, int y, int width, int height, float percentage, int barColor, Component label) {
         // Dark bar background
         graphics.fill(x, y, x + width, y + height, 0xFF1E293B);
 
-        // Calculate progress ratio
-        float pct = maxValue > 0 ? (value / maxValue) : 0f;
-        int fillWidth = (int) (width * Math.min(1.0f, Math.max(0.0f, pct)));
+        // Calculate width based on percentage
+        int fillWidth = (int) (width * Math.clamp(percentage, 0.0f, 1.0f));
 
         // Render fill portion
         graphics.fill(x, y, x + fillWidth, y + height, barColor);
@@ -146,7 +202,6 @@ public class SpyglassScannerOverlay implements LayeredDraw.Layer {
         graphics.renderOutline(x, y, width, height, 0x33FFFFFF);
 
         // Center overlay text showing absolute stats (e.g. Health: 50/100)
-        String text = label + ": " + (int) value + "/" + (int) maxValue;
-        graphics.drawString(font, text, x + (width - font.width(text)) / 2, y + (height - 8) / 2, 0xFFFFFFFF, false);
+        graphics.drawString(font, label, x + (width - font.width(label)) / 2, y + (height - font.lineHeight) / 2, 0xFFFFFFFF, false);
     }
 }

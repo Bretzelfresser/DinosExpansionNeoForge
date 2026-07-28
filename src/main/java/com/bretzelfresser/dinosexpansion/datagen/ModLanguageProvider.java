@@ -1,12 +1,23 @@
 package com.bretzelfresser.dinosexpansion.datagen;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
+import com.bretzelfresser.dinosexpansion.client.gui.spyglass.DinoStatTypes;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoGender;
+import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
+import com.bretzelfresser.dinosexpansion.common.init.ModEnchantments;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.config.Config;
+import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class ModLanguageProvider extends LanguageProvider {
     public ModLanguageProvider(PackOutput output) {
@@ -16,27 +27,78 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
 
-        // Items
-        add(ModItems.TEST_DINO_SADDLE.get(), "Test Dino Saddle");
-        add(ModItems.NARCOTICS.get(), "Narcotics");
-        add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
-
-        // Entities
-        add(ModEntities.CERATOSAURS.get(), "Ceratosaurus");
-
-        // Attributes
-        add("attribute.name.dinosexpansion.max_torpor", "Max Torpor");
-        add("attribute.name.dinosexpansion.max_hunger", "Max Hunger");
-        add("attribute.name.dinosexpansion.carrying_capacity", "Carrying Capacity");
+        items();
+        entities();
+        attributes();
 
         // Creative Tabs
         add("itemGroup.dinosexpansion", "Dinos Expansion");
 
-        // Custom Tooltips
-        add("dinosexpansion.narcotic_value", "Narcotic Value: +%s Torpor");
-        add("enchantment.dinosexpansion.torpor_enchantment", "Torpor");
+        enchantments();
 
 
+        tooltips();
+
+        add(DinoGender.MALE, "Male");
+        add(DinoGender.FEMALE, "Female");
+
+        configs();
+
+        spyglassOverlayTranslations();
+
+        generica();
+
+
+    }
+
+    protected void items() {
+        add(ModItems.TEST_DINO_SADDLE.get(), "Test Dino Saddle");
+        add(ModItems.NARCOTICS.get(), "Narcotics");
+        add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
+    }
+
+    protected void entities() {
+        add(ModEntities.CERATOSAURS.get(), "Ceratosaurus");
+    }
+
+    protected void generica() {
+        add("generic." + DinosExpansion.MODID + ".wild", "Wild");
+        add("generic." + DinosExpansion.MODID + ".you", "You");
+        add("generic." + DinosExpansion.MODID + ".tamed", "Tamed");
+    }
+
+    protected void tooltips() {
+        add("tooltip." + DinosExpansion.MODID + ".narcotic_value", "Narcotic Value: +%s Torpor");
+    }
+
+    protected void enchantments(){
+        addEnchantment(ModEnchantments.TORPOR_ENCHANTMENT, "Torpor");
+    }
+
+    protected void spyglassOverlayTranslations() {
+        add("spyglass." + DinosExpansion.MODID + ".stat.race", "Race: %s");
+        add("spyglass." + DinosExpansion.MODID + ".stat.bar", "%s: %s/%s");
+        add("spyglass." + DinosExpansion.MODID + ".stat.label", "%s: %s");
+        add("spyglass." + DinosExpansion.MODID + ".stat.value", "%s");
+
+
+        add(DinoStatTypes.GENDER, "Gender");
+        add(DinoStatTypes.CARRYING_CAPACITY, "Carrying Capacity");
+        add(DinoStatTypes.HEALTH, "Health");
+        add(DinoStatTypes.LEVEL, "Level");
+        add(DinoStatTypes.OWNER, "Owner");
+        add(DinoStatTypes.TORPOR, "Torpor");
+        add(DinoStatTypes.HUNGER, "Hunger");
+    }
+
+    protected void attributes() {
+        addAttribute(ModAttributes.MAX_TORPOR, "Max Torpor");
+        addAttribute(ModAttributes.MAX_HUNGER, "Max Hunger");
+        addAttribute(ModAttributes.CARRYING_CAPACITY, "Carrying Capacity");
+        addAttribute(ModAttributes.TORPOR_WAKE_UP_THRESHOLD, "Wake Up Threshold");
+    }
+
+    protected void configs() {
         addConfigValue("Torpor", "Torpor Configurations");
         addConfigValue(Config.TORPOR_CONFIG.DAMAGE_REDUCTION, "Torpor Damage Reduction");
         addConfigValue(Config.TORPOR_CONFIG.DAMAGE_SCALING, "Torpor Damage Scaling");
@@ -48,15 +110,37 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue(Config.DINOSAUR_CONFIG.MIN_LEVEL, "Spawn Minimum Level");
         addConfigValue(Config.DINOSAUR_CONFIG.MAX_LEVEL, "Spawn Maximum Level");
         addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
-
-
     }
 
-    protected void addConfigValue(ModConfigSpec.ConfigValue<?> configKey, String translation){
+    public void addEnchantment(ResourceKey<Enchantment> enchantment, String translation){
+        addEnchantment(enchantment.location(), translation);
+    }
+
+    public void addEnchantment(ResourceLocation enchantment, String translation){
+        add(Util.makeDescriptionId("enchantment", enchantment), translation);
+    }
+
+    public void addAttribute(Holder<Attribute> attribute, String translation) {
+        addAttribute(attribute.value(), translation);
+    }
+
+    public void addAttribute(Attribute attribute, String translation) {
+        add(attribute.getDescriptionId(), translation);
+    }
+
+    public void add(DinoGender gender, String translation) {
+        add(gender.getTranslationKey(), translation);
+    }
+
+    public void add(DinoStatTypes statType, String translation) {
+        add(statType.getLabelTranslationKey(), translation);
+    }
+
+    protected void addConfigValue(ModConfigSpec.ConfigValue<?> configKey, String translation) {
         addConfigValue(configKey.getPath().get(configKey.getPath().size() - 1), translation);
     }
 
-    protected void addConfigValue(String configKey, String translation){
+    protected void addConfigValue(String configKey, String translation) {
         add(DinosExpansion.MODID + ".configuration." + configKey, translation);
     }
 }

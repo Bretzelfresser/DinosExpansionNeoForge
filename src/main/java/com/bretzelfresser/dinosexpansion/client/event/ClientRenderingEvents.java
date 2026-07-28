@@ -18,7 +18,7 @@ public class ClientRenderingEvents {
             ItemStack stack = event.getItemStack();
             if (stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
                 float value = stack.get(ModDataComponents.NARCOTIC_VALUE.get());
-                event.getToolTip().add(Component.translatable(DinosExpansion.MODID + ".narcotic_value", value)
+                event.getToolTip().add(Component.translatable("tooltip." + DinosExpansion.MODID + ".narcotic_value", value)
                         .withStyle(ChatFormatting.DARK_PURPLE));
             }
         }
