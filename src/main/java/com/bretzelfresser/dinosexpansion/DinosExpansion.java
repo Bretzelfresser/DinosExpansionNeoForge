@@ -53,6 +53,8 @@ public class DinosExpansion {
 
         // Register our custom items
         ModItems.ITEMS.register(modEventBus);
+        // Register custom creative tabs
+        ModCreativeModeTabs.register(modEventBus);
         // Register custom attributes
         ModAttributes.ATTRIBUTES.register(modEventBus);
         // Register custom entities

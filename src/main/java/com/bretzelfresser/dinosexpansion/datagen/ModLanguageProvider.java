@@ -54,6 +54,14 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.TEST_DINO_SADDLE.get(), "Test Dino Saddle");
         add(ModItems.NARCOTICS.get(), "Narcotics");
         add(ModItems.TRANQUILIZER_ARROW.get(), "Tranquilizer Arrow");
+        add(ModItems.SPYGLASS.get(), "Spyglass");
+        add(ModItems.ADVANCED_SPYGLASS.get(), "Advanced Spyglass");
+        add(ModItems.BASIC_KIBBLE.get(), "Basic Kibble");
+        add(ModItems.SIMPLE_KIBBLE.get(), "Simple Kibble");
+        add(ModItems.REGULAR_KIBBLE.get(), "Regular Kibble");
+        add(ModItems.SUPERIOR_KIBBLE.get(), "Superior Kibble");
+        add(ModItems.EXCEPTIONAL_KIBBLE.get(), "Exceptional Kibble");
+        add(ModItems.EXTRAORDINARY_KIBBLE.get(), "Extraordinary Kibble");
     }
 
     protected void entities() {
