@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai;
 
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.NarcoticBehaviour;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAcquireTargetBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoMeleeAttackBehavior;
@@ -16,6 +17,9 @@ import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -80,8 +84,9 @@ public class DinoBrain {
                 Pair.of(1, new RunOne<>(ImmutableList.of(
                         Pair.of(RandomStroll.stroll(1.0F), 2),
                         Pair.of(SetEntityLookTarget.create(6.0F), 1),
-                        Pair.of(new DoNothing(30, 60), 1)
-                )))
+                        Pair.of(new DoNothing(60, 120), 1)
+                ))),
+                Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget))
         ));
     }
 
@@ -93,7 +98,7 @@ public class DinoBrain {
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
-                Pair.of(0, eatNarcotics(true, true)),
+                Pair.of(0, NarcoticBehaviour.eatNarcotics(true, true)),
                 Pair.of(2, new DoNothing(100, 200))
         ), Set.of(
                 Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
@@ -112,7 +117,7 @@ public class DinoBrain {
     public static void initFightActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.25F)),
-                Pair.of(1, new DinoMeleeAttackBehavior())
+                Pair.of(1, DinoMeleeAttackBehavior.meleeAttack())
         ), Set.of(
                 Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
         ));
@@ -123,62 +128,5 @@ public class DinoBrain {
         brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.FIGHT, Activity.IDLE));
     }
 
-    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold) {
-        return eatNarcotics(findBiggestBelowThreshold, true);
-    }
 
-    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold, boolean onlyWhenTaming) {
-        return BehaviorBuilder.create(instance -> instance.group(instance.registered(ModMemoryModules.UNCONSCIOUS.get())).apply(instance, (unconsciousMemory) ->
-                        (serverLevel, dino, gameTime) -> {
-                            IItemHandlerModifiable inventory = dino.getChestInventory();
-                            if (onlyWhenTaming && !dino.currentlyTaming())
-                                return false;
-                            float missingTorpor = dino.getMissingTorpor();
-                            if (missingTorpor <= 0) {
-                                return false;
-                            }
-
-                            List<Triple<Integer, ItemStack, Float>> narcoticStacks = new ArrayList<>();
-
-                            for (int i = 0; i < inventory.getSlots(); i++) {
-                                ItemStack stack = inventory.getStackInSlot(i);
-                                if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
-                                    float val = stack.getOrDefault(ModDataComponents.NARCOTIC_VALUE.get(), 0f);
-                                    narcoticStacks.add(new Triple<>(i, stack, val));
-                                }
-                            }
-                            if (narcoticStacks.isEmpty())
-                                return false;
-
-                            if (findBiggestBelowThreshold) {
-                                narcoticStacks.sort(Comparator.<Triple<Integer, ItemStack, Float>>comparingDouble(t -> t.c)
-                                        .reversed()
-                                        .thenComparingInt(t -> t.a));
-                            }
-                            int narcoticIndex = 0;
-
-                            while (narcoticIndex < narcoticStacks.size()) {
-                                var stack = narcoticStacks.get(narcoticIndex).b;
-                                var narcoticValue = narcoticStacks.get(narcoticIndex).c;
-
-                                missingTorpor = dino.getSurvivalBehaviour().getTotalMissingTorpor();
-
-
-                                if (!dino.getSurvivalBehaviour().shouldWakeUpFromUnconscious(1) && missingTorpor < narcoticValue){
-                                    break;
-                                }
-
-                                dino.getSurvivalBehaviour().applyBufferedNarcotics(narcoticValue);
-                                stack.shrink(1);
-                                if (stack.isEmpty()){
-                                    narcoticIndex++;
-                                }
-
-                            }
-                            return true;
-                        }
-                )
-
-        );
-    }
 }

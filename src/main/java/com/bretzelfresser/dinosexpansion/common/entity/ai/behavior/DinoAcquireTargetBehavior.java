@@ -20,8 +20,7 @@ public class DinoAcquireTargetBehavior extends Behavior<BaseDinoEntity> {
     @Override
     protected void start(ServerLevel level, BaseDinoEntity owner, long gameTime) {
         Optional<? extends LivingEntity> targetOpt = owner.findAttackTarget();
-        if (targetOpt.isPresent()) {
-            owner.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, targetOpt.get());
-        }
+        targetOpt.ifPresent(livingEntity -> owner.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, livingEntity));
+
     }
 }
