@@ -9,13 +9,19 @@ public abstract class DinoAttack {
     private final int hitFrameTick;
     private final int cooldownTicks;
     private final String animationName;
+    private final boolean cannotMove;
 
     public DinoAttack(String name, int durationTicks, int hitFrameTick, int cooldownTicks, String animationName) {
+        this(name, durationTicks, hitFrameTick, cooldownTicks, animationName, false);
+    }
+
+    public DinoAttack(String name, int durationTicks, int hitFrameTick, int cooldownTicks, String animationName, boolean cannotMove) {
         this.name = name;
         this.durationTicks = durationTicks;
         this.hitFrameTick = hitFrameTick;
         this.cooldownTicks = cooldownTicks;
         this.animationName = animationName;
+        this.cannotMove = cannotMove;
     }
 
     public String getName() {
@@ -36,6 +42,10 @@ public abstract class DinoAttack {
 
     public String getAnimationName() {
         return animationName;
+    }
+
+    public boolean cannotMove() {
+        return cannotMove;
     }
 
     public abstract void executeDamage(BaseDinoEntity attacker);

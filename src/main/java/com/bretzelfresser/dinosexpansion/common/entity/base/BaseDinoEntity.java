@@ -42,6 +42,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
@@ -550,8 +551,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     protected void tickRidden(@NotNull Player rider, @NotNull Vec3 travelVector) {
         super.tickRidden(rider, travelVector);
-        this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
-        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        if (this.canMove()) {
+            this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
+            this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        }
         this.setSprinting(rider.isSprinting());
     }
 
@@ -562,7 +565,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     @Override
     protected @NotNull Vec3 getRiddenInput(@NotNull Player player, @NotNull Vec3 travelVector) {
-        if (!this.onGround()) {
+        if (!this.canMove() || !this.onGround()) {
             return Vec3.ZERO;
         } else {
             float f = player.xxa * 0.5F;
@@ -603,6 +606,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.aiStep();
 
         if (!this.level().isClientSide()) {
+            if (!this.canMove()) {
+                this.getNavigation().stop();
+                this.getBrain().eraseMemory(MemoryModuleType.PATH);
+            }
             this.sleepBehaviour.tick();
             this.survivalBehaviour.tick();
             this.tamingBehaviour.tick();
@@ -889,11 +896,21 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     @Override
     protected boolean isImmobile() {
-        return super.isImmobile() || isUnconscious() || isSleeping();
+        return super.isImmobile();
     }
 
-    public boolean canMove(){
-        return isImmobile();
+    public boolean canMove() {
+        return !isUnconscious() && !isSleeping() && (this.activeAttack == null || !this.activeAttack.cannotMove());
+    }
+
+    @Override
+    public void travel(Vec3 travelVector) {
+        if (!this.canMove()) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.0D, 1.0D, 0.0D));
+            super.travel(Vec3.ZERO);
+            return;
+        }
+        super.travel(travelVector);
     }
 
     public List<DinoAttack> getAvailableAttacks() {
