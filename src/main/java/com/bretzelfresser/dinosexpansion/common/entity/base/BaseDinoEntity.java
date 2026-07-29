@@ -894,11 +894,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
     }
 
-    @Override
-    protected boolean isImmobile() {
-        return super.isImmobile();
-    }
-
     public boolean canMove() {
         return !isUnconscious() && !isSleeping() && (this.activeAttack == null || !this.activeAttack.cannotMove());
     }
