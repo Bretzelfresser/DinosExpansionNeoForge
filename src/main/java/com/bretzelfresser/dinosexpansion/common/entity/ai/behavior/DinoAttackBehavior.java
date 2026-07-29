@@ -2,23 +2,22 @@ package com.bretzelfresser.dinosexpansion.common.entity.ai.behavior;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
-import com.google.common.collect.ImmutableMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.behavior.OneShot;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DinoMeleeAttackBehavior {
+public class DinoAttackBehavior {
 
-    public static OneShot<BaseDinoEntity> meleeAttack() {
+    /**
+     * chooses an attack from {@link BaseDinoEntity#getAvailableAttacks()} which is suitable and performs this attack
+     */
+    public static OneShot<BaseDinoEntity> attack() {
         return BehaviorBuilder.create(instance -> instance.group(instance.present(MemoryModuleType.ATTACK_TARGET), instance.registered(MemoryModuleType.LOOK_TARGET)).apply(instance, (attacktarget, lookTarget) ->
                 (level, dino, gameTime) -> {
                     if (!dino.canMove())
@@ -38,13 +37,6 @@ public class DinoMeleeAttackBehavior {
                     return false;
                 }
         ));
-    }
-
-
-
-    @Nullable
-    private static LivingEntity getAttackTarget(BaseDinoEntity owner) {
-        return owner.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
     }
 
     @Nullable
@@ -77,6 +69,6 @@ public class DinoMeleeAttackBehavior {
                 return attack;
             }
         }
-        return usableAttacks.get(usableAttacks.size() - 1);
+        return usableAttacks.getLast();
     }
 }

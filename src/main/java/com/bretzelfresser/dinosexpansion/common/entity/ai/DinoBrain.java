@@ -3,31 +3,19 @@ package com.bretzelfresser.dinosexpansion.common.entity.ai;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.NarcoticBehaviour;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAcquireTargetBehavior;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoMeleeAttackBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAttackBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTargetValidatorBehavior;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
-import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
-import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
-import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
-import net.minecraft.world.entity.monster.piglin.Piglin;
-import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import org.antlr.v4.runtime.misc.Triple;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 
 public class DinoBrain {
@@ -117,7 +105,7 @@ public class DinoBrain {
     public static void initFightActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.25F)),
-                Pair.of(1, DinoMeleeAttackBehavior.meleeAttack())
+                Pair.of(1, DinoAttackBehavior.attack())
         ), Set.of(
                 Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
         ));
