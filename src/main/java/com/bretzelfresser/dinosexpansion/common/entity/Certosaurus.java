@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -17,8 +18,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -68,16 +72,16 @@ public class Certosaurus extends BaseDinoEntity {
     @Override
     public Optional<? extends LivingEntity> findAttackTarget() {
         Optional<? extends LivingEntity> baseTarget = super.findAttackTarget();
-        if (baseTarget.isPresent()) {
-            return baseTarget;
-        }
-        if (!this.isTamed()) {
-            List<LivingEntity> potentialPrey = this.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(List.of());
-            for (LivingEntity prey : potentialPrey) {
-                if (prey.isAlive() && (prey instanceof Player || (prey instanceof Animal && !(prey instanceof BaseDinoEntity)))) {
-                    if (this.distanceToSqr(prey) < 144.0D) {
-                        return Optional.of(prey);
-                    }
+        List<LivingEntity> potentialPrey = new ArrayList<>(this.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(List.of()));
+        baseTarget.ifPresent(potentialPrey::addFirst);
+        for (LivingEntity prey : potentialPrey) {
+            if (prey.isAlive()) {
+                if (prey instanceof Player player && canPlayerAccess(player))
+                    continue;
+                if (!(prey instanceof Animal) || prey.getType() == this.getType())
+                    continue;
+                if (this.distanceToSqr(prey) < 144.0D) {
+                    return Optional.of(prey);
                 }
             }
         }
