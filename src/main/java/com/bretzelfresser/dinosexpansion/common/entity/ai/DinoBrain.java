@@ -51,19 +51,13 @@ public class DinoBrain {
     }
 
     private static void initCoreActivity(Brain<BaseDinoEntity> brain) {
-        brain.addActivityAndRemoveMemoriesWhenStopped(Activity.CORE, ImmutableList.of(
+        brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
                         Pair.of(1, new LookAtTargetSink(45, 90)),
-                        Pair.of(2, new MoveToTargetSink()),
-                        Pair.of(3, StopAttackingIfTargetInvalid.create())
+                        Pair.of(2, new MoveToTargetSink())
                 ), ImmutableSet.of(
                         Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT),
                         Pair.of(ModMemoryModules.SLEEPING.get(), MemoryStatus.VALUE_ABSENT)
-                ), Set.of(
-                        MemoryModuleType.WALK_TARGET,
-                        MemoryModuleType.LOOK_TARGET,
-                        MemoryModuleType.PATH,
-                        MemoryModuleType.ATTACK_TARGET
                 )
         );
     }
@@ -106,7 +100,8 @@ public class DinoBrain {
     public static void initFightActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, DinoSetWalkTargetBehavior.setWalkTarget(1.25F)),
-                Pair.of(1, DinoAttackBehavior.attack())
+                Pair.of(1, DinoAttackBehavior.attack()),
+                Pair.of(2, StopAttackingIfTargetInvalid.create())
         ), Set.of(
                 Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
         ));

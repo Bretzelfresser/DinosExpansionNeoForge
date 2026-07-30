@@ -626,7 +626,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                     this.attackTimer--;
                     int elapsed = this.activeAttack.getDurationTicks() - this.attackTimer;
                     if (elapsed == this.activeAttack.getHitFrameTick()) {
-                        this.activeAttack.executeDamage(this);
+                        this.activeAttack.executeDamage(this, this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null));
                     }
                     if (this.attackTimer <= 0) {
                         this.activeAttack = null;

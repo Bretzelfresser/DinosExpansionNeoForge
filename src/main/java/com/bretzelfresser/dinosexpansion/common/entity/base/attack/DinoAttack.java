@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.entity.base.attack;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class DinoAttack {
     private final String name;
@@ -48,7 +49,7 @@ public abstract class DinoAttack {
         return cannotMove;
     }
 
-    public abstract void executeDamage(BaseDinoEntity attacker);
+    public abstract void executeDamage(BaseDinoEntity attacker, @Nullable LivingEntity target);
 
     public boolean canUse(BaseDinoEntity attacker, LivingEntity target) {
         return attacker.isAlive() && target.isAlive() && attacker.distanceTo(target) <= getAttackRange(attacker);

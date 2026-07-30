@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base.attack;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class BiteAttack extends DinoAttack {
     public BiteAttack() {
@@ -9,9 +11,9 @@ public class BiteAttack extends DinoAttack {
     }
 
     @Override
-    public void executeDamage(BaseDinoEntity attacker) {
-        if (attacker.getTarget() != null) {
-            attacker.doHurtTarget(attacker.getTarget());
+    public void executeDamage(BaseDinoEntity attacker, @Nullable LivingEntity target) {
+        if (target != null) {
+            attacker.doHurtTarget(target);
         }
     }
 }
