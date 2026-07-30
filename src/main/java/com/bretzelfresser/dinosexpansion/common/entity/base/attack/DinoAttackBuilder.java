@@ -18,7 +18,6 @@ public class DinoAttackBuilder {
     private int cooldownTicks;
     private String animationName;
     private boolean cannotMove = false;
-    private boolean randomWeight = true;
     protected BiConsumer<BaseDinoEntity, LivingEntity> onHit;
     protected ToDoubleFunction<BaseDinoEntity> range = d -> 3.0D;
     protected ToDoubleBiFunction<BaseDinoEntity, LivingEntity> selectionWeight = (dino, target) -> 1.0D;
@@ -80,16 +79,7 @@ public class DinoAttackBuilder {
         return this;
     }
 
-    /**
-     * Sets whether this attack uses randomized selection weights.
-     *
-     * @param randomWeight true to enable weight randomizing, false otherwise
-     * @return this builder instance for chaining
-     */
-    public DinoAttackBuilder randomWeight(boolean randomWeight) {
-        this.randomWeight = randomWeight;
-        return this;
-    }
+
 
     /**
      * Sets the callback handler executed on the server when the attack reaches its hit frame.
@@ -104,6 +94,7 @@ public class DinoAttackBuilder {
 
     /**
      * Sets the attack range calculation function based on the attacker's state.
+     * this actually has no effect if not checked inside {@link DinoAttackBuilder#canUse(BiPredicate)}
      *
      * @param range a function returning the maximum reach distance
      * @return this builder instance for chaining
@@ -154,6 +145,28 @@ public class DinoAttackBuilder {
      */
     public DinoAttackBuilder canUse(BiPredicate<BaseDinoEntity, LivingEntity> canUse) {
         this.canUse = canUse;
+        return this;
+    }
+
+    /**
+     * Sets the pre-requisite conditions predicate for when the attack can be chosen. but instead of replacing the old one, chains this one with a and
+     *
+     * @param canUse a predicate validating if the attack can be executed
+     * @return this builder instance for chaining
+     */
+    public DinoAttackBuilder canUseAnd(BiPredicate<BaseDinoEntity, LivingEntity> canUse) {
+        this.canUse = this.canUse.and(canUse);
+        return this;
+    }
+
+    /**
+     * Sets the pre-requisite conditions predicate for when the attack can be chosen. but instead of replacing the old one, chains this one with a or
+     *
+     * @param canUse a predicate validating if the attack can be executed
+     * @return this builder instance for chaining
+     */
+    public DinoAttackBuilder canUseOr(BiPredicate<BaseDinoEntity, LivingEntity> canUse) {
+        this.canUse = this.canUse.or(canUse);
         return this;
     }
 
