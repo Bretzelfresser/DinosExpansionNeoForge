@@ -3,35 +3,30 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
-import com.bretzelfresser.dinosexpansion.common.init.ModSensors;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.core.HolderSet;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.sensing.SensorType;
-import net.minecraft.world.phys.Vec3;
-import com.mojang.serialization.Dynamic;
 import net.minecraft.Util;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import net.neoforged.neoforge.common.Tags;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Certosaurus extends BaseDinoEntity {
@@ -85,9 +80,7 @@ public class Certosaurus extends BaseDinoEntity {
                     continue;
                 if (!(prey instanceof Animal) || prey.getType() == this.getType())
                     continue;
-                if (this.distanceToSqr(prey) < 144.0D) {
-                    return Optional.of(prey);
-                }
+                return Optional.of(prey);
             }
         }
         return Optional.empty();
@@ -120,5 +113,9 @@ public class Certosaurus extends BaseDinoEntity {
             }
             return PlayState.STOP;
         }));
+        // 3. Attack controller with 2 ticks transition
+        registrar.add(new AnimationController<>(this, "dino_attack_controller", 2, event -> {
+            return PlayState.STOP;
+        }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
     }
 }

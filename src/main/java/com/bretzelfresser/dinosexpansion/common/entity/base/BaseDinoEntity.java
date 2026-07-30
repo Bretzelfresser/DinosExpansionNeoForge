@@ -55,6 +55,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
@@ -667,13 +671,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.survivalBehaviour.applyBufferedNarcotics(amount);
     }
 
-    protected void doMeleeDamage() {
-        // Deal attack damage to attack target
-        if (this.getTarget() != null) {
-            this.doHurtTarget(this.getTarget());
-        }
-    }
-
     public void registerAttack(DinoAttack attack) {
         this.attacks.put(attack.getName(), attack);
     }
@@ -686,7 +683,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             this.activeAttack = attack;
             this.attackTimer = attack.getDurationTicks();
             this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
-            this.triggerAnim("dino_controller", attack.getAnimationName());
+            this.triggerAnim("dino_attack_controller", attack.getAnimationName());
         }
     }
 

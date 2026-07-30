@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DinoAttackBehavior {
@@ -54,6 +55,10 @@ public class DinoAttackBehavior {
     }
 
     private static DinoAttack chooseAttackByWeight(List<DinoAttack> usableAttacks, BaseDinoEntity owner, LivingEntity target) {
+        usableAttacks.sort(Comparator.<DinoAttack>comparingDouble(a -> a.getSelectionWeight(owner, target)).reversed());
+        return usableAttacks.getFirst();
+
+        /*
         double totalWeight = 0;
         for (DinoAttack attack : usableAttacks) {
             totalWeight += attack.getSelectionWeight(owner, target);
@@ -70,5 +75,6 @@ public class DinoAttackBehavior {
             }
         }
         return usableAttacks.getLast();
+         */
     }
 }
