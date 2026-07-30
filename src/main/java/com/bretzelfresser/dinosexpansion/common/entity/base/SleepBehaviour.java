@@ -28,9 +28,6 @@ public class SleepBehaviour {
         if (!canSleep())
             return false;
         boolean shouldSleep = false;
-        if (dino.getBrain().getMemory(ModMemoryModules.FORCE_AWAKE.value()).isPresent()) {
-            return false;
-        }
         if (this.rhythm == SleepRhythm.DIURNAL) {
             // Diurnal dinos sleep during the night
             shouldSleep = !dino.level().isDay();

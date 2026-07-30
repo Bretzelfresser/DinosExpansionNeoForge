@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.NarcoticBehav
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAcquireTargetBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAttackBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoSetWalkTargetBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTargetValidatorBehavior;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
@@ -104,7 +105,7 @@ public class DinoBrain {
 
     public static void initFightActivity(Brain<BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
-                Pair.of(0, SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.25F)),
+                Pair.of(0, DinoSetWalkTargetBehavior.setWalkTarget(1.25F)),
                 Pair.of(1, DinoAttackBehavior.attack())
         ), Set.of(
                 Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT)
