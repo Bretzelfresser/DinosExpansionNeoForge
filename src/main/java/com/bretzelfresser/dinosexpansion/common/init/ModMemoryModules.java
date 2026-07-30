@@ -17,6 +17,7 @@ public class ModMemoryModules {
 
 
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> SLEEPING = register("sleeping", Unit.CODEC);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> FORCE_AWAKE = register("force_awake", Unit.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> UNCONSCIOUS = register("unconscious", Unit.CODEC);
 
 

@@ -3,6 +3,9 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;
 
+/**
+ * this whole class is the sleep Behavior, only use method which change state on the server side, nothing here is synced, it may use values which are synced
+ */
 public class SleepBehaviour {
 
     protected final BaseDinoEntity dino;
@@ -15,7 +18,34 @@ public class SleepBehaviour {
     }
 
     /**
-     * Returns the sleeping state, or null if the rhythm is NONE.
+     *
+     * @return whether this entity sleeps, forceAwake just works on the server side cause its linked to the brain
+     * simply checking whether the time of day is right so sleep also works on the client side
+     */
+    public boolean shouldSleep() {
+        if (this.dino.isUnconscious())
+            return false;
+        if (!canSleep())
+            return false;
+        boolean shouldSleep = false;
+        if (dino.getBrain().getMemory(ModMemoryModules.FORCE_AWAKE.value()).isPresent()) {
+            return false;
+        }
+        if (this.rhythm == SleepRhythm.DIURNAL) {
+            // Diurnal dinos sleep during the night
+            shouldSleep = !dino.level().isDay();
+        } else if (this.rhythm == SleepRhythm.NOCTURNAL) {
+            // Nocturnal dinos sleep during the day
+            shouldSleep = dino.level().isDay();
+        }
+
+        return shouldSleep;
+    }
+
+
+    /**
+     *
+     * @return whether this entity is sleeping, fully client synced
      */
     public boolean isSleeping() {
         if (this.rhythm == SleepRhythm.NONE) {
@@ -24,76 +54,65 @@ public class SleepBehaviour {
         return dino.getDinoFlag(2);
     }
 
+    /**
+     * only works on server side
+     * @param sleeping whether this entity should slee, no additional checks are done in here, this will literally oput the entity to sleep right now
+     */
     public void setSleeping(boolean sleeping) {
         if (this.rhythm == SleepRhythm.NONE) {
             return;
         }
+        if (this.dino.level().isClientSide)
+            return;
         dino.setDinoFlag(2, sleeping);
-        if (!dino.level().isClientSide()) {
-            if (sleeping) {
-                dino.getBrain().setMemory(ModMemoryModules.SLEEPING.get(), Unit.INSTANCE);
-                dino.ejectPassengers();
-            } else {
-                dino.getBrain().eraseMemory(ModMemoryModules.SLEEPING.get());
-            }
+        if (sleeping) {
+            dino.getBrain().setMemory(ModMemoryModules.SLEEPING.get(), Unit.INSTANCE);
+            dino.ejectPassengers();
+        } else {
+            dino.getBrain().eraseMemory(ModMemoryModules.SLEEPING.get());
         }
     }
 
+    /**
+     * only use on server side, otherwise this wont do anything
+     *
+     * @param ticks
+     */
     public void forceAwake(int ticks) {
         if (this.rhythm == SleepRhythm.NONE) {
             return;
         }
+        if (this.dino.level().isClientSide)
+            return;
         if (this.isSleeping()) {
             this.setSleeping(false);
         }
-        this.sleepCooldown = ticks;
+        this.sleepCooldown += ticks;
     }
 
     public boolean canSleep() {
-        return this.sleepCooldown <= 0 && !dino.isVehicle();
+        return this.sleepCooldown <= 0 && !dino.isVehicle() && dino.getLastHurtByMob() == null && dino.getTarget() == null;
     }
 
     public SleepRhythm getRhythm() {
         return this.rhythm;
     }
 
-    public void setRhythm(SleepRhythm rhythm) {
-        this.rhythm = rhythm;
-    }
-
     public void tick() {
         if (this.rhythm == SleepRhythm.NONE) {
             return;
         }
+        if (this.dino.level().isClientSide)
+            return;
 
-        if (this.sleepCooldown > 0) {
+        //only decreasing the cooldown if we can sleep, so then when those conditions are true the entity actually waits
+        // for example when attacking for the force awake ticks and then goes to sleep and not instant
+        if (this.sleepCooldown > 0 && this.canSleep()) {
             this.sleepCooldown--;
         }
 
-        if (!dino.level().isClientSide()) {
-            boolean shouldSleep = false;
-            if (this.rhythm == SleepRhythm.DIURNAL) {
-                // Diurnal dinos sleep during the night
-                shouldSleep = !dino.level().isDay();
-            } else if (this.rhythm == SleepRhythm.NOCTURNAL) {
-                // Nocturnal dinos sleep during the day
-                shouldSleep = dino.level().isDay();
-            }
-
-            if (shouldSleep) {
-                if (this.canSleep() && !this.isSleeping() && !dino.isUnconscious()) {
-                    this.setSleeping(true);
-                }
-            } else {
-                if (this.isSleeping()) {
-                    this.setSleeping(false);
-                }
-            }
-        }
-
-        // Force the sleep flag to false if we are on a sleep cooldown
-        if (this.sleepCooldown > 0 && this.isSleeping()) {
-            this.setSleeping(false);
+        if (shouldSleep() != isSleeping()) {
+            setSleeping(shouldSleep());
         }
     }
 }

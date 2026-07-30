@@ -23,6 +23,7 @@ public class DinoBrain {
     public static ImmutableList.Builder<MemoryModuleType<?>> baseDinoMemoryModules() {
         return baseDinoMemoryModules(ImmutableList.builder());
     }
+
     /**
      *
      * @return a builder of an immutable list of all the essential memory modules a dino should have
@@ -53,8 +54,7 @@ public class DinoBrain {
                         Pair.of(0, new Swim(0.8F)),
                         Pair.of(1, new LookAtTargetSink(45, 90)),
                         Pair.of(2, new MoveToTargetSink()),
-                        Pair.of(3, new DinoAcquireTargetBehavior()),
-                        Pair.of(4, new DinoTargetValidatorBehavior())
+                        Pair.of(3, StopAttackingIfTargetInvalid.create())
                 ), ImmutableSet.of(
                         Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_ABSENT),
                         Pair.of(ModMemoryModules.SLEEPING.get(), MemoryStatus.VALUE_ABSENT)

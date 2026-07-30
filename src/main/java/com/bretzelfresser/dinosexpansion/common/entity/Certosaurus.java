@@ -3,6 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import com.bretzelfresser.dinosexpansion.common.init.ModSensors;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
@@ -51,7 +52,10 @@ public class Certosaurus extends BaseDinoEntity {
     @Override
     protected @NotNull Brain.Provider<?> brainProvider() {
         return Brain.provider(
-                DinoBrain.baseDinoMemoryModules().build(),
+                DinoBrain.baseDinoMemoryModules()
+                        .add(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+                        .add(MemoryModuleType.NEAREST_LIVING_ENTITIES)
+                        .build(),
                 ImmutableList.of(
                         SensorType.NEAREST_PLAYERS,
                         SensorType.NEAREST_LIVING_ENTITIES
@@ -86,6 +90,11 @@ public class Certosaurus extends BaseDinoEntity {
             }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        return super.canAttack(target);
     }
 
     @Override

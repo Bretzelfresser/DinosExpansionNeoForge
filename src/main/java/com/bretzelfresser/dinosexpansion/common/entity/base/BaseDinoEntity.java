@@ -939,7 +939,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     @Override
     public boolean canSwimInFluidType(FluidType type) {
-        //the enttiy actually drowns when made unconscious inside water
+        //the entity actually drowns when made unconscious inside water
         return !isUnconscious() && super.canSwimInFluidType(type);
     }
 

@@ -68,6 +68,7 @@ public class DinosExpansion {
         ModMemoryModules.MEMORY_MODULE_TYPES.register(modEventBus);
         ModActivities.ACTIVITES.register(modEventBus);
         ModParticles.PARTICLE_TYPE.register(modEventBus);
+        ModSensors.SENSOR_TYPES.register(modEventBus);
 
         // Register entity attributes event listener
         modEventBus.addListener(this::registerAttributes);
