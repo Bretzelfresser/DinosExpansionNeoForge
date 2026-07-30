@@ -3,6 +3,8 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttackBuilder;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerLevel;
@@ -30,6 +32,16 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 public class Certosaurus extends BaseDinoEntity {
+
+    public static final DinoAttack ROAR = new DinoAttackBuilder()
+            .animationName("roar")
+            .cooldownTicks(5 * 60 * 20)//5 minutes
+            .hitFrameTick(0)
+            .cannotMove(true)
+            .canUse((dino, target) -> dino.isAlive() && target.isAlive())
+            .build("Roar");
+
+
     public Certosaurus(EntityType<? extends Certosaurus> entityType, Level level) {
         super(entityType, level);
     }
