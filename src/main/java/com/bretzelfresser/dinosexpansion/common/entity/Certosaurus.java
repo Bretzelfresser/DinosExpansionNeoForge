@@ -76,7 +76,7 @@ public class Certosaurus extends BaseDinoEntity {
         baseTarget.ifPresent(potentialPrey::addFirst);
         for (LivingEntity prey : potentialPrey) {
             if (prey.isAlive()) {
-                if (prey instanceof Player player && canPlayerAccess(player))
+                if (prey instanceof Player player && canPlayerAccess(player, false))
                     continue;
                 if (!(prey instanceof Animal) || prey.getType() == this.getType())
                     continue;

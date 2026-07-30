@@ -119,6 +119,10 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
     }
 
+    protected void chatMessages(){
+        add("chat." + DinosExpansion.MODID + ".dino_access_denied", "You do not have access to this Dinosaur");
+    }
+
     public void addEnchantment(ResourceKey<Enchantment> enchantment, String translation){
         addEnchantment(enchantment.location(), translation);
     }

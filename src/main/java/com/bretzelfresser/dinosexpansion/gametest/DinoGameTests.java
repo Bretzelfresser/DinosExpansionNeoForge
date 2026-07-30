@@ -46,10 +46,10 @@ public class DinoGameTests {
         dino.setTamedBy(owner);
 
         // 2. Owner should have access
-        helper.assertTrue(dino.canPlayerAccess(owner), "Owner must have access to their tamed dinosaur.");
+        helper.assertTrue(dino.canPlayerAccess(owner, true), "Owner must have access to their tamed dinosaur.");
 
         // 3. Other player without team should NOT have access
-        helper.assertFalse(dino.canPlayerAccess(other), "Non-owner without team must not have access.");
+        helper.assertFalse(dino.canPlayerAccess(other, true), "Non-owner without team must not have access.");
 
         helper.succeed();
     }
@@ -76,7 +76,7 @@ public class DinoGameTests {
 
         try {
             // 3. Team member should have access
-            helper.assertTrue(dino.canPlayerAccess(other), "Vanilla scoreboard team member must have access to the tamed dinosaur.");
+            helper.assertTrue(dino.canPlayerAccess(other, true), "Vanilla scoreboard team member must have access to the tamed dinosaur.");
         } finally {
             // Clean up scoreboard team
             scoreboard.removePlayerTeam(team);
@@ -114,7 +114,7 @@ public class DinoGameTests {
                 var partyTeam = teamManager.createParty(owner.getUUID(), null, "tame_party_test", "nothing to do here", null);
                 partyTeam.join(null, other.getGameProfile());
 
-                helper.assertTrue(dino.canPlayerAccess(other), "FTB Teams team member must have access to the tamed dinosaur.");
+                helper.assertTrue(dino.canPlayerAccess(other, true), "FTB Teams team member must have access to the tamed dinosaur.");
 
 
 
@@ -142,10 +142,10 @@ public class DinoGameTests {
         dino.setUnconsciousFrom(owner);
 
         // 2. Unconscious owner should have access
-        helper.assertTrue(dino.canPlayerAccess(owner), "Unconscious owner must have access.");
+        helper.assertTrue(dino.canPlayerAccess(owner, true), "Unconscious owner must have access.");
 
         // 3. Other player without team should NOT have access
-        helper.assertFalse(dino.canPlayerAccess(other), "Non-owner without team must not have access to unconscious dinosaur.");
+        helper.assertFalse(dino.canPlayerAccess(other, true), "Non-owner without team must not have access to unconscious dinosaur.");
 
         helper.succeed();
     }
@@ -172,7 +172,7 @@ public class DinoGameTests {
 
         try {
             // 3. Team member should have access
-            helper.assertTrue(dino.canPlayerAccess(other), "Vanilla scoreboard team member must have access to the unconscious dinosaur.");
+            helper.assertTrue(dino.canPlayerAccess(other, true), "Vanilla scoreboard team member must have access to the unconscious dinosaur.");
         } finally {
             // Clean up scoreboard team
             scoreboard.removePlayerTeam(team);
@@ -210,7 +210,7 @@ public class DinoGameTests {
                 var partyTeam = teamManager.createParty(owner.getUUID(), null, "unconscious_party_test", "nothing to do here", null);
                 partyTeam.join(null, other.getGameProfile());
 
-                helper.assertTrue(dino.canPlayerAccess(other), "FTB Teams team member must have access to the tamed dinosaur.");
+                helper.assertTrue(dino.canPlayerAccess(other, true), "FTB Teams team member must have access to the tamed dinosaur.");
 
 
 

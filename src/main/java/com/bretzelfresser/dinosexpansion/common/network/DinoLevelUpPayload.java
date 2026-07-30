@@ -32,7 +32,7 @@ public record DinoLevelUpPayload(int entityId, int statOrdinal) implements Custo
             Player player = context.player();
             Entity entity = player.level().getEntity(payload.entityId());
             if (entity instanceof BaseDinoEntity dino) {
-                if (dino.isTamed() && dino.canPlayerAccess(player) && dino.getAvailablePoints() > 0) {
+                if (dino.isTamed() && dino.canPlayerAccessContainer(player) && dino.getAvailablePoints() > 0) {
                     if (payload.statOrdinal() >= 0 && payload.statOrdinal() < DinoStat.values().length) {
                         DinoStat stat = DinoStat.values()[payload.statOrdinal()];
                         dino.upgradeStat(stat);

@@ -3,6 +3,8 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.BiteAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
@@ -11,15 +13,9 @@ import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModDataComponents;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.bretzelfresser.dinosexpansion.common.init.ModParticles;
-import com.bretzelfresser.dinosexpansion.common.entity.base.attack.BiteAttack;
-import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.menu.DinoContainerMenu;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.config.Config;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.bretzelfresser.dinosexpansion.util.RandomUtils;
@@ -42,9 +38,9 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -61,9 +57,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.EnumMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity, Saddleable {
@@ -714,14 +708,14 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if ((this.isUnconscious() || this.isTamed()) && !canPlayerAccessContainer(player)) {
+            if (!this.level().isClientSide()) {
+                player.sendSystemMessage(Component.translatable("chat." + DinosExpansion.MODID + ".dino_access_denied"));
+            }
+            return InteractionResult.FAIL;
+        }
 
         if (this.isUnconscious()) {
-            if (!this.canPlayerAccess(player)) {
-                if (!this.level().isClientSide()) {
-                    player.sendSystemMessage(Component.literal("You do not have access to this unconscious dinosaur!"));
-                }
-                return InteractionResult.FAIL;
-            }
 
             // If unconscious, we can force-feed narcotics or preferred food directly
             if (!stack.isEmpty() && stack.has(ModDataComponents.NARCOTIC_VALUE.get())) {
@@ -742,12 +736,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
         // Tamed and active interaction
         if (this.isTamed()) {
-            if (!this.canPlayerAccess(player)) {
-                if (!this.level().isClientSide()) {
-                    player.sendSystemMessage(Component.literal("You do not own this dinosaur!"));
-                }
-                return InteractionResult.FAIL;
-            }
 
             if (this.sleepBehaviour.isSleeping()) {
                 this.sleepBehaviour.forceAwake(400);
@@ -912,8 +900,16 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return new ArrayList<>(this.attacks.values());
     }
 
+    /**
+     *
+     * @return a list of entities which should be regarded as attack targets, if this is empty this entity wont attack anything
+     * by default this returns the lastHurMob(mob which last attacked this entity) if present
+     */
     public Optional<? extends LivingEntity> findAttackTarget() {
         if (this.getLastHurtByMob() != null && this.getLastHurtByMob().isAlive()) {
+            //additional check, we dont wanna attack our entities which are either in the same team or aer our owner, but not op bypass cause we also want to attack ops
+            if (this.getLastHurtByMob() instanceof Player player && canPlayerAccess(player, false))
+                return Optional.empty();
             return Optional.of(this.getLastHurtByMob());
         }
         return Optional.empty();
@@ -932,7 +928,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
         sleepParticleCooldown = 40 + random.nextInt(40);
         var position = getPosition(0f);
-        position = position.add(sleepParticlesRelative().yRot(- Mth.DEG_TO_RAD * this.getYRot()));
+        position = position.add(sleepParticlesRelative().yRot(-Mth.DEG_TO_RAD * this.getYRot()));
         this.level().addParticle(ModParticles.SLEEPING_PARTICLES.get(), position.x, position.y, position.z, 0f, 0.4f, 0);
 
     }
@@ -953,9 +949,19 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return null;
     }
 
-    public boolean canPlayerAccess(Player player) {
+    public boolean canPlayerAccessContainer(Player player) {
+        return canPlayerAccess(player, true);
+    }
+
+    /**
+     *
+     * @param player   the player we want to check this from
+     * @param opBypass when this is set to true, ops can always access this entity, important for target validation
+     * @return
+     */
+    public boolean canPlayerAccess(Player player, boolean opBypass) {
         // OP bypass
-        if (player.hasPermissions(2)) {
+        if (opBypass && player.hasPermissions(2)) {
             return true;
         }
 
