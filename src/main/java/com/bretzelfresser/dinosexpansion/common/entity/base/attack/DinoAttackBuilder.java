@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base.attack;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,6 +91,18 @@ public class DinoAttackBuilder {
     public DinoAttackBuilder onHit(BiConsumer<BaseDinoEntity, LivingEntity> onHit) {
         this.onHit = onHit;
         return this;
+    }
+    /**
+     * Sets the onHit to just call {@link LivingEntity#doHurtTarget(Entity)}
+     *
+     * @return this builder instance for chaining
+     */
+    public DinoAttackBuilder onHitHurt() {
+        return onHit((dino, target) -> {
+            if (target != null) {
+                dino.doHurtTarget(target);
+            }
+        });
     }
 
     /**

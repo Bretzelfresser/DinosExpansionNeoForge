@@ -119,8 +119,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 this.playSound(getSaddleSoundEvent(), 0.5F, 1.0F);
         });
 
-        this.registerAttack(new BiteAttack());
-
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
             this.setGender(level.random.nextBoolean() ? DinoGender.MALE : DinoGender.FEMALE);
@@ -970,7 +968,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
 
         if (targetUUID == null) {
-            return true;
+            return false;
         }
 
         return PlayerTeamUtils.arePlayersInSameTeam(this.level(), player.getUUID(), targetUUID);
