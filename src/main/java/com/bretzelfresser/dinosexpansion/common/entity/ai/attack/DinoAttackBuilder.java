@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity.base.attack;
+package com.bretzelfresser.dinosexpansion.common.entity.ai.attack;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import net.minecraft.world.entity.Entity;

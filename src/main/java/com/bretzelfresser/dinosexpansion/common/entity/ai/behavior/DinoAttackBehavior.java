@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.behavior;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
-import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.behavior.OneShot;

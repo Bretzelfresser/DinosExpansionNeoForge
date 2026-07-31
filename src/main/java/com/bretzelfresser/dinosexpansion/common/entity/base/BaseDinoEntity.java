@@ -3,8 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
-import com.bretzelfresser.dinosexpansion.common.entity.base.attack.BiteAttack;
-import com.bretzelfresser.dinosexpansion.common.entity.base.attack.DinoAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
@@ -40,6 +39,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
@@ -55,10 +55,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
@@ -118,6 +114,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             if (equipment == DinoEquipment.SADDLE && isSaddled())
                 this.playSound(getSaddleSoundEvent(), 0.5F, 1.0F);
         });
+
+        this.lookControl = new DinoLookControl(this);
 
         // Randomize gender on server spawn
         if (!level.isClientSide()) {
@@ -879,6 +877,9 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public boolean canMove() {
         return !isUnconscious() && !isSleeping() && (this.activeAttack == null || !this.activeAttack.cannotMove());
+    }
+    public boolean canLook() {
+        return canMove();
     }
 
     @Override
