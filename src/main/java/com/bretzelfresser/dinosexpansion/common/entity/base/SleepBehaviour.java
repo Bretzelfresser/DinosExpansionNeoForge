@@ -92,6 +92,9 @@ public class SleepBehaviour {
     public boolean canSleep() {
         if (dino.getBrain().checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT))
             return false;
+        //ensure when the entity might find another target that it doesnt fall asleep
+        if(dino.findAttackTarget().map(dino::canAttack).orElse(false))
+            return false;
         return this.sleepCooldown <= 0 && !dino.isVehicle() && dino.getLastHurtByMob() == null && dino.getTarget() == null;
     }
 
