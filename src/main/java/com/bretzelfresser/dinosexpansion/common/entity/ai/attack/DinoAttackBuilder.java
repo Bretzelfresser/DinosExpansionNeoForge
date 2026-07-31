@@ -38,12 +38,13 @@ public class DinoAttackBuilder {
 
     /**
      * Sets the hit frame tick where the damage/effect should be applied.
+     * can be 0, cause the first check is at 1 tick elapsed, yeah a bit strange but we can work with that
      *
      * @param hitFrameTick the server tick count at which damage occurs during the attack
      * @return this builder instance for chaining
      */
     public DinoAttackBuilder hitFrameTick(int hitFrameTick) {
-        this.hitFrameTick = hitFrameTick;
+        this.hitFrameTick = Math.max(1, hitFrameTick);
         return this;
     }
 
