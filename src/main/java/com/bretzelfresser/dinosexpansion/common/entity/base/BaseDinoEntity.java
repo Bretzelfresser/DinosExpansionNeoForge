@@ -19,6 +19,7 @@ import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import com.bretzelfresser.dinosexpansion.util.PlayerTeamUtils;
 import com.bretzelfresser.dinosexpansion.util.RandomUtils;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -788,6 +789,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 }
             }, buf -> buf.writeInt(this.getId()));
         }
+    }
+
+    public boolean canUseItem(ItemStack stack) {
+        return stack.has(DataComponents.FOOD);
     }
 
     @Override

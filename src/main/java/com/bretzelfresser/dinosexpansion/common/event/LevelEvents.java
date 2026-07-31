@@ -10,8 +10,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber(modid = DinosExpansion.MODID)
@@ -44,6 +46,39 @@ public class LevelEvents {
                         PacketDistributor.sendToPlayer(player, new DinoEquipmentSyncPayload(dino.getId(), eq.ordinal(), stack));
                     }
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        if (player.getVehicle() instanceof BaseDinoEntity dino) {
+            ItemStack stack = event.getItemStack();
+            if (!dino.canUseItem(stack)) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Player player = event.getEntity();
+        if (player.getVehicle() instanceof BaseDinoEntity dino) {
+            ItemStack stack = event.getItemStack();
+            if (!stack.isEmpty() && !dino.canUseItem(stack)) {
+                event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+        if (player.getVehicle() instanceof BaseDinoEntity dino) {
+            ItemStack stack = event.getItemStack();
+            if (!stack.isEmpty() && !dino.canUseItem(stack)) {
+                event.setCanceled(true);
             }
         }
     }
