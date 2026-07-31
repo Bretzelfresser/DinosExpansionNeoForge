@@ -2,6 +2,8 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 /**
  * this whole class is the sleep Behavior, only use method which change state on the server side, nothing here is synced, it may use values which are synced
@@ -88,6 +90,8 @@ public class SleepBehaviour {
     }
 
     public boolean canSleep() {
+        if (dino.getBrain().checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT))
+            return false;
         return this.sleepCooldown <= 0 && !dino.isVehicle() && dino.getLastHurtByMob() == null && dino.getTarget() == null;
     }
 
