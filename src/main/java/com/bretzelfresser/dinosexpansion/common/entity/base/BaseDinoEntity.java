@@ -608,6 +608,12 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             this.survivalBehaviour.tick();
             this.tamingBehaviour.tick();
 
+            if (this.getControllingPassenger() == null) {
+                boolean hasWalkTarget = this.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET);
+                boolean hasAttackTarget = this.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET);
+                this.setSprinting(hasAttackTarget && hasWalkTarget && this.canMove());
+            }
+
             if (this.isTamed()) {
                 this.gainXp(0.01f); // Passive XP
             }
