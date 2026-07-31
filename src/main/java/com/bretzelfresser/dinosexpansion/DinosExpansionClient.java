@@ -22,12 +22,23 @@ import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import com.bretzelfresser.dinosexpansion.client.gui.spyglass.SpyglassScannerOverlay;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import org.lwjgl.glfw.GLFW;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = DinosExpansion.MODID, dist = Dist.CLIENT)
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
 @EventBusSubscriber(modid = DinosExpansion.MODID, value = Dist.CLIENT)
 public class DinosExpansionClient {
+    public static final KeyMapping DINO_INVENTORY_KEY = new KeyMapping(
+            "key.dinosexpansion.dino_inventory",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_F,
+            "key.categories.dinosexpansion"
+    );
+
     public DinosExpansionClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
@@ -38,6 +49,11 @@ public class DinosExpansionClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
 
+    }
+
+    @SubscribeEvent
+    static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(DINO_INVENTORY_KEY);
     }
 
     @SubscribeEvent
