@@ -18,8 +18,10 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -36,13 +38,15 @@ import java.util.function.Predicate;
 
 public class Certosaurus extends BaseDinoEntity {
 
+    private static final int TRANSITION_TICKS = 5;
+
     public static final DinoAttack ROAR = new DinoAttackBuilder()
             .animationName("roar")
             .cooldownTicks(5 * 60 * 20)//5 minutes
             .hitFrameTick(0)
             .cannotMove(true)
             .range(10)
-            .durationTicks(Math.round(2.1667f * 20f))//actually stolen from the animation, adjust if animation changes
+            .durationTicks(Math.round(2.1667f * 20f) + TRANSITION_TICKS)//actually stolen from the animation, adjust if animation changes, +5 for transition
             .canUse((dino, target) -> dino.isAlive() && target.isAlive() && target instanceof Player && !dino.hasEffect(ModMobEffects.CERATOSAURUS_ROAR))
             .onHit(Certosaurus::roar)
             .selectionWeight(100)
@@ -51,8 +55,8 @@ public class Certosaurus extends BaseDinoEntity {
     public static final DinoAttack BITE = new DinoAttackBuilder()
             .animationName("attack")
             .cooldownTicks(15)
-            .durationTicks(12)
-            .hitFrameTick(8)
+            .durationTicks(12 + TRANSITION_TICKS)
+            .hitFrameTick(8 + TRANSITION_TICKS)
             .onHitHurt()
             .selectionWeight(10)
             .range(2d)
@@ -66,8 +70,13 @@ public class Certosaurus extends BaseDinoEntity {
     }
 
     @Override
+    public void playerTriggerAttack() {
+        this.performAttack(BITE);
+    }
+
+    @Override
     public boolean canUseItem(ItemStack stack) {
-        return super.canUseItem(stack);
+        return stack.getItem() instanceof ProjectileWeaponItem || super.canUseItem(stack);
     }
 
     protected static void roar(BaseDinoEntity dino, LivingEntity target) {
@@ -76,7 +85,6 @@ public class Certosaurus extends BaseDinoEntity {
         dino.addEffect(new MobEffectInstance(ModMobEffects.CERATOSAURUS_ROAR, duration, amplifier));
         var visibleEntities = dino.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
         visibleEntities.ifPresent(entities -> {
-            //TODO add range check, but for testing its better without
             for (var living : entities.findAll(l -> l != dino && l.getType() == dino.getType())) {
                 living.addEffect(new MobEffectInstance(ModMobEffects.CERATOSAURUS_ROAR, duration, amplifier), dino);
                 if (living.getBrain().checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT)) {
@@ -171,7 +179,7 @@ public class Certosaurus extends BaseDinoEntity {
             return PlayState.STOP;
         }));
         // 3. Attack controller with 2 ticks transition
-        registrar.add(new AnimationController<>(this, "dino_attack_controller", 2, event -> {
+        registrar.add(new AnimationController<>(this, DINO_ATTACK_CONTROLLER_NAME, TRANSITION_TICKS, event -> {
             return PlayState.STOP;
         }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack"))
                 .triggerableAnim("roar", RawAnimation.begin().thenPlay("roar")));

@@ -61,8 +61,17 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * this class defines the basic dinosaur
+ *
+ */
 public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity, Saddleable {
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    /**
+     * the name of the controller where all the attack animations will be triggered
+     * names of the animations are defines inside the attack, transitions might offset the timing of the attacks
+     */
+    public static final String DINO_ATTACK_CONTROLLER_NAME = "dino_attack_controller";
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> CURRENT_HUNGER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
@@ -77,6 +86,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private static final EntityDataAccessor<Integer> TAMED_LEVEL_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> AVAILABLE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
 
+    protected final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected final DinoInventory inventory;
 
     protected final Map<String, DinoAttack> attacks = new HashMap<>();
@@ -674,6 +684,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.survivalBehaviour.applyBufferedNarcotics(amount);
     }
 
+    /**
+     * registers an attack so the entity will try to use it with the AI, this doesnt define what the player later on might be able to trigger
+     * @param attack
+     */
     public void registerAttack(DinoAttack attack) {
         this.attacks.put(attack.getName(), attack);
     }
@@ -686,7 +700,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             this.activeAttack = attack;
             this.attackTimer = attack.getDurationTicks();
             this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
-            this.triggerAnim("dino_attack_controller", attack.getAnimationName());
+            this.triggerAnim(DINO_ATTACK_CONTROLLER_NAME, attack.getAnimationName());
         }
     }
 
@@ -698,12 +712,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.attackCooldowns.put(attackName, ticks);
     }
 
-    public void triggerBiteAttack() {
-        DinoAttack bite = this.attacks.get("bite");
-        if (bite != null) {
-            this.performAttack(bite);
-        }
-    }
+    /**
+     * called when the player tries uses the attack key, should perform some kind of attack
+     */
+    public abstract void playerTriggerAttack();
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
