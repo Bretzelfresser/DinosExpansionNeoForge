@@ -32,11 +32,19 @@ public class ClientModEvents {
         }
     }
 
+    private static long lastClickTimeStamp = 0;
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null && mc.player.getVehicle() instanceof BaseDinoEntity dino) {
+        if (mc.player != null && mc.player.getVehicle() instanceof BaseDinoEntity dino && mc.level.getGameTime() - lastClickTimeStamp > 20) {
+            boolean wasClicked = false;
             while (DinosExpansionClient.DINO_INVENTORY_KEY.consumeClick()) {
+                wasClicked = true;
+            }
+            //in case we spam it we ony execute it once
+            if (wasClicked){
+                lastClickTimeStamp = mc.level.getGameTime();
                 PacketDistributor.sendToServer(new OpenDinoInventoryPayload(dino.getId()));
             }
         }
