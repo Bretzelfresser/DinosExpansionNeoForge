@@ -687,22 +687,25 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     /**
      * registers an attack so the entity will try to use it with the AI, this doesnt define what the player later on might be able to trigger
+     *
      * @param attack
      */
     public void registerAttack(DinoAttack attack) {
         this.attacks.put(attack.getName(), attack);
     }
 
-    public void performAttack(DinoAttack attack) {
+    public boolean performAttack(DinoAttack attack) {
         if (!this.level().isClientSide() && this.activeAttack == null) {
             if (this.isAttackOnCooldown(attack.getName())) {
-                return;
+                return false;
             }
             this.activeAttack = attack;
             this.attackTimer = attack.getDurationTicks();
             this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
             this.triggerAnim(DINO_ATTACK_CONTROLLER_NAME, attack.getAnimationName());
+            return true;
         }
+        return false;
     }
 
     public boolean isAttackOnCooldown(String attackName) {
@@ -718,31 +721,35 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
      */
     public void playerTriggerAttack() {
         for (DinoAttack attack : this.attacks.values()) {
-            this.playerTriggerAttack(attack);
-            break;
+            if (this.playerTriggerAttack(attack))
+                break;
         }
     }
 
-    public void playerTriggerAttack(DinoAttack attack) {
+    public final boolean playerTriggerAttack(DinoAttack attack) {
         if (!this.level().isClientSide() && this.activeAttack == null && !this.isAttackOnCooldown(attack.getName())) {
             LivingEntity target = this.findPlayerAttackTarget(attack);
             if (target != null) {
+                if (!attack.canUse(this, target))
+                    return false;
                 this.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
             } else {
                 this.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                return false;
             }
-            this.performAttack(attack);
+            return this.performAttack(attack);
         }
+        return false;
     }
 
     public LivingEntity findPlayerAttackTarget(DinoAttack attack) {
         double range = attack.getAttackRange(this);
         Vec3 lookVec = this.getLookAngle();
         AABB boundingBox = this.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(1.0D, 1.0D, 1.0D);
-        
+
         LivingEntity bestTarget = null;
         double bestDistanceSq = Double.MAX_VALUE;
-        
+
         for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, boundingBox)) {
             if (target == this || target == this.getControllingPassenger()) {
                 continue;
@@ -954,6 +961,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     public boolean canMove() {
         return !isUnconscious() && !isSleeping() && (this.activeAttack == null || !this.activeAttack.cannotMove());
     }
+
     public boolean canLook() {
         return canMove();
     }

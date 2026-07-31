@@ -38,7 +38,7 @@ import java.util.function.Predicate;
 
 public class Certosaurus extends BaseDinoEntity {
 
-    private static final int TRANSITION_TICKS = 5;
+    private static final int TRANSITION_TICKS = 2;
 
     public static final DinoAttack ROAR = new DinoAttackBuilder()
             .animationName("roar")
