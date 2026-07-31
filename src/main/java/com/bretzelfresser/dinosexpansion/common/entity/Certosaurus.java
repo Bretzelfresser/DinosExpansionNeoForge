@@ -65,6 +65,10 @@ public class Certosaurus extends BaseDinoEntity {
         this.registerAttack(BITE);
     }
 
+    @Override
+    public boolean canUseItem(ItemStack stack) {
+        return super.canUseItem(stack);
+    }
 
     protected static void roar(BaseDinoEntity dino, LivingEntity target) {
         int duration = 60 * 20;//one minute

@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion;
 
 import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
+import com.bretzelfresser.dinosexpansion.client.key.ModKeyBindings;
 import com.bretzelfresser.dinosexpansion.client.particle.SleepingParticle;
 import com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer;
 import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
@@ -27,17 +28,14 @@ import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
+import java.lang.reflect.Modifier;
+
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = DinosExpansion.MODID, dist = Dist.CLIENT)
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
 @EventBusSubscriber(modid = DinosExpansion.MODID, value = Dist.CLIENT)
 public class DinosExpansionClient {
-    public static final KeyMapping DINO_INVENTORY_KEY = new KeyMapping(
-            "key.dinosexpansion.dino_inventory",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_F,
-            "key.categories.dinosexpansion"
-    );
+
 
     public DinosExpansionClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
@@ -53,7 +51,25 @@ public class DinosExpansionClient {
 
     @SubscribeEvent
     static void registerKeyMappings(RegisterKeyMappingsEvent event) {
-        event.register(DINO_INVENTORY_KEY);
+        for (var field : ModKeyBindings.class.getFields()){
+            if (Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers()) && KeyMapping.class.isAssignableFrom(field.getType())) {
+                // 2. Retrieve the value (pass null since the field is static)
+                try {
+                    KeyMapping keyMapping = (KeyMapping) field.get(null);
+                    if (keyMapping != null) {
+                        event.register(keyMapping);
+                    }else {
+                        DinosExpansion.LOGGER.error("for some reason the key Mapping: {} was Null when trying to access it and convert it into a key Mapping", field.getName());
+                    }
+                } catch (IllegalAccessException e) {
+                    DinosExpansion.LOGGER.error("cant access Key Mapping: {} for registration", field.getName());
+                }
+
+
+            }
+        }
+
+
     }
 
     @SubscribeEvent

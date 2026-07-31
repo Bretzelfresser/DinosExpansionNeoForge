@@ -791,6 +791,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
     }
 
+    /**
+     *
+     * @param stack the item stack we try to use
+     * @return whether this stack can be used while riding this entity, be default only food is allowed
+     */
     public boolean canUseItem(ItemStack stack) {
         return stack.has(DataComponents.FOOD);
     }

@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.client;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.DinosExpansionClient;
+import com.bretzelfresser.dinosexpansion.client.key.ModKeyBindings;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModBiomes;
 import com.bretzelfresser.dinosexpansion.common.network.OpenDinoInventoryPayload;
@@ -41,7 +42,7 @@ public class ClientModEvents {
             assert mc.level != null;
             if (mc.level.getGameTime() - lastClickTimeStamp > 20) {
                 boolean wasClicked = false;
-                while (DinosExpansionClient.DINO_INVENTORY_KEY.consumeClick()) {
+                while (ModKeyBindings.DINO_INVENTORY_KEY.consumeClick()) {
                     wasClicked = true;
                 }
                 //in case we spam it we ony execute it once

@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.datagen;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.client.gui.spyglass.DinoStatTypes;
+import com.bretzelfresser.dinosexpansion.client.key.ModKeyBindings;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoGender;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.common.init.ModEnchantments;
@@ -9,6 +10,7 @@ import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModItems;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import net.minecraft.Util;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
@@ -17,6 +19,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+
+import javax.swing.text.JTextComponent;
 
 public class ModLanguageProvider extends LanguageProvider {
     public ModLanguageProvider(PackOutput output) {
@@ -46,8 +50,14 @@ public class ModLanguageProvider extends LanguageProvider {
         dinoStatTypes();
 
         generica();
+        keys();
 
 
+    }
+
+    protected void keys() {
+        add(ModKeyBindings.DINO_INVENTORY_KEY, "Open Dinosaur Inventory");
+        add(ModKeyBindings.DINO_KEY_CATEGORY, "Dinos Expansion");
     }
 
     protected void items() {
@@ -78,7 +88,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add("tooltip." + DinosExpansion.MODID + ".narcotic_value", "Narcotic Value: +%s Torpor");
     }
 
-    protected void enchantments(){
+    protected void enchantments() {
         addEnchantment(ModEnchantments.TORPOR_ENCHANTMENT, "Torpor");
     }
 
@@ -119,15 +129,19 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
     }
 
-    protected void chatMessages(){
+    protected void chatMessages() {
         add("chat." + DinosExpansion.MODID + ".dino_access_denied", "You do not have access to this Dinosaur");
     }
 
-    public void addEnchantment(ResourceKey<Enchantment> enchantment, String translation){
+    public void add(KeyMapping mapping, String name){
+        add(mapping.getName(), name);
+    }
+
+    public void addEnchantment(ResourceKey<Enchantment> enchantment, String translation) {
         addEnchantment(enchantment.location(), translation);
     }
 
-    public void addEnchantment(ResourceLocation enchantment, String translation){
+    public void addEnchantment(ResourceLocation enchantment, String translation) {
         add(Util.makeDescriptionId("enchantment", enchantment), translation);
     }
 
