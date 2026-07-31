@@ -98,6 +98,9 @@ public class Certosaurus extends BaseDinoEntity {
                 DinoBrain.baseDinoMemoryModules()
                         .add(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
                         .add(MemoryModuleType.NEAREST_LIVING_ENTITIES)
+                        .add(MemoryModuleType.NEAREST_VISIBLE_ATTACKABLE_PLAYER)
+                        .add(MemoryModuleType.NEAREST_PLAYERS)
+                        .add(MemoryModuleType.NEAREST_VISIBLE_PLAYER)
                         .add(MemoryModuleType.ATTACK_TARGET)
                         .build(),
                 ImmutableList.of(
