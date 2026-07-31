@@ -49,6 +49,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -715,7 +716,54 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     /**
      * called when the player tries uses the attack key, should perform some kind of attack
      */
-    public abstract void playerTriggerAttack();
+    public void playerTriggerAttack() {
+        for (DinoAttack attack : this.attacks.values()) {
+            this.playerTriggerAttack(attack);
+            break;
+        }
+    }
+
+    public void playerTriggerAttack(DinoAttack attack) {
+        if (!this.level().isClientSide() && this.activeAttack == null && !this.isAttackOnCooldown(attack.getName())) {
+            LivingEntity target = this.findPlayerAttackTarget(attack);
+            if (target != null) {
+                this.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
+            } else {
+                this.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            }
+            this.performAttack(attack);
+        }
+    }
+
+    public LivingEntity findPlayerAttackTarget(DinoAttack attack) {
+        double range = attack.getAttackRange(this);
+        Vec3 lookVec = this.getLookAngle();
+        AABB boundingBox = this.getBoundingBox().expandTowards(lookVec.scale(range)).inflate(1.0D, 1.0D, 1.0D);
+        
+        LivingEntity bestTarget = null;
+        double bestDistanceSq = Double.MAX_VALUE;
+        
+        for (LivingEntity target : this.level().getEntitiesOfClass(LivingEntity.class, boundingBox)) {
+            if (target == this || target == this.getControllingPassenger()) {
+                continue;
+            }
+            if (!target.isAlive()) {
+                continue;
+            }
+            double distSq = this.distanceToSqr(target);
+            if (distSq <= range * range) {
+                Vec3 toTarget = target.position().subtract(this.position()).normalize();
+                double dot = this.getLookAngle().dot(toTarget);
+                if (dot >= 0.0D) {
+                    if (distSq < bestDistanceSq) {
+                        bestDistanceSq = distSq;
+                        bestTarget = target;
+                    }
+                }
+            }
+        }
+        return bestTarget;
+    }
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {

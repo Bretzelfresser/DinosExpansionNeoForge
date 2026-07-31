@@ -57,6 +57,7 @@ public class ModLanguageProvider extends LanguageProvider {
 
     protected void keys() {
         add(ModKeyBindings.DINO_INVENTORY_KEY, "Open Dinosaur Inventory");
+        add(ModKeyBindings.DINO_ATTACK_KEY, "Dinosaur Attack");
         add(ModKeyBindings.DINO_KEY_CATEGORY, "Dinos Expansion");
     }
 

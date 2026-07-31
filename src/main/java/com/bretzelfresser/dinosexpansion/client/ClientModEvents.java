@@ -6,6 +6,7 @@ import com.bretzelfresser.dinosexpansion.client.key.ModKeyBindings;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModBiomes;
 import com.bretzelfresser.dinosexpansion.common.network.OpenDinoInventoryPayload;
+import com.bretzelfresser.dinosexpansion.common.network.PlayerTriggerAttackPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.neoforged.api.distmarker.Dist;
@@ -50,6 +51,14 @@ public class ClientModEvents {
                     lastClickTimeStamp = mc.level.getGameTime();
                     PacketDistributor.sendToServer(new OpenDinoInventoryPayload(dino.getId()));
                 }
+            }
+
+            boolean wasAttackClicked = false;
+            while (ModKeyBindings.DINO_ATTACK_KEY.consumeClick()) {
+                wasAttackClicked = true;
+            }
+            if (wasAttackClicked) {
+                PacketDistributor.sendToServer(new PlayerTriggerAttackPayload(dino.getId()));
             }
         }
     }

@@ -16,4 +16,12 @@ public class ModKeyBindings {
             GLFW.GLFW_KEY_R,
             DINO_KEY_CATEGORY
     );
+
+    public static final KeyMapping DINO_ATTACK_KEY = new KeyMapping(
+            "key.dinosexpansion.dino_attack",
+            KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_C,
+            DINO_KEY_CATEGORY
+    );
 }

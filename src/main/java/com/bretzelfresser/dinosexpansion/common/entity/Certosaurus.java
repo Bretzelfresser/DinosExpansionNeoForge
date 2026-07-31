@@ -71,7 +71,7 @@ public class Certosaurus extends BaseDinoEntity {
 
     @Override
     public void playerTriggerAttack() {
-        this.performAttack(BITE);
+        this.playerTriggerAttack(BITE);
     }
 
     @Override

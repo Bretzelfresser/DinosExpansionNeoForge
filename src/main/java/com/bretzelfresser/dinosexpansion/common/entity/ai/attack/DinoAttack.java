@@ -55,7 +55,7 @@ public abstract class DinoAttack {
         return attacker.isAlive() && target.isAlive() && attacker.distanceTo(target) <= getAttackRange(attacker);
     }
 
-    protected double getAttackRange(BaseDinoEntity attacker) {
+    public double getAttackRange(BaseDinoEntity attacker) {
         return 3.0D;
     }
 

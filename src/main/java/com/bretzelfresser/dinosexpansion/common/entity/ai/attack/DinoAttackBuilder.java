@@ -200,7 +200,7 @@ public class DinoAttackBuilder {
             }
 
             @Override
-            protected double getAttackRange(BaseDinoEntity attacker) {
+            public double getAttackRange(BaseDinoEntity attacker) {
                 return range.applyAsDouble(attacker);
             }
 

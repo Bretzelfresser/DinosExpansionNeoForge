@@ -7,6 +7,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoLevelUpPayload;
 import com.bretzelfresser.dinosexpansion.common.network.OpenDinoInventoryPayload;
+import com.bretzelfresser.dinosexpansion.common.network.PlayerTriggerAttackPayload;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
@@ -104,6 +105,11 @@ public class DinosExpansion {
                 OpenDinoInventoryPayload.TYPE,
                 OpenDinoInventoryPayload.STREAM_CODEC,
                 OpenDinoInventoryPayload::handle
+        );
+        registrar.playToServer(
+                PlayerTriggerAttackPayload.TYPE,
+                PlayerTriggerAttackPayload.STREAM_CODEC,
+                PlayerTriggerAttackPayload::handle
         );
         registrar.playToClient(
                 DinoEquipmentSyncPayload.TYPE,
