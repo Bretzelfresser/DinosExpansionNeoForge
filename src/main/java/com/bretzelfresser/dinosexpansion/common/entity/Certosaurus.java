@@ -43,6 +43,7 @@ public class Certosaurus extends BaseDinoEntity {
             .hitFrameTick(0)
             .cannotMove(true)
             .range(10)
+            .durationTicks(Math.round(2.1667f * 20f))//actually stolen from the animation, adjust if animation changes
             .canUse((dino, target) -> dino.isAlive() && target.isAlive() && target instanceof Player && !dino.hasEffect(ModMobEffects.CERATOSAURUS_ROAR))
             .onHit(Certosaurus::roar)
             .selectionWeight(100)
@@ -52,7 +53,7 @@ public class Certosaurus extends BaseDinoEntity {
             .animationName("attack")
             .cooldownTicks(15)
             .durationTicks(12)
-            .hitFrameTick(6)
+            .hitFrameTick(8)
             .onHitHurt()
             .selectionWeight(10)
             .range(2d)
@@ -123,8 +124,11 @@ public class Certosaurus extends BaseDinoEntity {
         baseTarget.ifPresent(potentialPrey::addFirst);
         for (LivingEntity prey : potentialPrey) {
             if (prey.isAlive()) {
-                if (prey instanceof Player player && canPlayerAccess(player, false))
-                    continue;
+                if (prey instanceof Player player) {
+                    if (!canPlayerAccess(player, false))
+                        return Optional.of(player);
+                    return Optional.empty();
+                }
                 if (!(prey instanceof Animal) || prey.getType() == this.getType())
                     continue;
                 return Optional.of(prey);
