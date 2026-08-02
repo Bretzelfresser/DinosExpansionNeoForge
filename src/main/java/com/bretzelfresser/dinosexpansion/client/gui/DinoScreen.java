@@ -87,10 +87,15 @@ public class DinoScreen extends AbstractContainerScreen<DinoContainerMenu> {
         float hunger = dino.getHunger();
         drawStatBar(guiGraphics, statsX, statsY + 28, 64, 8, hunger / maxHunger, 0xFFFFA500, "Hunger: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(hunger));
 
+        // Stamina Bar
+        float maxStamina = (float) dino.getAttributeValue(ModAttributes.MAX_STAMINA);
+        float stamina = dino.getStamina();
+        drawStatBar(guiGraphics, statsX, statsY + 42, 64, 8, stamina / maxStamina, 0xFF00FFFF, "Stamina: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(stamina));
+
         // Taming Bar (Only show if wild and unconscious)
         if (dino.currentlyTaming()) {
             float taming = dino.getTamingProgress();
-            drawStatBar(guiGraphics, statsX, statsY + 42, 64, 8, taming, 0xFF00FFFF, "Taming: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(taming * 100f) + "%");
+            drawStatBar(guiGraphics, statsX, statsY + 56, 64, 8, taming, 0xFFFFFF00, "Taming: " + FormattingUtils.DEFAULT_FLOAT_FORMAT.format(taming * 100f) + "%");
         }
     }
 

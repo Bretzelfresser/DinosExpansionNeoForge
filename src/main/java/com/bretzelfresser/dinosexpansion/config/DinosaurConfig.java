@@ -10,6 +10,10 @@ public class DinosaurConfig {
     public final ModConfigSpec.IntValue MAX_LEVEL;
     public final ModConfigSpec.IntValue AVERAGE_LEVEL;
     public final ModConfigSpec.DoubleValue NATURAL_REGENERATION_HUNGER_THRESHOLD;
+    public final ModConfigSpec.DoubleValue SPRINT_STAMINA_COST;
+    public final ModConfigSpec.DoubleValue SPRINT_HUNGER_COST;
+    public final ModConfigSpec.DoubleValue STAMINA_REGEN_HUNGER_COST;
+    public final ModConfigSpec.DoubleValue JUMP_STAMINA_COST;
 
     public DinosaurConfig(ModConfigSpec.Builder builder) {
         builder.push("Dinosaurs");
@@ -32,6 +36,18 @@ public class DinosaurConfig {
 
         builder.comment("The percentage of max hunger required for natural regeneration to occur (e.g. 0.9 for 90%).");
         NATURAL_REGENERATION_HUNGER_THRESHOLD = builder.defineInRange("natural_regeneration_hunger_threshold", 0.9, 0.0, 1.0);
+
+        builder.comment("The amount of stamina drained per tick while sprinting.");
+        SPRINT_STAMINA_COST = builder.defineInRange("sprint_stamina_cost", 0.15, 0.0, Double.MAX_VALUE);
+
+        builder.comment("The extra amount of hunger drained per tick while sprinting.");
+        SPRINT_HUNGER_COST = builder.defineInRange("sprint_hunger_cost", 0.01, 0.0, Double.MAX_VALUE);
+
+        builder.comment("The extra amount of hunger drained per tick while actively regenerating stamina.");
+        STAMINA_REGEN_HUNGER_COST = builder.defineInRange("stamina_regen_hunger_cost", 0.02, 0.0, Double.MAX_VALUE);
+
+        builder.comment("The amount of stamina consumed when performing a jump.");
+        JUMP_STAMINA_COST = builder.defineInRange("jump_stamina_cost", 5.0, 0.0, Double.MAX_VALUE);
 
         builder.pop();
     }

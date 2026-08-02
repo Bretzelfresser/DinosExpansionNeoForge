@@ -106,6 +106,7 @@ public class ModLanguageProvider extends LanguageProvider {
         add(DinoStatTypes.OWNER, "Owner");
         add(DinoStatTypes.TORPOR, "Torpor");
         add(DinoStatTypes.HUNGER, "Hunger");
+        add(DinoStatTypes.STAMINA, "Stamina");
         add(DinoStatTypes.TAMING_PROGRESS, "Tamed");
     }
 
@@ -115,6 +116,8 @@ public class ModLanguageProvider extends LanguageProvider {
         addAttribute(ModAttributes.CARRYING_CAPACITY, "Carrying Capacity");
         addAttribute(ModAttributes.TORPOR_WAKE_UP_THRESHOLD, "Wake Up Threshold");
         addAttribute(ModAttributes.NATURAL_REGENERATION, "Natural Regeneration");
+        addAttribute(ModAttributes.MAX_STAMINA, "Max Stamina");
+        addAttribute(ModAttributes.STAMINA_REGENERATION, "Stamina Regeneration");
     }
 
     protected void configs() {
@@ -130,6 +133,10 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue(Config.DINOSAUR_CONFIG.MAX_LEVEL, "Spawn Maximum Level");
         addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
         addConfigValue(Config.DINOSAUR_CONFIG.NATURAL_REGENERATION_HUNGER_THRESHOLD, "Natural Regeneration Hunger Threshold");
+        addConfigValue(Config.DINOSAUR_CONFIG.SPRINT_STAMINA_COST, "Sprint Stamina Cost");
+        addConfigValue(Config.DINOSAUR_CONFIG.SPRINT_HUNGER_COST, "Sprint Hunger Cost");
+        addConfigValue(Config.DINOSAUR_CONFIG.STAMINA_REGEN_HUNGER_COST, "Stamina Regen Hunger Cost");
+        addConfigValue(Config.DINOSAUR_CONFIG.JUMP_STAMINA_COST, "Jump Stamina Cost");
     }
 
     protected void chatMessages() {

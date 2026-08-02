@@ -19,6 +19,7 @@ public class DinoAttackBuilder {
     private int cooldownTicks;
     private String animationName;
     private boolean cannotMove = false;
+    private float staminaCost = 0.0f;
     protected BiConsumer<BaseDinoEntity, LivingEntity> onHit;
     protected ToDoubleFunction<BaseDinoEntity> range = d -> 3.0D;
     protected ToDoubleBiFunction<BaseDinoEntity, LivingEntity> selectionWeight = (dino, target) -> 1.0D;
@@ -185,13 +186,24 @@ public class DinoAttackBuilder {
     }
 
     /**
+     * Sets the stamina cost consumed when triggering this attack.
+     *
+     * @param staminaCost the stamina cost
+     * @return this builder instance for chaining
+     */
+    public DinoAttackBuilder staminaCost(float staminaCost) {
+        this.staminaCost = staminaCost;
+        return this;
+    }
+
+    /**
      * Builds and returns a concrete {@link DinoAttack} instance configured by this builder.
      *
      * @param name the unique registration name of the attack
      * @return the constructed DinoAttack instance
      */
     public DinoAttack build(String name) {
-        return new DinoAttack(name, this.durationTicks, this.hitFrameTick, this.cooldownTicks, this.animationName, this.cannotMove) {
+        return new DinoAttack(name, this.durationTicks, this.hitFrameTick, this.cooldownTicks, this.animationName, this.cannotMove, this.staminaCost) {
             @Override
             public void executeDamage(BaseDinoEntity attacker, @Nullable LivingEntity target) {
                 if (onHit != null) {
@@ -211,7 +223,7 @@ public class DinoAttackBuilder {
 
             @Override
             public boolean canUse(BaseDinoEntity attacker, LivingEntity target) {
-                return canUse.test(attacker, target);
+                return super.canUse(attacker, target) && canUse.test(attacker, target);
             }
         };
     }

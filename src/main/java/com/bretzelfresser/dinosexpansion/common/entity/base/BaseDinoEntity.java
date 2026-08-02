@@ -76,6 +76,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     private static final EntityDataAccessor<Float> CURRENT_TORPOR = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> CURRENT_HUNGER = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> CURRENT_STAMINA = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DINO_FLAGS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> TAMING_PROGRESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TAMING_EFFECTIVENESS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
@@ -180,6 +181,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 .add(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)
                 .add(ModAttributes.CARRYING_CAPACITY, 4.0D)
                 .add(ModAttributes.NATURAL_REGENERATION)
+                .add(ModAttributes.MAX_STAMINA, 100.0D)
+                .add(ModAttributes.STAMINA_REGENERATION, 0.2D)
                 ;
     }
 
@@ -188,6 +191,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.defineSynchedData(builder);
         builder.define(CURRENT_TORPOR, 0.0f);
         builder.define(CURRENT_HUNGER, 100.0f);
+        builder.define(CURRENT_STAMINA, 100.0f);
         builder.define(DINO_FLAGS, 0);
         builder.define(TAMING_PROGRESS, 0.0f);
         builder.define(TAMING_EFFECTIVENESS, 1.0f);
@@ -263,6 +267,20 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     public void setHunger(float val) {
         float max = (float) this.getAttributeValue(ModAttributes.MAX_HUNGER);
         this.entityData.set(CURRENT_HUNGER, Math.clamp(val, 0.0f, max));
+    }
+
+    public float getStamina() {
+        return this.entityData.get(CURRENT_STAMINA);
+    }
+
+    public float getMissingStamina() {
+        float max = (float) this.getAttributeValue(ModAttributes.MAX_STAMINA);
+        return Math.max(0, max - getStamina());
+    }
+
+    public void setStamina(float val) {
+        float max = (float) this.getAttributeValue(ModAttributes.MAX_STAMINA);
+        this.entityData.set(CURRENT_STAMINA, Math.clamp(val, 0.0f, max));
     }
 
     public int getDinoLevel() {
@@ -417,6 +435,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         // Fill status stats to max/min
         this.setHealth(this.getMaxHealth());
         this.setHunger((float) this.getAttributeValue(ModAttributes.MAX_HUNGER));
+        this.setStamina((float) this.getAttributeValue(ModAttributes.MAX_STAMINA));
         this.setTorpor(0.0f);
 
         return spawnGroupData;
@@ -567,7 +586,17 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     @Override
     public boolean canSprint() {
-        return true;
+        return this.getStamina() > 0 && super.canSprint();
+    }
+
+    @Override
+    public void jumpFromGround() {
+        float jumpCost = (float) Config.DINOSAUR_CONFIG.JUMP_STAMINA_COST.getAsDouble();
+        if (this.getStamina() < jumpCost) {
+            return;
+        }
+        this.setStamina(this.getStamina() - jumpCost);
+        super.jumpFromGround();
     }
 
     @Override
@@ -700,6 +729,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             if (this.isAttackOnCooldown(attack.getName())) {
                 return false;
             }
+            if (this.getStamina() < attack.getStaminaCost()) {
+                return false;
+            }
+            this.setStamina(this.getStamina() - attack.getStaminaCost());
             this.activeAttack = attack;
             this.attackTimer = attack.getDurationTicks();
             this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
@@ -884,6 +917,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.addAdditionalSaveData(tag);
         tag.putFloat("Torpor", this.getTorpor());
         tag.putFloat("Hunger", this.getHunger());
+        tag.putFloat("Stamina", this.getStamina());
         tag.putBoolean("Unconscious", this.isUnconscious());
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
@@ -917,6 +951,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         super.readAdditionalSaveData(tag);
         NbtUtils.setIfExists(tag, "Torpor", CompoundTag::getFloat, this::setTorpor);
         NbtUtils.setIfExists(tag, "Hunger", CompoundTag::getFloat, this::setHunger);
+        NbtUtils.setIfExists(tag, "Stamina", CompoundTag::getFloat, this::setStamina);
         NbtUtils.setIfExists(tag, "TamingProgress", CompoundTag::getFloat, this::setTamingProgress);
         NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
         NbtUtils.setIfExists(tag, "Unconscious", CompoundTag::getBoolean, this::setUnconscious);

@@ -18,6 +18,7 @@ public enum DinoStat implements WeightedEntry {
     HEALTH(6, Attributes.MAX_HEALTH, DinosExpansion.modLoc("stat_health"), 2),
     TORPOR(10, ModAttributes.MAX_TORPOR, DinosExpansion.modLoc("stat_torpor"), 6),
     HUNGER(10, ModAttributes.MAX_HUNGER, DinosExpansion.modLoc("stat_hunger"), 6),
+    STAMINA(8, ModAttributes.MAX_STAMINA, DinosExpansion.modLoc("stat_stamina"), 10),
     DAMAGE(5, Attributes.ATTACK_DAMAGE, DinosExpansion.modLoc("stat_damage"), 0.5),
     CARRYING_CAPACITY(3, ModAttributes.CARRYING_CAPACITY, DinosExpansion.modLoc("stat_carrying_capacity"), 1);
 

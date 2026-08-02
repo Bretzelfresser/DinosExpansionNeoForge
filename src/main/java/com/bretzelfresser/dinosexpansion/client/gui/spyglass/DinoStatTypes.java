@@ -32,6 +32,7 @@ public enum DinoStatTypes {
     CARRYING_CAPACITY("Carrying Capacity", dino -> Component.literal("" + Math.round(dino.getAttributeValue(ModAttributes.CARRYING_CAPACITY)))),
     HEALTH("Health", BaseDinoEntity::getHealth, BaseDinoEntity::getMaxHealth, 0xFFFF5555),
     HUNGER("Hunger", BaseDinoEntity::getHunger, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER), 0xFF55FF55),
+    STAMINA("Stamina", BaseDinoEntity::getStamina, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_STAMINA), 0xFF55FFFF),
     TORPOR("Torpor", BaseDinoEntity::getTorpor, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR), 0xFFAA00AA),
     TAMING_PROGRESS("Taming_Progress", BaseDinoEntity::getTamingProgress, dino -> 1f, BaseDinoEntity::currentlyTaming, 0xFF9d7e38) {
         @Override
