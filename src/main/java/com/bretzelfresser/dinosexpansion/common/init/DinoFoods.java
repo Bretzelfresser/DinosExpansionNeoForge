@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -33,11 +34,11 @@ public class DinoFoods {
         return ResourceKey.create(DINO_FOOD_REGISTRY_KEY, ResourceLocation.fromNamespaceAndPath(DinosExpansion.MODID, name));
     }
 
-    public static DinoFoodEntry.Builder addKibble(DinoFoodEntry.Builder builder, DeferredItem<Item> preferredKibble) {
+    public static DinoFoodEntry.Builder addKibble(DinoFoodEntry.Builder builder, Holder<Item> preferredKibble) {
         return addKibble(builder, preferredKibble.getKey(), 10.0F, 0.40F);
     }
 
-    public static DinoFoodEntry.Builder addKibble(DinoFoodEntry.Builder builder, DeferredItem<Item> preferredKibble, float hungerValue, float tamingValue) {
+    public static DinoFoodEntry.Builder addKibble(DinoFoodEntry.Builder builder, Holder<Item> preferredKibble, float hungerValue, float tamingValue) {
         return addKibble(builder, preferredKibble.getKey(), hungerValue, tamingValue);
     }
 
@@ -48,11 +49,11 @@ public class DinoFoods {
     public static DinoFoodEntry.Builder addKibble(DinoFoodEntry.Builder builder, ResourceKey<Item> preferredKibbleKey, float hungerValue, float tamingValue) {
         int index = KIBBLE_TIERS.indexOf(preferredKibbleKey);
         if (index == -1) {
-            builder.addFood(preferredKibbleKey, hungerValue, tamingValue);
+            builder.addTamingFood(preferredKibbleKey, hungerValue, tamingValue);
             return builder;
         }
         for (int i = index; i < KIBBLE_TIERS.size(); i++) {
-            builder.addFood(KIBBLE_TIERS.get(i), hungerValue, tamingValue);
+            builder.addTamingFood(KIBBLE_TIERS.get(i), hungerValue, tamingValue);
         }
         return builder;
     }

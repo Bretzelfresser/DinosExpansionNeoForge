@@ -9,6 +9,7 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TamingBehaviour {
     private final BaseDinoEntity dino;
@@ -33,6 +34,9 @@ public class TamingBehaviour {
         var foods = getFoodsInInventory();
         if (foods.isEmpty())
             return;
+
+        foods.removeIf(f -> f.getSecond().tamingOnly());
+
         foods.sort(
                 Comparator.<Pair<Integer, DinoFoodEntry.FoodValues>>comparingDouble(p -> (double) p.getSecond().hungerValue())
                         .reversed()
@@ -62,6 +66,9 @@ public class TamingBehaviour {
      */
     public void tryToEatFromInventoryWhenTaming() {
         var foundFoodValues = getFoodsInInventory();
+
+        if (foundFoodValues.isEmpty())
+            return;
 
 
         //automatically sort by the food which has the lowest hunger to taming progress value
