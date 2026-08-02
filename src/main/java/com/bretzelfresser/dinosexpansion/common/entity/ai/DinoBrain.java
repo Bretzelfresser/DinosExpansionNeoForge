@@ -81,7 +81,7 @@ public class DinoBrain {
     public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
-                Pair.of(0, NarcoticBehaviour.eatNarcotics(true, true)),
+                Pair.of(0, NarcoticBehaviour.eatNarcotics(true)),
                 Pair.of(2, new DoNothing(100, 200))
         ), Set.of(
                 Pair.of(ModMemoryModules.UNCONSCIOUS.get(), MemoryStatus.VALUE_PRESENT)
