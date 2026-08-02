@@ -18,7 +18,7 @@ public record DinoFoodEntry(ResourceKey<EntityType<?>> dinoType, Map<ResourceKey
         public static final Codec<FoodValues> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.FLOAT.fieldOf("hunger_value").forGetter(FoodValues::hungerValue),
                 Codec.FLOAT.fieldOf("taming_value").forGetter(FoodValues::tamingValue),
-                Codec.BOOL.fieldOf("tamingOnly").forGetter(FoodValues::tamingOnly)
+                Codec.BOOL.fieldOf("tamingOnly").orElse(false).forGetter(FoodValues::tamingOnly)
         ).apply(instance, FoodValues::new));
 
         public FoodValues(float hungerValue, float tamingValue){
