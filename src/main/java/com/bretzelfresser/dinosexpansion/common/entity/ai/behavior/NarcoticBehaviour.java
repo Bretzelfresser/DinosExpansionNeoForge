@@ -43,7 +43,8 @@ public class NarcoticBehaviour {
                                 return false;
 
                             if (findBiggestBelowThreshold) {
-                                narcoticStacks.sort(Comparator.<Triple<Integer, ItemStack, Float>>comparingDouble(t -> t.c)
+                                narcoticStacks.sort(Comparator.<Triple<Integer, ItemStack, Float>>
+                                                comparingDouble(t -> t.c)
                                         .reversed()
                                         .thenComparingInt(t -> t.a));
                             }
