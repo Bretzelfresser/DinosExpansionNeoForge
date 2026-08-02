@@ -111,6 +111,4 @@ public class DinoBrain {
         Brain<BaseDinoEntity> brain = dino.getBrain();
         brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.FIGHT, Activity.IDLE));
     }
-
-
 }
