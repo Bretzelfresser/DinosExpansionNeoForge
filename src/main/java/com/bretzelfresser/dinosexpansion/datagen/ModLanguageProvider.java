@@ -114,6 +114,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addAttribute(ModAttributes.MAX_HUNGER, "Max Hunger");
         addAttribute(ModAttributes.CARRYING_CAPACITY, "Carrying Capacity");
         addAttribute(ModAttributes.TORPOR_WAKE_UP_THRESHOLD, "Wake Up Threshold");
+        addAttribute(ModAttributes.NATURAL_REGENERATION, "Natural Regeneration");
     }
 
     protected void configs() {
@@ -128,6 +129,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addConfigValue(Config.DINOSAUR_CONFIG.MIN_LEVEL, "Spawn Minimum Level");
         addConfigValue(Config.DINOSAUR_CONFIG.MAX_LEVEL, "Spawn Maximum Level");
         addConfigValue(Config.DINOSAUR_CONFIG.AVERAGE_LEVEL, "Spawn Average Level");
+        addConfigValue(Config.DINOSAUR_CONFIG.NATURAL_REGENERATION_HUNGER_THRESHOLD, "Natural Regeneration Hunger Threshold");
     }
 
     protected void chatMessages() {

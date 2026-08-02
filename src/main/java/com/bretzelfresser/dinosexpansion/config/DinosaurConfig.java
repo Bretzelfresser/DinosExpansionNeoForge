@@ -9,6 +9,7 @@ public class DinosaurConfig {
     public final ModConfigSpec.IntValue MIN_LEVEL;
     public final ModConfigSpec.IntValue MAX_LEVEL;
     public final ModConfigSpec.IntValue AVERAGE_LEVEL;
+    public final ModConfigSpec.DoubleValue NATURAL_REGENERATION_HUNGER_THRESHOLD;
 
     public DinosaurConfig(ModConfigSpec.Builder builder) {
         builder.push("Dinosaurs");
@@ -28,6 +29,9 @@ public class DinosaurConfig {
 
         builder.comment("The average level (peak of Gaussian distribution) with which a wild dinosaur can spawn. Set to sopmething smaller then 0 to use the midpoint between min and max level.");
         AVERAGE_LEVEL = builder.defineInRange("average_level", -1, -1, Integer.MAX_VALUE);
+
+        builder.comment("The percentage of max hunger required for natural regeneration to occur (e.g. 0.9 for 90%).");
+        NATURAL_REGENERATION_HUNGER_THRESHOLD = builder.defineInRange("natural_regeneration_hunger_threshold", 0.9, 0.0, 1.0);
 
         builder.pop();
     }

@@ -117,6 +117,16 @@ public class SurvivalBehaviour {
         } else {
             dino.hurt(dino.damageSources().starve(), 1.0F);
         }
+
+        // Natural regeneration over time when hunger is at or above configured threshold
+        float maxHunger = (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER);
+        float threshold = (float) Config.DINOSAUR_CONFIG.NATURAL_REGENERATION_HUNGER_THRESHOLD.getAsDouble();
+        if (hunger >= maxHunger * threshold && dino.getHealth() < dino.getMaxHealth()) {
+            float regen = (float) dino.getAttributeValue(ModAttributes.NATURAL_REGENERATION);
+            if (regen > 0) {
+                dino.heal(regen);
+            }
+        }
     }
 
     public float getStackedTorporReduction() {

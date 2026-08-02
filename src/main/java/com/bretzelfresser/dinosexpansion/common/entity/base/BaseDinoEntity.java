@@ -179,6 +179,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 .add(ModAttributes.TORPOR_DECREASE)
                 .add(ModAttributes.TORPOR_WAKE_UP_THRESHOLD)
                 .add(ModAttributes.CARRYING_CAPACITY, 4.0D)
+                .add(ModAttributes.NATURAL_REGENERATION)
                 ;
     }
 

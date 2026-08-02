@@ -33,6 +33,9 @@ public class ModAttributes {
     public static final DeferredHolder<Attribute, Attribute> TORPOR_WAKE_UP_THRESHOLD = register("torpor_wake_up_threshold",
             key -> new RangedAttribute(key, 0.1, 0, 1).setSyncable(true));
 
+    public static final DeferredHolder<Attribute, Attribute> NATURAL_REGENERATION = register("natural_regeneration",
+            key -> new RangedAttribute(key, 0.01D, 0.0D, 100000.0D).setSyncable(true));
+
 
 
     public static <T extends Attribute> DeferredHolder<Attribute, T> register(String name, Function<String, T> generator){
