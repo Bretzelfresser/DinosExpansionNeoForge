@@ -455,7 +455,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return getMissingHunger() >= value.hungerValue();
     }
 
-    protected boolean getDinoFlag(int bitPos) {
+    public boolean getDinoFlag(int bitPos) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
         }
@@ -466,11 +466,11 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
      * 0 = unconscious
      * 1 = (unused, previously saddled)
      * 2 = sleep
-     *
+     *  dont use unless u are a behavior or inside the dino class, cause this can have a lot of side effects
      * @param bitPos
      * @param value
      */
-    protected void setDinoFlag(int bitPos, boolean value) {
+    public void setDinoFlag(int bitPos, boolean value) {
         if (bitPos < 0 || bitPos > 31) {
             throw new IllegalArgumentException("Bit position must be between 0 and 31");
         }
