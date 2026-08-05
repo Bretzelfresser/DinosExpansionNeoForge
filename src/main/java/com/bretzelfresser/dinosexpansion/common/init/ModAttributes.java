@@ -45,6 +45,12 @@ public class ModAttributes {
     public static final DeferredHolder<Attribute, Attribute> SPRINT_STAMINA_COST = register("sprint_stamina_cost",
             key -> new RangedAttribute(key, 0.02D, 0.0D, 100000.0D).setSyncable(true));
 
+    public static final DeferredHolder<Attribute, Attribute> HEALTH_REGEN_HUNGER_COST = register("health_regen_hunger_cost",
+            key -> new RangedAttribute(key, 0.5D, 0.0D, 100000.0D).setSyncable(true));
+
+    public static final DeferredHolder<Attribute, Attribute> STAMINA_REGEN_HUNGER_COST = register("stamina_regen_hunger_cost",
+            key -> new RangedAttribute(key, 0.1D, 0.0D, 100000.0D).setSyncable(true));
+
 
 
     public static <T extends Attribute> DeferredHolder<Attribute, T> register(String name, Function<String, T> generator){

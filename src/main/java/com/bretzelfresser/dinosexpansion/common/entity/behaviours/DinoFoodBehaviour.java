@@ -53,6 +53,8 @@ public class DinoFoodBehaviour implements INBTSerializable<CompoundTag> {
         if (hunger >= maxHunger * threshold && dino.getHealth() < dino.getMaxHealth()) {
             float regen = (float) dino.getAttributeValue(ModAttributes.NATURAL_REGENERATION);
             if (regen > 0) {
+                float regenHungerCost = regen * (float) dino.getAttributeValue(ModAttributes.HEALTH_REGEN_HUNGER_COST);
+                addHunger(regenHungerCost);
                 dino.heal(regen);
             }
         }

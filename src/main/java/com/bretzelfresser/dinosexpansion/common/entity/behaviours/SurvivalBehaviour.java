@@ -111,33 +111,6 @@ public class SurvivalBehaviour {
             onWakeUpFromTorpor();
         }
 
-        // Hunger depletion over time
-
-
-        // Natural regeneration over time when hunger is at or above configured threshold
-
-
-        // Stamina logic: depletion during sprint (with hunger cost), regeneration while idle (with hunger cost)
-        if (dino.isSprinting() && !dino.isUnconscious() && !dino.isSleeping()) {
-            float sprintStamina = (float) Config.DINOSAUR_CONFIG.SPRINT_STAMINA_COST.getAsDouble();
-            dino.setStamina(dino.getStamina() - sprintStamina);
-            if (dino.getStamina() <= 0) {
-                dino.setSprinting(false);
-            }
-            float sprintHunger = (float) Config.DINOSAUR_CONFIG.SPRINT_HUNGER_COST.getAsDouble();
-            if (sprintHunger > 0 && dino.getHunger() > 0) {
-                dino.setHunger(dino.getHunger() - sprintHunger);
-            }
-        } else if (dino.getStamina() < (float) dino.getAttributeValue(ModAttributes.MAX_STAMINA) && !dino.isUnconscious()) {
-            float staminaRegen = (float) dino.getAttributeValue(ModAttributes.STAMINA_REGENERATION);
-            if (staminaRegen > 0 && dino.getHunger() > 0) {
-                dino.setStamina(dino.getStamina() + staminaRegen);
-                float regenHungerCost = (float) Config.DINOSAUR_CONFIG.STAMINA_REGEN_HUNGER_COST.getAsDouble();
-                if (regenHungerCost > 0) {
-                    dino.setHunger(dino.getHunger() - regenHungerCost);
-                }
-            }
-        }
     }
 
     public float getStackedTorporReduction() {

@@ -597,11 +597,9 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     public void jumpFromGround() {
         float jumpCost = (float) Config.DINOSAUR_CONFIG.JUMP_STAMINA_COST.getAsDouble();
-        if (this.getStamina() < jumpCost) {
-            return;
+        if (this.staminaBehaviour.consumeStamina(jumpCost)) {
+            super.jumpFromGround();
         }
-        this.setStamina(this.getStamina() - jumpCost);
-        super.jumpFromGround();
     }
 
     @Override
@@ -653,6 +651,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             }
             this.sleepBehaviour.tick();
             this.survivalBehaviour.tick();
+            this.foodBehaviour.tick();
+            this.staminaBehaviour.tick();
             this.tamingBehaviour.tick();
 
             if (this.getControllingPassenger() == null) {
@@ -734,10 +734,9 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
             if (this.isAttackOnCooldown(attack.getName())) {
                 return false;
             }
-            if (this.getStamina() < attack.getStaminaCost()) {
+            if (!this.staminaBehaviour.consumeStamina(attack.getStaminaCost())) {
                 return false;
             }
-            this.setStamina(this.getStamina() - attack.getStaminaCost());
             this.activeAttack = attack;
             this.attackTimer = attack.getDurationTicks();
             this.setAttackCooldown(attack.getName(), attack.getCooldownTicks());
