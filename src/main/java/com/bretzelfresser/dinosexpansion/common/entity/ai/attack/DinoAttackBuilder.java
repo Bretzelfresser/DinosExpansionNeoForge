@@ -72,13 +72,12 @@ public class DinoAttackBuilder {
     }
 
     /**
-     * Sets whether the dinosaur is completely locked from moving or turning during the attack.
+     * Sets that the dinosaur wont move when this attack is in progress.
      *
-     * @param cannotMove true to freeze the dinosaur during the attack, false otherwise
      * @return this builder instance for chaining
      */
-    public DinoAttackBuilder cannotMove(boolean cannotMove) {
-        this.cannotMove = cannotMove;
+    public DinoAttackBuilder cannotMove() {
+        this.cannotMove = true;
         return this;
     }
 

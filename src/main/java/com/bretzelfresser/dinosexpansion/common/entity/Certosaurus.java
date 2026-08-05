@@ -44,9 +44,9 @@ public class Certosaurus extends BaseDinoEntity {
             .animationName("roar")
             .cooldownTicks(5 * 60 * 20)//5 minutes
             .hitFrameTick(0)
-            .cannotMove(true)
+            .cannotMove()
             .range(10)
-            .durationTicks(Math.round(2.1667f * 20f) + TRANSITION_TICKS)//actually stolen from the animation, adjust if animation changes, +5 for transition
+            .durationTicks(Math.round(2.1667f * 20f) + TRANSITION_TICKS)//actually stolen from the animation
             .canUse((dino, target) -> dino.isAlive() && target.isAlive() && target instanceof Player && !dino.hasEffect(ModMobEffects.CERATOSAURUS_ROAR))
             .onHit(Certosaurus::roar)
             .staminaCost(30.0f)

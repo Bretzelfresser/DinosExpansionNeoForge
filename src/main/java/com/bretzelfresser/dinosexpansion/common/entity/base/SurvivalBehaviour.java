@@ -114,7 +114,7 @@ public class SurvivalBehaviour {
         float hunger = dino.getHunger();
         if (hunger > 0) {
             dino.setHunger(hunger - (float) dino.getAttributeValue(ModAttributes.HUNGER_DECREASE));
-        } else {
+        } else if(dino.tickCount % 10 == 0){//2 per second
             dino.hurt(dino.damageSources().starve(), 1.0F);
         }
 
