@@ -1,5 +1,7 @@
-package com.bretzelfresser.dinosexpansion.common.entity.base;
+package com.bretzelfresser.dinosexpansion.common.entity.behaviours;
 
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.SleepRhythm;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;

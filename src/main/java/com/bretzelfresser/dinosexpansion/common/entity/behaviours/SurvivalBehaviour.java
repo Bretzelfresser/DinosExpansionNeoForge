@@ -1,5 +1,6 @@
-package com.bretzelfresser.dinosexpansion.common.entity.base;
+package com.bretzelfresser.dinosexpansion.common.entity.behaviours;
 
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
@@ -111,22 +112,10 @@ public class SurvivalBehaviour {
         }
 
         // Hunger depletion over time
-        float hunger = dino.getHunger();
-        if (hunger > 0) {
-            dino.setHunger(hunger - (float) dino.getAttributeValue(ModAttributes.HUNGER_DECREASE));
-        } else if(dino.tickCount % 10 == 0){//2 per second
-            dino.hurt(dino.damageSources().starve(), 1.0F);
-        }
+
 
         // Natural regeneration over time when hunger is at or above configured threshold
-        float maxHunger = (float) dino.getAttributeValue(ModAttributes.MAX_HUNGER);
-        float threshold = (float) Config.DINOSAUR_CONFIG.NATURAL_REGENERATION_HUNGER_THRESHOLD.getAsDouble();
-        if (hunger >= maxHunger * threshold && dino.getHealth() < dino.getMaxHealth()) {
-            float regen = (float) dino.getAttributeValue(ModAttributes.NATURAL_REGENERATION);
-            if (regen > 0) {
-                dino.heal(regen);
-            }
-        }
+
 
         // Stamina logic: depletion during sprint (with hunger cost), regeneration while idle (with hunger cost)
         if (dino.isSprinting() && !dino.isUnconscious() && !dino.isSleeping()) {
@@ -161,14 +150,14 @@ public class SurvivalBehaviour {
 
     protected void onTorporFull() {
         if (this.lastHitPlayer.isPresent()) {
-            dino.setUnconsciousFrom(this.lastHitPlayer.get());
+            dino.setUnconsciousFrom(this.dino.level().getPlayerByUUID(this.lastHitPlayer.get()));
             if (!this.lastHitPlayer.get().equals(dino.getOwnerUUID()))
-                dino.setTamedBy((UUID) null);//when this dino was previously tamed, now it isnt anymore if the one downing it
+                dino.setTamedBy(null);//when this dino was previously tamed, now it isnt anymore if the one downing it
         }
     }
 
     protected void onWakeUpFromTorpor() {
-        dino.setUnconsciousFrom((UUID) null);
+        dino.setUnconsciousFrom(null);
         if (!dino.isTamed()) {
             dino.setTamingProgress(dino.getTamingProgress() * 0.5f);
         }

@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
+import com.bretzelfresser.dinosexpansion.common.entity.behaviours.*;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
@@ -40,7 +41,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Inventory;
@@ -100,6 +100,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     protected final SleepBehaviour sleepBehaviour;
     protected final TamingBehaviour tamingBehaviour;
     protected final SurvivalBehaviour survivalBehaviour;
+    protected final DinoFoodBehaviour foodBehaviour;
+    protected final DinoStaminaBehaviour staminaBehaviour;
 
     private int sleepParticleCooldown = 0;
 
@@ -118,6 +120,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
+        this.foodBehaviour = new DinoFoodBehaviour(this);
+        this.staminaBehaviour = new DinoStaminaBehaviour(this);
         this.inventory = new DinoInventory(this, basInventorySize);
         if (!level.isClientSide()) {
             this.getEquipmentInventory().addListener(this::syncEquipment);
@@ -183,6 +187,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 .add(ModAttributes.NATURAL_REGENERATION)
                 .add(ModAttributes.MAX_STAMINA, 100.0D)
                 .add(ModAttributes.STAMINA_REGENERATION, 0.2D)
+                .add(ModAttributes.SPRINT_STAMINA_COST, 0.02D)
                 ;
     }
 
@@ -1063,6 +1068,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @Override
     public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
         return null;
+    }
+
+
+    public DinoFoodBehaviour getFoodBehaviour() {
+        return foodBehaviour;
+    }
+
+    public DinoStaminaBehaviour getStaminaBehaviour() {
+        return staminaBehaviour;
     }
 
     public boolean canPlayerAccessContainer(Player player) {

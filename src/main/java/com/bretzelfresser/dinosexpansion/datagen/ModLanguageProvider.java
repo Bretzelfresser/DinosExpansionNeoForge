@@ -118,6 +118,7 @@ public class ModLanguageProvider extends LanguageProvider {
         addAttribute(ModAttributes.NATURAL_REGENERATION, "Natural Regeneration");
         addAttribute(ModAttributes.MAX_STAMINA, "Max Stamina");
         addAttribute(ModAttributes.STAMINA_REGENERATION, "Stamina Regeneration");
+        addAttribute(ModAttributes.SPRINT_STAMINA_COST, "Sprint Stamina Consumption");
     }
 
     protected void configs() {

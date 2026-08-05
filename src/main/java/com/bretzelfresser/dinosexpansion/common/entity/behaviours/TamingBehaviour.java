@@ -1,15 +1,13 @@
-package com.bretzelfresser.dinosexpansion.common.entity.base;
+package com.bretzelfresser.dinosexpansion.common.entity.behaviours;
 
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodCache;
 import com.bretzelfresser.dinosexpansion.common.food.DinoFoodEntry;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import oshi.util.platform.unix.solaris.KstatUtil;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TamingBehaviour {
     private final BaseDinoEntity dino;
