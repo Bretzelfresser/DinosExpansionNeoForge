@@ -70,7 +70,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     /**
      * the name of the controller where all the attack animations will be triggered
-     * names of the animations are defines inside the attack, transitions might offset the timing of the attacks
+     * names of the animations are defined inside the attack, transitions might offset the timing of the attacks
      */
     public static final String DINO_ATTACK_CONTROLLER_NAME = "dino_attack_controller";
 
@@ -621,11 +621,6 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     protected float getRiddenSpeed(Player player) {
         float baseSpeed = (float) this.getAttributeValue(Attributes.MOVEMENT_SPEED);
         return player.isSprinting() ? baseSpeed : baseSpeed * 0.5F;
-    }
-
-    @Override
-    public boolean isEffectiveAi() {
-        return super.isEffectiveAi();
     }
 
     @SuppressWarnings("unchecked")
