@@ -87,6 +87,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     private static final EntityDataAccessor<Float> DINO_XP = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> TAMED_LEVEL_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> AVAILABLE_POINTS = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Byte> AGGRESSION_MODE = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> ORDER_MODE = SynchedEntityData.defineId(BaseDinoEntity.class, EntityDataSerializers.BYTE);
 
     protected final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     protected final DinoInventory inventory;
@@ -173,6 +175,22 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         this.entityData.set(GENDER, (byte) gender.ordinal());
     }
 
+    public DinoAggressionMode getAggressionMode() {
+        return DinoAggressionMode.byId(this.entityData.get(AGGRESSION_MODE));
+    }
+
+    public void setAggressionMode(DinoAggressionMode mode) {
+        this.entityData.set(AGGRESSION_MODE, (byte) mode.ordinal());
+    }
+
+    public DinoOrderMode getOrderMode() {
+        return DinoOrderMode.byId(this.entityData.get(ORDER_MODE));
+    }
+
+    public void setOrderMode(DinoOrderMode mode) {
+        this.entityData.set(ORDER_MODE, (byte) mode.ordinal());
+    }
+
     public static AttributeSupplier.Builder createDinoDefaultAttributes() {
         return Animal.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0D)
@@ -207,6 +225,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         builder.define(DINO_XP, 0.0f);
         builder.define(TAMED_LEVEL_POINTS, 0);
         builder.define(AVAILABLE_POINTS, 0);
+        builder.define(AGGRESSION_MODE, (byte) DinoAggressionMode.NEUTRAL.ordinal());
+        builder.define(ORDER_MODE, (byte) DinoOrderMode.FOLLOW.ordinal());
     }
 
     /**
@@ -921,6 +941,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         tag.putFloat("TamingProgress", this.getTamingProgress());
         tag.putFloat("TamingEffectiveness", this.getTamingEffectiveness());
         tag.putByte("Gender", (byte) this.getGender().ordinal());
+        tag.putByte("AggressionMode", (byte) this.getAggressionMode().ordinal());
+        tag.putByte("OrderMode", (byte) this.getOrderMode().ordinal());
         tag.putInt("DinoLevel", this.getDinoLevel());
         tag.putFloat("DinoXp", this.getDinoXp());
         tag.putInt("TamedLevelPoints", this.getTamedLevelPoints());
@@ -955,6 +977,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         NbtUtils.setIfExists(tag, "TamingEffectiveness", CompoundTag::getFloat, this::setTamingEffectiveness);
         NbtUtils.setIfExists(tag, "Unconscious", CompoundTag::getBoolean, this::setUnconscious);
         NbtUtils.setIfExists(tag, "Gender", CompoundTag::getByte, b -> this.setGender(DinoGender.byId(b)));
+        NbtUtils.setIfExists(tag, "AggressionMode", CompoundTag::getByte, b -> this.setAggressionMode(DinoAggressionMode.byId(b)));
+        NbtUtils.setIfExists(tag, "OrderMode", CompoundTag::getByte, b -> this.setOrderMode(DinoOrderMode.byId(b)));
         NbtUtils.setIfExists(tag, "DinoLevel", CompoundTag::getInt, this::setDinoLevel);
         NbtUtils.setIfExists(tag, "DinoXp", CompoundTag::getFloat, this::setDinoXp);
         NbtUtils.setIfExists(tag, "TamedLevelPoints", CompoundTag::getInt, this::setTamedLevelPoints);
@@ -1020,13 +1044,60 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
      * @return a list of entities which should be regarded as attack targets, if this is empty this entity wont attack anything
      * by default this returns the lastHurMob(mob which last attacked this entity) if present
      */
+    @Override
+    public boolean canAttack(LivingEntity target) {
+        if (this.isTamed()) {
+            if (target instanceof Player player && player.getUUID().equals(this.getOwnerUUID())) {
+                return false;
+            }
+            if (target instanceof BaseDinoEntity otherDino && otherDino.isTamed() && java.util.Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
+                return false;
+            }
+        }
+        return super.canAttack(target);
+    }
+
     public Optional<? extends LivingEntity> findAttackTarget() {
+        DinoAggressionMode mode = this.getAggressionMode();
+        if (mode == DinoAggressionMode.PASSIVE) {
+            return Optional.empty();
+        }
+
         if (this.getLastHurtByMob() != null && this.getLastHurtByMob().isAlive()) {
-            //additional check, we dont wanna attack our entities which are either in the same team or aer our owner, but not op bypass cause we also want to attack ops
             if (this.getLastHurtByMob() instanceof Player player && canPlayerAccess(player, false))
                 return Optional.empty();
+            if (this.isTamed()) {
+                if (this.getLastHurtByMob() instanceof Player player && player.getUUID().equals(this.getOwnerUUID())) {
+                    return Optional.empty();
+                }
+                if (this.getLastHurtByMob() instanceof BaseDinoEntity otherDino && otherDino.isTamed() && java.util.Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
+                    return Optional.empty();
+                }
+            }
             return Optional.of(this.getLastHurtByMob());
         }
+
+        if (mode == DinoAggressionMode.AGGRESSIVE) {
+            List<LivingEntity> potentialTargets = this.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(List.of());
+            for (LivingEntity target : potentialTargets) {
+                if (target.isAlive() && this.canAttack(target)) {
+                    if (this.isTamed()) {
+                        if (target instanceof Player player && (player.getUUID().equals(this.getOwnerUUID()) || canPlayerAccess(player, false))) {
+                            continue;
+                        }
+                        if (target instanceof BaseDinoEntity otherDino && otherDino.isTamed() && java.util.Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
+                            continue;
+                        }
+                        return Optional.of(target);
+                    } else {
+                        if (target.getType() != this.getType()) {
+                            return Optional.of(target);
+                        }
+                    }
+                }
+            }
+        }
+
         return Optional.empty();
     }
 

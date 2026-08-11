@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.entity;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoAggressionMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoEquipment;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttackBuilder;
@@ -134,6 +135,14 @@ public class Certosaurus extends BaseDinoEntity {
 
     @Override
     public Optional<? extends LivingEntity> findAttackTarget() {
+        DinoAggressionMode mode = this.getAggressionMode();
+        if (mode == DinoAggressionMode.PASSIVE) {
+            return Optional.empty();
+        }
+        if (mode == DinoAggressionMode.NEUTRAL) {
+            return super.findAttackTarget();
+        }
+        
         Optional<? extends LivingEntity> baseTarget = super.findAttackTarget();
         List<LivingEntity> potentialPrey = new ArrayList<>(this.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).orElse(List.of()));
         baseTarget.ifPresent(potentialPrey::addFirst);

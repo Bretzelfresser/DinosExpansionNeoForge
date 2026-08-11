@@ -6,6 +6,9 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAcquireTa
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoAttackBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoSetWalkTargetBehavior;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTargetValidatorBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTamedFollowOwnerBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTamedWanderBehavior;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.behavior.DinoTamedLookBehavior;
 import com.bretzelfresser.dinosexpansion.common.init.ModActivities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
@@ -41,6 +44,7 @@ public class DinoBrain {
     public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
+        initTamedIdleActivity(brain);
         initFightActivity(brain);
         initUnconsciousActivity(brain);
         initSleepActivity(brain);
@@ -70,6 +74,15 @@ public class DinoBrain {
                         Pair.of(new DoNothing(60, 120), 1)
                 ))),
                 Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget))
+        ));
+    }
+
+    private static void initTamedIdleActivity(Brain<BaseDinoEntity> brain) {
+        brain.addActivity(ModActivities.TAMED_IDLE.get(), ImmutableList.of(
+                Pair.of(1, DinoTamedFollowOwnerBehavior.create(1.0F)),
+                Pair.of(2, DinoTamedWanderBehavior.create(1.0F)),
+                Pair.of(3, DinoTamedLookBehavior.create(6.0F)),
+                Pair.of(4, new DoNothing(60, 120))
         ));
     }
 
@@ -109,6 +122,20 @@ public class DinoBrain {
 
     public static void updateActivity(BaseDinoEntity dino) {
         Brain<BaseDinoEntity> brain = dino.getBrain();
-        brain.setActiveActivityToFirstValid(ImmutableList.of(ModActivities.UNCONSCIOUS.get(), ModActivities.SLEEP.get(), Activity.FIGHT, Activity.IDLE));
+        if (dino.isTamed()) {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(
+                    ModActivities.UNCONSCIOUS.get(),
+                    ModActivities.SLEEP.get(),
+                    Activity.FIGHT,
+                    ModActivities.TAMED_IDLE.get()
+            ));
+        } else {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(
+                    ModActivities.UNCONSCIOUS.get(),
+                    ModActivities.SLEEP.get(),
+                    Activity.FIGHT,
+                    Activity.IDLE
+            ));
+        }
     }
 }

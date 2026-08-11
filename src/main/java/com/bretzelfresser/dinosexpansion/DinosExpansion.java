@@ -4,6 +4,8 @@ import com.bretzelfresser.dinosexpansion.common.chest.DinoChestEntry;
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.network.DinoChangeAggressionPayload;
+import com.bretzelfresser.dinosexpansion.common.network.DinoChangeOrderPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoLevelUpPayload;
 import com.bretzelfresser.dinosexpansion.common.network.OpenDinoInventoryPayload;
@@ -110,6 +112,16 @@ public class DinosExpansion {
                 PlayerTriggerAttackPayload.TYPE,
                 PlayerTriggerAttackPayload.STREAM_CODEC,
                 PlayerTriggerAttackPayload::handle
+        );
+        registrar.playToServer(
+                DinoChangeAggressionPayload.TYPE,
+                DinoChangeAggressionPayload.STREAM_CODEC,
+                DinoChangeAggressionPayload::handle
+        );
+        registrar.playToServer(
+                DinoChangeOrderPayload.TYPE,
+                DinoChangeOrderPayload.STREAM_CODEC,
+                DinoChangeOrderPayload::handle
         );
         registrar.playToClient(
                 DinoEquipmentSyncPayload.TYPE,

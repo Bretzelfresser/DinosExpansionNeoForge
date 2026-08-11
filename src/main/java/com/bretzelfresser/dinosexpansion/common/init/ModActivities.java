@@ -13,6 +13,7 @@ public class ModActivities {
 
     public static final DeferredHolder<Activity, Activity> SLEEP = register("sleep");
     public static final DeferredHolder<Activity, Activity> UNCONSCIOUS = register("unconscious");
+    public static final DeferredHolder<Activity, Activity> TAMED_IDLE = register("tamed_idle");
 
 
     public static DeferredHolder<Activity, Activity> register(String name) {
