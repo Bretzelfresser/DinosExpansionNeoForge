@@ -142,6 +142,15 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         }
     }
 
+    /**
+     *
+     * @param stat the stat we want to have the max amount of points this entity can have
+     * @return the max amount of points the entity can hold for this stat, empty if there is no max amount of points
+     */
+    public OptionalInt getMaxLevelForStat(DinoStat stat) {
+        return OptionalInt.empty();
+    }
+
     public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
         return new EnumMap<>(DinoEquipment.class);
     }
@@ -354,9 +363,19 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public void distributeWildPoints(int points) {
         for (int i = 0; i < points; i++) {
-            this.addStatPoints(DinoStat.sampleWeightedRandom(this.random), 1);
+            DinoStat tmpStat;
+            do {
+                tmpStat = DinoStat.sampleWeightedRandom(this.random);
+            }while (!canUpgrade(tmpStat));
+
+            this.addStatPoints(tmpStat, 1);
         }
         this.updateAttributesFromLevels();
+    }
+
+    public boolean canUpgrade(DinoStat stat) {
+        var currentPoints = this.statPoints.getOrDefault(stat, 0);
+        return getMaxLevelForStat(stat).stream().anyMatch(i -> currentPoints < i);
     }
 
     public void updateAttributesFromLevels() {
@@ -1070,7 +1089,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 if (this.getLastHurtByMob() instanceof Player player && player.getUUID().equals(this.getOwnerUUID())) {
                     return Optional.empty();
                 }
-                if (this.getLastHurtByMob() instanceof BaseDinoEntity otherDino && otherDino.isTamed() && java.util.Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
+                if (this.getLastHurtByMob() instanceof BaseDinoEntity otherDino && otherDino.isTamed() && Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
                     return Optional.empty();
                 }
             }
@@ -1085,7 +1104,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                         if (target instanceof Player player && (player.getUUID().equals(this.getOwnerUUID()) || canPlayerAccess(player, false))) {
                             continue;
                         }
-                        if (target instanceof BaseDinoEntity otherDino && otherDino.isTamed() && java.util.Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
+                        if (target instanceof BaseDinoEntity otherDino && otherDino.isTamed() && Objects.equals(otherDino.getOwnerUUID(), this.getOwnerUUID())) {
                             continue;
                         }
                         return Optional.of(target);
