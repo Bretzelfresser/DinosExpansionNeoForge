@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class DinoTamedFollowOwnerBehavior {
-    public static OneShot<BaseDinoEntity> create(float speedModifier) {
+    public static OneShot<BaseDinoEntity<?>> create(float speedModifier) {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.registered(MemoryModuleType.WALK_TARGET),
                 instance.registered(MemoryModuleType.LOOK_TARGET)

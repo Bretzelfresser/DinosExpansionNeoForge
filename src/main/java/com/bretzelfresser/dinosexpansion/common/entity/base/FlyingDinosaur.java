@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class FlyingDinosaur extends BaseDinoEntity {
+public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDinoEntity<T> {
     private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(FlyingDinosaur.class, EntityDataSerializers.BOOLEAN);
 
     protected FlyingDinosaur(EntityType<? extends BaseDinoEntity> entityType, Level level) {

@@ -11,7 +11,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import java.util.List;
 
 public class DinoTamedLookBehavior {
-    public static OneShot<BaseDinoEntity> create(float maxDist) {
+    public static OneShot<BaseDinoEntity<?>> create(float maxDist) {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.absent(MemoryModuleType.LOOK_TARGET)
         ).apply(instance, lookTarget ->

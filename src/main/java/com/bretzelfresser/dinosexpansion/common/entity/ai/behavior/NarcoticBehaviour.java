@@ -15,11 +15,11 @@ import java.util.List;
 
 public class NarcoticBehaviour {
 
-    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold) {
+    public static OneShot<BaseDinoEntity<?>> eatNarcotics(boolean findBiggestBelowThreshold) {
         return eatNarcotics(findBiggestBelowThreshold, true);
     }
 
-    public static OneShot<BaseDinoEntity> eatNarcotics(boolean findBiggestBelowThreshold, boolean onlyWhenTaming) {
+    public static OneShot<BaseDinoEntity<?>> eatNarcotics(boolean findBiggestBelowThreshold, boolean onlyWhenTaming) {
         return BehaviorBuilder.create(instance -> instance.group(instance.registered(ModMemoryModules.UNCONSCIOUS.get())).apply(instance, (unconsciousMemory) ->
                         (serverLevel, dino, gameTime) -> {
                             IItemHandlerModifiable inventory = dino.getChestInventory();

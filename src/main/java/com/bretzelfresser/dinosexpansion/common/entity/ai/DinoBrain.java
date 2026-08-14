@@ -43,7 +43,7 @@ public class DinoBrain {
                 .add(ModMemoryModules.SLEEPING.get());
     }
 
-    public static void initCoreActivity(Brain<? extends BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity<T>> void initCoreActivity(Brain<T> brain) {
         brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
                         Pair.of(1, new LookAtTargetSink(45, 90)),
@@ -57,18 +57,19 @@ public class DinoBrain {
     /**
      * will initialize the {@link Activity#IDLE} with searching for an attackable target vial {@link BaseDinoEntity#findAttackTarget()}
      */
-    public static <T extends BaseDinoEntity> void initIdleAttackingActivity(Brain<T> brain) {
+    public static <T extends BaseDinoEntity<T>> void initIdleAttackingActivity(Brain<T> brain) {
         initIdleActivity(brain, true);
     }
 
-    /**
-     * will initialize the {@link Activity#IDLE} without searching for an attackable target vial {@link BaseDinoEntity#findAttackTarget()}
-     */
-    public static <T extends BaseDinoEntity> void initIdlePassiveActivity(Brain<T> brain) {
+    public static <T extends BaseDinoEntity<T>> void initIdlePassiveActivity(Brain<T> brain) {
         initIdleActivity(brain, false);
     }
 
-    private static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain, boolean attacking) {
+    public static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain) {
+        initIdleActivity(brain, true);
+    }
+
+    public static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain, boolean attacking) {
         brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
             builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
                     Pair.of(RandomStroll.stroll(1.0F), 2),
@@ -81,7 +82,7 @@ public class DinoBrain {
         }).build());
     }
 
-    public static void initTamedIdleActivity(Brain<? extends BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity<T>> void initTamedIdleActivity(Brain<T> brain) {
         brain.addActivity(ModActivities.TAMED_IDLE.get(), ImmutableList.of(
                 Pair.of(1, DinoTamedFollowOwnerBehavior.create(1.0F)),
                 Pair.of(2, DinoTamedWanderBehavior.create(1.0F)),
@@ -95,7 +96,7 @@ public class DinoBrain {
      *
      * @param brain
      */
-    public static void initUnconsciousActivity(Brain<? extends BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity<T>> void initUnconsciousActivity(Brain<T> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
                 Pair.of(0, NarcoticBehaviour.eatNarcotics(true)),
@@ -105,7 +106,7 @@ public class DinoBrain {
         ));
     }
 
-    public static void initSleepActivity(Brain<? extends BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity<T>> void initSleepActivity(Brain<T> brain) {
         // When unconscious, do absolutely nothing but sleep
         brain.addActivityWithConditions(ModActivities.SLEEP.get(), ImmutableList.of(
                 Pair.of(0, new DoNothing(100, 200))
@@ -114,7 +115,7 @@ public class DinoBrain {
         ));
     }
 
-    public static void initFightActivity(Brain<? extends BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity<T>> void initFightActivity(Brain<T> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, DinoSetWalkTargetBehavior.setWalkTarget(1.25F)),
                 Pair.of(1, DinoAttackBehavior.attack()),
@@ -124,8 +125,8 @@ public class DinoBrain {
         ));
     }
 
-    public static void updateActivity(BaseDinoEntity dino) {
-        Brain<BaseDinoEntity> brain = dino.getBrain();
+    public static void updateActivity(BaseDinoEntity<?> dino) {
+        Brain<?> brain = dino.getBrain();
         if (dino.isTamed()) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(
                     ModActivities.UNCONSCIOUS.get(),

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-public class DinoTargetValidatorBehavior extends Behavior<BaseDinoEntity> {
+public class DinoTargetValidatorBehavior extends Behavior<BaseDinoEntity<?>> {
     public DinoTargetValidatorBehavior() {
         super(ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT
@@ -16,7 +16,7 @@ public class DinoTargetValidatorBehavior extends Behavior<BaseDinoEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, BaseDinoEntity owner, long gameTime) {
+    protected void start(ServerLevel level, BaseDinoEntity<?> owner, long gameTime) {
         LivingEntity target = owner.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null || !target.isAlive() || target.level() != owner.level() || owner.distanceToSqr(target) > 256.0D) {
             owner.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);

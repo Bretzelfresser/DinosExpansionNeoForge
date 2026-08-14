@@ -5,6 +5,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttackBuilder;
+import com.mojang.serialization.Dynamic;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -28,7 +29,7 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
-public class Dimorphodon extends FlyingDinosaur {
+public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
     private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(Dimorphodon.class, EntityDataSerializers.BYTE);
 
     public static final DinoAttack BITE = new DinoAttackBuilder()
@@ -137,6 +138,12 @@ public class Dimorphodon extends FlyingDinosaur {
                         SensorType.NEAREST_LIVING_ENTITIES
                 )
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return DimorphodonBrain.createBrain((Brain<Dimorphodon>) this.brainProvider().makeBrain(dynamic));
     }
 
     @Override

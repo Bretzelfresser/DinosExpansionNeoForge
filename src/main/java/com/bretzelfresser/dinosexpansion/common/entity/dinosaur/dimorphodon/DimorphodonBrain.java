@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -28,7 +29,16 @@ public class DimorphodonBrain {
     }
 
     public static Brain<Dimorphodon> createBrain(Brain<Dimorphodon> brain){
-
+        DinoBrain.initCoreActivity(brain);
+        DinoBrain.initIdleActivity(brain);
+        DinoBrain.initTamedIdleActivity(brain);
+        DinoBrain.initFightActivity(brain);
+        DinoBrain.initUnconsciousActivity(brain);
+        DinoBrain.initSleepActivity(brain);
+        brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        brain.setDefaultActivity(Activity.IDLE);
+        brain.useDefaultActivity();
+        return brain;
     }
 
     public static void updateActivity(Brain<Dimorphodon> brain){

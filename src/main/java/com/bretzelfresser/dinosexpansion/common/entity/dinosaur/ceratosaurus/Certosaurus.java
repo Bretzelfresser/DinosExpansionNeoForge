@@ -14,6 +14,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-public class Certosaurus extends BaseDinoEntity {
+public class Certosaurus extends BaseDinoEntity<Certosaurus> {
 
     private static final int TRANSITION_TICKS = 2;
 
@@ -80,7 +81,7 @@ public class Certosaurus extends BaseDinoEntity {
         return stack.getItem() instanceof ProjectileWeaponItem || super.canUseItem(stack);
     }
 
-    protected static void roar(BaseDinoEntity dino, LivingEntity target) {
+    protected static void roar(BaseDinoEntity<?> dino, LivingEntity target) {
         int duration = 60 * 20;//one minute
         int amplifier = 0;
         dino.addEffect(new MobEffectInstance(ModMobEffects.CERATOSAURUS_ROAR, duration, amplifier));
@@ -122,9 +123,10 @@ public class Certosaurus extends BaseDinoEntity {
         );
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Brain<Certosaurus> getBrain() {
-        return (Brain<Certosaurus>) super.getBrain();
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return CeratosaurusBrain.makeBrain((Brain<Certosaurus>) this.brainProvider().makeBrain(dynamic));
     }
 
     @Override

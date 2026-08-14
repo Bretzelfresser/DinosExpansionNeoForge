@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.phys.Vec3;
 
 public class DinoTamedWanderBehavior {
-    public static OneShot<BaseDinoEntity> create(float speedModifier) {
+    public static OneShot<BaseDinoEntity<?>> create(float speedModifier) {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.absent(MemoryModuleType.WALK_TARGET)
         ).apply(instance, walkTarget ->

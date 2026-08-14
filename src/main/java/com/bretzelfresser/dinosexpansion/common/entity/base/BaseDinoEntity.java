@@ -68,7 +68,7 @@ import java.util.function.Predicate;
  * this class defines the basic dinosaur
  *
  */
-public abstract class BaseDinoEntity extends Animal implements GeoEntity, OwnableEntity, Saddleable {
+public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal implements GeoEntity, OwnableEntity, Saddleable {
 
     /**
      * the name of the controller where all the attack animations will be triggered
@@ -670,16 +670,13 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return player.isSprinting() ? baseSpeed : baseSpeed * 0.5F;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
-        return CeratosaurusBrain.makeBrain((Brain<Certosaurus>) this.brainProvider().makeBrain(dynamic));
-    }
+    protected abstract Brain<?> makeBrain(Dynamic<?> dynamic);
 
     @SuppressWarnings("unchecked")
     @Override
-    public Brain<BaseDinoEntity> getBrain() {
-        return (Brain<BaseDinoEntity>) super.getBrain();
+    public Brain<T> getBrain() {
+        return (Brain<T>) super.getBrain();
     }
 
     @Override

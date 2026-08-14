@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 
 public class DinoSetWalkTargetBehavior {
-    public static OneShot<BaseDinoEntity> setWalkTarget(float speedModifier) {
+    public static OneShot<BaseDinoEntity<?>> setWalkTarget(float speedModifier) {
         return BehaviorBuilder.create(instance -> instance.group(
                 instance.present(MemoryModuleType.ATTACK_TARGET),
                 instance.registered(MemoryModuleType.WALK_TARGET)

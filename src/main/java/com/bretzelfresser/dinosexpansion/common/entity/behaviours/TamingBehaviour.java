@@ -10,9 +10,9 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import java.util.*;
 
 public class TamingBehaviour {
-    private final BaseDinoEntity dino;
+    private final BaseDinoEntity<?> dino;
 
-    public TamingBehaviour(BaseDinoEntity dino) {
+    public TamingBehaviour(BaseDinoEntity<?> dino) {
         this.dino = dino;
     }
 

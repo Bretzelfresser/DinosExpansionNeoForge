@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
 import java.util.Optional;
 
-public class DinoAcquireTargetBehavior extends Behavior<BaseDinoEntity> {
+public class DinoAcquireTargetBehavior extends Behavior<BaseDinoEntity<?>> {
     public DinoAcquireTargetBehavior() {
         super(ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT
@@ -18,7 +18,7 @@ public class DinoAcquireTargetBehavior extends Behavior<BaseDinoEntity> {
     }
 
     @Override
-    protected void start(ServerLevel level, BaseDinoEntity owner, long gameTime) {
+    protected void start(ServerLevel level, BaseDinoEntity<?> owner, long gameTime) {
         Optional<? extends LivingEntity> targetOpt = owner.findAttackTarget();
         targetOpt.ifPresent(livingEntity -> owner.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, livingEntity));
 

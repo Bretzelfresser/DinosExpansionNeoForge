@@ -18,7 +18,7 @@ public class DinoAttackBehavior {
     /**
      * chooses an attack from {@link BaseDinoEntity#getAvailableAttacks()} which is suitable and performs this attack
      */
-    public static OneShot<BaseDinoEntity> attack() {
+    public static OneShot<BaseDinoEntity<?>> attack() {
         return BehaviorBuilder.create(instance -> instance.group(instance.present(MemoryModuleType.ATTACK_TARGET), instance.registered(MemoryModuleType.LOOK_TARGET)).apply(instance, (attacktarget, lookTarget) ->
                 (level, dino, gameTime) -> {
                     if (!dino.canMove())
@@ -41,7 +41,7 @@ public class DinoAttackBehavior {
     }
 
     @Nullable
-    private static DinoAttack chooseAttack(BaseDinoEntity owner, LivingEntity target) {
+    private static DinoAttack chooseAttack(BaseDinoEntity<?> owner, LivingEntity target) {
         List<DinoAttack> usableAttacks = new ArrayList<>();
         for (DinoAttack attack : owner.getAvailableAttacks()) {
             if (!owner.isAttackOnCooldown(attack.getName()) && attack.canUse(owner, target)) {
@@ -54,7 +54,7 @@ public class DinoAttackBehavior {
         return chooseAttackByWeight(usableAttacks, owner, target);
     }
 
-    private static DinoAttack chooseAttackByWeight(List<DinoAttack> usableAttacks, BaseDinoEntity owner, LivingEntity target) {
+    private static DinoAttack chooseAttackByWeight(List<DinoAttack> usableAttacks, BaseDinoEntity<?> owner, LivingEntity target) {
         usableAttacks.sort(Comparator.<DinoAttack>comparingDouble(a -> a.getSelectionWeight(owner, target)).reversed());
         return usableAttacks.getFirst();
 

@@ -12,11 +12,11 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
  */
 public class SleepBehaviour {
 
-    protected final BaseDinoEntity dino;
+    protected final BaseDinoEntity<?> dino;
     protected SleepRhythm rhythm;
     private int sleepCooldown = 0;
 
-    public SleepBehaviour(BaseDinoEntity dino, SleepRhythm rhythm) {
+    public SleepBehaviour(BaseDinoEntity<?> dino, SleepRhythm rhythm) {
         this.dino = dino;
         this.rhythm = rhythm;
     }
