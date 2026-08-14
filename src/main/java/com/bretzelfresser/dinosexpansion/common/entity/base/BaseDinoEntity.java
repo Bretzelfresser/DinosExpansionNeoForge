@@ -380,7 +380,8 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
 
     public boolean canUpgrade(DinoStat stat) {
         var currentPoints = this.statPoints.getOrDefault(stat, 0);
-        return getMaxLevelForStat(stat).stream().anyMatch(i -> currentPoints < i);
+        var maxLevelOpt = getMaxLevelForStat(stat);
+        return maxLevelOpt.isEmpty() || currentPoints < maxLevelOpt.getAsInt();
     }
 
     public void updateAttributesFromLevels() {
