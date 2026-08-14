@@ -151,6 +151,10 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
         return OptionalInt.empty();
     }
 
+    /**
+     *
+     * @return a map for each equipment the entity can hold and a predicate which will validate the items which can go inside this equipment slot
+     */
     public EnumMap<DinoEquipment, Predicate<ItemStack>> getEquipments() {
         return new EnumMap<>(DinoEquipment.class);
     }
