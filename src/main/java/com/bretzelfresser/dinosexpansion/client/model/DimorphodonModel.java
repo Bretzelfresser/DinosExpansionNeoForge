@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.client.model;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.common.entity.Dimorphodon;
+import com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon.Dimorphodon;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.GeoModel;
 

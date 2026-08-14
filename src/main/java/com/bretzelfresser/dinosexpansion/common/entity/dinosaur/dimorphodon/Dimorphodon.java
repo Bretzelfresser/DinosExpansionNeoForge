@@ -1,7 +1,6 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
-import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
@@ -15,7 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
@@ -25,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;

@@ -14,6 +14,7 @@ import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.Util;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -41,7 +42,7 @@ public class DinoBrain {
                 .add(ModMemoryModules.SLEEPING.get());
     }
 
-    public static Brain<?> makeBrain(Brain<BaseDinoEntity> brain) {
+    public static <T extends BaseDinoEntity> Brain<T> makeBrain(Brain<T> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
         initTamedIdleActivity(brain);
@@ -54,7 +55,7 @@ public class DinoBrain {
         return brain;
     }
 
-    private static void initCoreActivity(Brain<BaseDinoEntity> brain) {
+    public static void initCoreActivity(Brain<? extends BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
                         Pair.of(1, new LookAtTargetSink(45, 90)),
@@ -66,18 +67,20 @@ public class DinoBrain {
         );
     }
 
-    private static void initIdleActivity(Brain<BaseDinoEntity> brain) {
-        brain.addActivity(Activity.IDLE, ImmutableList.of(
-                Pair.of(1, new RunOne<>(ImmutableList.of(
-                        Pair.of(RandomStroll.stroll(1.0F), 2),
-                        Pair.of(SetEntityLookTarget.create(6.0F), 1),
-                        Pair.of(new DoNothing(60, 120), 1)
-                ))),
-                Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget))
-        ));
+    public static void initIdleActivity(Brain<? extends BaseDinoEntity> brain, boolean attacking) {
+        brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, Behavior<? extends BaseDinoEntity>>>builder(), builder-> {
+            builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
+                    Pair.of(RandomStroll.stroll(1.0F), 2),
+                    Pair.of(SetEntityLookTarget.create(6.0F), 1),
+                    Pair.of(new DoNothing(60, 120), 1)
+            ))));
+            if (attacking) {
+                builder.add(Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget)));
+            }
+        }).build());
     }
 
-    private static void initTamedIdleActivity(Brain<BaseDinoEntity> brain) {
+    public static void initTamedIdleActivity(Brain<? extends BaseDinoEntity> brain) {
         brain.addActivity(ModActivities.TAMED_IDLE.get(), ImmutableList.of(
                 Pair.of(1, DinoTamedFollowOwnerBehavior.create(1.0F)),
                 Pair.of(2, DinoTamedWanderBehavior.create(1.0F)),
@@ -91,7 +94,7 @@ public class DinoBrain {
      *
      * @param brain
      */
-    public static void initUnconsciousActivity(Brain<BaseDinoEntity> brain) {
+    public static void initUnconsciousActivity(Brain<? extends BaseDinoEntity> brain) {
         // When unconscious, eat narcotics if low torpor, eat preferred food if hungry, otherwise do nothing
         brain.addActivityWithConditions(ModActivities.UNCONSCIOUS.get(), ImmutableList.of(
                 Pair.of(0, NarcoticBehaviour.eatNarcotics(true)),
@@ -101,7 +104,7 @@ public class DinoBrain {
         ));
     }
 
-    public static void initSleepActivity(Brain<BaseDinoEntity> brain) {
+    public static void initSleepActivity(Brain<? extends BaseDinoEntity> brain) {
         // When unconscious, do absolutely nothing but sleep
         brain.addActivityWithConditions(ModActivities.SLEEP.get(), ImmutableList.of(
                 Pair.of(0, new DoNothing(100, 200))
@@ -110,7 +113,7 @@ public class DinoBrain {
         ));
     }
 
-    public static void initFightActivity(Brain<BaseDinoEntity> brain) {
+    public static void initFightActivity(Brain<? extends BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, DinoSetWalkTargetBehavior.setWalkTarget(1.25F)),
                 Pair.of(1, DinoAttackBehavior.attack()),
@@ -120,22 +123,5 @@ public class DinoBrain {
         ));
     }
 
-    public static void updateActivity(BaseDinoEntity dino) {
-        Brain<BaseDinoEntity> brain = dino.getBrain();
-        if (dino.isTamed()) {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(
-                    ModActivities.UNCONSCIOUS.get(),
-                    ModActivities.SLEEP.get(),
-                    Activity.FIGHT,
-                    ModActivities.TAMED_IDLE.get()
-            ));
-        } else {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(
-                    ModActivities.UNCONSCIOUS.get(),
-                    ModActivities.SLEEP.get(),
-                    Activity.FIGHT,
-                    Activity.IDLE
-            ));
-        }
-    }
+
 }

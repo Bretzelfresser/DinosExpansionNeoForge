@@ -1,4 +1,4 @@
-package com.bretzelfresser.dinosexpansion.common.entity;
+package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.ceratosaurus;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
@@ -19,7 +19,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
@@ -129,7 +128,7 @@ public class Certosaurus extends BaseDinoEntity {
         this.getBrain().tick((ServerLevel) this.level(), this);
         this.level().getProfiler().pop();
 
-        DinoBrain.updateActivity(this);
+        CeratosaurusBrain.updateActivity(this);
         super.customServerAiStep();
     }
 
