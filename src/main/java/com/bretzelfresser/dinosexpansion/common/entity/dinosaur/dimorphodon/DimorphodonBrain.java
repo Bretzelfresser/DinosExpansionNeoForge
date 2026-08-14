@@ -3,7 +3,6 @@ package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -11,7 +10,7 @@ import net.minecraft.world.entity.schedule.Activity;
 
 public class DimorphodonBrain {
 
-    public static Brain.Provider<?> makeBrainProvider(){
+    public static Brain.Provider<?> makeBrainProvider() {
         return Brain.provider(
                 DinoBrain.baseDinoMemoryModules()
                         .add(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
@@ -28,7 +27,7 @@ public class DimorphodonBrain {
         );
     }
 
-    public static Brain<Dimorphodon> createBrain(Brain<Dimorphodon> brain){
+    public static Brain<Dimorphodon> createBrain(Brain<Dimorphodon> brain) {
         DinoBrain.initCoreActivity(brain);
         DinoBrain.initIdleAttackingActivity(brain);
         DinoBrain.initUnconsciousActivity(brain);
@@ -39,7 +38,7 @@ public class DimorphodonBrain {
         return brain;
     }
 
-    public static void updateActivity(Dimorphodon entity){
+    public static void updateActivity(Dimorphodon entity) {
         entity.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
     }
 
