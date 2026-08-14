@@ -152,7 +152,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
         this.getBrain().tick((ServerLevel) this.level(), this);
         this.level().getProfiler().pop();
 
-        DinoBrain.updateActivity(this);
+        DimorphodonBrain.updateActivity(this);
         super.customServerAiStep();
     }
 

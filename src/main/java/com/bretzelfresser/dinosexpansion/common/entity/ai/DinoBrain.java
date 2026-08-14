@@ -43,6 +43,10 @@ public class DinoBrain {
                 .add(ModMemoryModules.SLEEPING.get());
     }
 
+    /**
+     * this is the default core activity, this core activit wont execute when either sleeping or unconscious doe to having the look wim and walk behaviors
+     * this makes the entity actually drown when knocked out or sleeping inside water
+     */
     public static <T extends BaseDinoEntity<T>> void initCoreActivity(Brain<T> brain) {
         brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
@@ -60,16 +64,14 @@ public class DinoBrain {
     public static <T extends BaseDinoEntity<T>> void initIdleAttackingActivity(Brain<T> brain) {
         initIdleActivity(brain, true);
     }
-
+    /**
+     * will initialize the {@link Activity#IDLE} without searching for an attackable target vial {@link BaseDinoEntity#findAttackTarget()}
+     */
     public static <T extends BaseDinoEntity<T>> void initIdlePassiveActivity(Brain<T> brain) {
         initIdleActivity(brain, false);
     }
 
-    public static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain) {
-        initIdleActivity(brain, true);
-    }
-
-    public static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain, boolean attacking) {
+    private static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain, boolean attacking) {
         brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
             builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
                     Pair.of(RandomStroll.stroll(1.0F), 2),
@@ -82,6 +84,9 @@ public class DinoBrain {
         }).build());
     }
 
+    /**
+     * basic tamed idle, this will all of the normal goals like wandering, following owner etc. behind the orders given to the entity
+     */
     public static <T extends BaseDinoEntity<T>> void initTamedIdleActivity(Brain<T> brain) {
         brain.addActivity(ModActivities.TAMED_IDLE.get(), ImmutableList.of(
                 Pair.of(1, DinoTamedFollowOwnerBehavior.create(1.0F)),
@@ -106,6 +111,10 @@ public class DinoBrain {
         ));
     }
 
+    /**
+     * basically an activity which will be used for sleeping, u can add custom behaviors while sleeping here
+     * but this will just make the entity do nothing
+     */
     public static <T extends BaseDinoEntity<T>> void initSleepActivity(Brain<T> brain) {
         // When unconscious, do absolutely nothing but sleep
         brain.addActivityWithConditions(ModActivities.SLEEP.get(), ImmutableList.of(
@@ -115,6 +124,10 @@ public class DinoBrain {
         ));
     }
 
+    /**
+     * this will initialize the fight activity, with basic behaviors, like wakling to the target,
+     * then choosing one of the registered attacks, and even stopping attacking when the attack target becomes invalid
+     */
     public static <T extends BaseDinoEntity<T>> void initFightActivity(Brain<T> brain) {
         brain.addActivityWithConditions(Activity.FIGHT, ImmutableList.of(
                 Pair.of(0, DinoSetWalkTargetBehavior.setWalkTarget(1.25F)),
@@ -125,6 +138,10 @@ public class DinoBrain {
         ));
     }
 
+    /**
+     * actually this is just kept there as a blueprint, i dont think this will actually be used ever again
+     * @param dino
+     */
     public static void updateActivity(BaseDinoEntity<?> dino) {
         Brain<?> brain = dino.getBrain();
         if (dino.isTamed()) {

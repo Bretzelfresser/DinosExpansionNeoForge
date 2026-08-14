@@ -30,9 +30,7 @@ public class DimorphodonBrain {
 
     public static Brain<Dimorphodon> createBrain(Brain<Dimorphodon> brain){
         DinoBrain.initCoreActivity(brain);
-        DinoBrain.initIdleActivity(brain);
-        DinoBrain.initTamedIdleActivity(brain);
-        DinoBrain.initFightActivity(brain);
+        DinoBrain.initIdleAttackingActivity(brain);
         DinoBrain.initUnconsciousActivity(brain);
         DinoBrain.initSleepActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -41,8 +39,8 @@ public class DimorphodonBrain {
         return brain;
     }
 
-    public static void updateActivity(Brain<Dimorphodon> brain){
-        brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+    public static void updateActivity(Dimorphodon entity){
+        entity.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
     }
 
 }
