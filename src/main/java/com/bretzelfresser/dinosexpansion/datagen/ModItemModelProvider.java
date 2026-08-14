@@ -15,7 +15,6 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        //basicItem(ModItems.TEST_DINO_SADDLE.get());
         basicItem(ModItems.NARCOTICS.get());
         basicItem(ModItems.TRANQUILIZER_ARROW.get());
         kibble(ModItems.BASIC_KIBBLE);
@@ -24,13 +23,12 @@ public class ModItemModelProvider extends ItemModelProvider {
         kibble(ModItems.SUPERIOR_KIBBLE);
         kibble(ModItems.EXCEPTIONAL_KIBBLE);
         kibble(ModItems.EXTRAORDINARY_KIBBLE);
-        dimorphodonMeat(ModItems.RAW_DIMORPHODON, "raw_dimorphodon_meat");
-        dimorphodonMeat(ModItems.COOKED_DIMORPHODON, "cooked_dimorphodon_meat");
+        dimorphodonWithPath(ModItems.RAW_DIMORPHODON, "raw_dimorphodon_meat");
+        dimorphodonWithPath(ModItems.COOKED_DIMORPHODON, "cooked_dimorphodon_meat");
     }
 
-    private void dimorphodonMeat(Holder<Item> holder, String textureName) {
-        withExistingParent(holder.unwrapKey().get().location().getPath(), mcLoc("item/generated"))
-                .texture("layer0", modLoc("item/dimorphodon/" + textureName));
+    private void dimorphodonWithPath(Holder<Item> holder, String textureName) {
+        itemWithPath(holder, "dimorphodon/" + textureName);
     }
 
     private void kibble(Holder<Item> holder) {
@@ -40,6 +38,12 @@ public class ModItemModelProvider extends ItemModelProvider {
     public void itemWithPrefixPath(Holder<Item> holder, String prefixPath) {
         holder.unwrapKey().ifPresent(key -> {
             basicItem(key.location().withPrefix(prefixPath + "/"));
+        });
+    }
+
+    public void itemWithPath(Holder<Item> holder, String path) {
+        holder.unwrapKey().ifPresent(key -> {
+            basicItem(key.location().withPath(path));
         });
     }
 }

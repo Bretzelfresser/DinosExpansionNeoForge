@@ -6,8 +6,6 @@ import com.bretzelfresser.dinosexpansion.config.Config;
 import com.bretzelfresser.dinosexpansion.util.NbtUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
 public class DinoFoodBehaviour implements INBTSerializable<CompoundTag> {
@@ -20,7 +18,6 @@ public class DinoFoodBehaviour implements INBTSerializable<CompoundTag> {
         this.dino = dino;
     }
 
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public void tick() {
         naturalRegeneration();
         foodConsumption();
@@ -64,7 +61,6 @@ public class DinoFoodBehaviour implements INBTSerializable<CompoundTag> {
      *
      * @param hungerToReduce the amount of hunger we want to reduce to, this will buffer the hunger to reduce it once every tick
      */
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public void addHunger(float hungerToReduce) {
         this.foodToEat += hungerToReduce;
     }

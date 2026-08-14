@@ -219,6 +219,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
                 .add(ModAttributes.MAX_STAMINA, 100.0D)
                 .add(ModAttributes.STAMINA_REGENERATION, 0.2D)
                 .add(ModAttributes.SPRINT_STAMINA_COST, 0.02D)
+                .add(ModAttributes.HEALTH_REGEN_HUNGER_COST)
                 ;
     }
 

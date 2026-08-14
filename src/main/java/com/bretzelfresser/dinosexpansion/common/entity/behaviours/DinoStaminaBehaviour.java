@@ -3,8 +3,6 @@ package com.bretzelfresser.dinosexpansion.common.entity.behaviours;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.bretzelfresser.dinosexpansion.common.init.ModAttributes;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class DinoStaminaBehaviour {
 
@@ -18,7 +16,6 @@ public class DinoStaminaBehaviour {
     /**
      * @param addition the amount we want to add, can be negative to reduce stamina
      */
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public void addStamina(float addition) {
         if (addition < 0) {
             this.staminaConsumedThisTick = true;
@@ -30,7 +27,6 @@ public class DinoStaminaBehaviour {
         return addition == 0 || (addition > -dino.getStamina() && addition < dino.getMissingStamina());
     }
 
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public boolean consumeStamina(float amount) {
         if (amount <= 0) {
             return true;
@@ -43,7 +39,6 @@ public class DinoStaminaBehaviour {
         return false;
     }
 
-    @OnlyIn(Dist.DEDICATED_SERVER)
     public void tick() {
         if (this.dino.isSprinting() && !this.dino.isUnconscious() && !this.dino.isSleeping()) {
             float sprintStamina = (float) this.dino.getAttributeValue(ModAttributes.SPRINT_STAMINA_COST);
