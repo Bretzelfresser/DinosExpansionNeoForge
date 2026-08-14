@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.client.gui.DinoScreen;
 import com.bretzelfresser.dinosexpansion.client.key.ModKeyBindings;
 import com.bretzelfresser.dinosexpansion.client.particle.SleepingParticle;
 import com.bretzelfresser.dinosexpansion.client.renderer.CertosaurusRenderer;
+import com.bretzelfresser.dinosexpansion.client.renderer.DimorphodonRenderer;
 import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import com.bretzelfresser.dinosexpansion.common.init.ModEntities;
 import com.bretzelfresser.dinosexpansion.common.init.ModMenus;
@@ -80,6 +81,7 @@ public class DinosExpansionClient {
     @SubscribeEvent
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.CERATOSAURS.get(), CertosaurusRenderer::new);
+        event.registerEntityRenderer(ModEntities.DIMORPHODON.get(), DimorphodonRenderer::new);
         event.registerEntityRenderer(ModEntities.TRANQUILIZER_ARROW.get(),
                 manager -> new ArrowRenderer<>(manager) {
                     @Override

@@ -28,6 +28,7 @@ public class DinoFoods {
     );
 
     public static final ResourceKey<DinoFoodEntry> CERATOSDAURUS_FOOD = create("ceratosaurus_food");
+    public static final ResourceKey<DinoFoodEntry> DIMORPHODON_FOOD = create("dimorphodon_food");
 
 
     public static ResourceKey<DinoFoodEntry> create(String name) {
@@ -62,6 +63,15 @@ public class DinoFoods {
         context.register(CERATOSDAURUS_FOOD, addKibble(new DinoFoodEntry.Builder(ModEntities.CERATOSAURS.getKey())
                 .addFood(Items.BEEF, 10.0F, 0.05F)
                 .addFood(Items.COOKED_BEEF, 15.0F, 0.10F), ModItems.SUPERIOR_KIBBLE)
+                .build()
+        );
+        context.register(DIMORPHODON_FOOD, addKibble(new DinoFoodEntry.Builder(ModEntities.DIMORPHODON.getKey())
+                .addFood(Items.COD, 5.0F, 0.05F)
+                .addFood(Items.COOKED_COD, 10.0F, 0.10F)
+                .addFood(Items.SALMON, 5.0F, 0.05F)
+                .addFood(Items.COOKED_SALMON, 10.0F, 0.10F)
+                .addFood(Items.RABBIT, 4.0F, 0.04F)
+                .addFood(Items.COOKED_RABBIT, 8.0F, 0.08F), ModItems.SIMPLE_KIBBLE)
                 .build()
         );
     }

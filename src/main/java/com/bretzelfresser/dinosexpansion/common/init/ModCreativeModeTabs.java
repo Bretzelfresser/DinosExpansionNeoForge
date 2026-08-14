@@ -29,6 +29,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SUPERIOR_KIBBLE.get());
                         output.accept(ModItems.EXCEPTIONAL_KIBBLE.get());
                         output.accept(ModItems.EXTRAORDINARY_KIBBLE.get());
+                        output.accept(ModItems.RAW_DIMORPHODON.get());
+                        output.accept(ModItems.COOKED_DIMORPHODON.get());
                     })
                     .build());
 

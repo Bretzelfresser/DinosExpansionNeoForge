@@ -73,10 +73,13 @@ public class ModLanguageProvider extends LanguageProvider {
         add(ModItems.SUPERIOR_KIBBLE.get(), "Superior Kibble");
         add(ModItems.EXCEPTIONAL_KIBBLE.get(), "Exceptional Kibble");
         add(ModItems.EXTRAORDINARY_KIBBLE.get(), "Extraordinary Kibble");
+        add(ModItems.RAW_DIMORPHODON.get(), "Raw Dimorphodon Meat");
+        add(ModItems.COOKED_DIMORPHODON.get(), "Cooked Dimorphodon Meat");
     }
 
     protected void entities() {
         add(ModEntities.CERATOSAURS.get(), "Ceratosaurus");
+        add(ModEntities.DIMORPHODON.get(), "Dimorphodon");
     }
 
     protected void generica() {

@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -137,6 +138,9 @@ public class DinosExpansion {
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.CERATOSAURS.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
+        event.put(ModEntities.DIMORPHODON.get(), BaseDinoEntity.createDinoDefaultAttributes()
+                .add(Attributes.FLYING_SPEED, 0.25D)
+                .build());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

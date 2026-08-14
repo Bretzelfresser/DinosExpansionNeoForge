@@ -26,5 +26,8 @@ public class ModItemTagsProvider extends ItemTagsProvider {
                 .add(Items.BOW)
                 .add(Items.CROSSBOW);
         tag(ItemTags.ARROWS).add(ModItems.TRANQUILIZER_ARROW.getKey());
+        tag(ItemTags.MEAT)
+                .add(ModItems.RAW_DIMORPHODON.getKey())
+                .add(ModItems.COOKED_DIMORPHODON.getKey());
     }
 }

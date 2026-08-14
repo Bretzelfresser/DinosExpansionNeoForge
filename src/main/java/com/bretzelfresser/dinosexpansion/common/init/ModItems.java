@@ -3,7 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.item.TranquilizerArrowItem;
 import com.bretzelfresser.dinosexpansion.common.item.ZoomItem;
-import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -43,4 +43,20 @@ public class ModItems {
 
     public static final DeferredItem<Item> EXTRAORDINARY_KIBBLE = ITEMS.register("extraordinary_kibble",
             () -> new Item(new Item.Properties()));
+
+    public static final FoodProperties RAW_DIMORPHODON_FOOD = new FoodProperties.Builder()
+            .nutrition(2)
+            .saturationModifier(0.3F)
+            .build();
+
+    public static final FoodProperties COOKED_DIMORPHODON_FOOD = new FoodProperties.Builder()
+            .nutrition(6)
+            .saturationModifier(0.8F)
+            .build();
+
+    public static final DeferredItem<Item> RAW_DIMORPHODON = ITEMS.register("raw_dimorphodon",
+            () -> new Item(new Item.Properties().food(RAW_DIMORPHODON_FOOD)));
+
+    public static final DeferredItem<Item> COOKED_DIMORPHODON = ITEMS.register("cooked_dimorphodon",
+            () -> new Item(new Item.Properties().food(COOKED_DIMORPHODON_FOOD)));
 }

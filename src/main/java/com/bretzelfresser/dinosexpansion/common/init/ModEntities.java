@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.init;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.entity.Certosaurus;
+import com.bretzelfresser.dinosexpansion.common.entity.Dimorphodon;
 import com.bretzelfresser.dinosexpansion.common.entity.misc.TranquilizerArrow;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.*;
@@ -19,6 +20,11 @@ public class ModEntities {
                     .sized(1.0F, 2.0F)
                     .eyeHeight(1.9f)
                     .attach(EntityAttachment.PASSENGER, new Vec3(0, 2.0f, -0.2f)));
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Dimorphodon>> DIMORPHODON = register("dimorphodon",
+            EntityType.Builder.of(Dimorphodon::new, MobCategory.CREATURE)
+                    .sized(0.8F, 0.8F)
+                    .eyeHeight(0.6f));
 
     public static final DeferredHolder<EntityType<?>, EntityType<TranquilizerArrow>> TRANQUILIZER_ARROW = register("tranquilizer_arrow",
             EntityType.Builder.<TranquilizerArrow>of(TranquilizerArrow::new, MobCategory.MISC)

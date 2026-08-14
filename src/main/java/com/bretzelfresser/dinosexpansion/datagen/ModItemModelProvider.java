@@ -24,6 +24,13 @@ public class ModItemModelProvider extends ItemModelProvider {
         kibble(ModItems.SUPERIOR_KIBBLE);
         kibble(ModItems.EXCEPTIONAL_KIBBLE);
         kibble(ModItems.EXTRAORDINARY_KIBBLE);
+        dimorphodonMeat(ModItems.RAW_DIMORPHODON, "raw_dimorphodon_meat");
+        dimorphodonMeat(ModItems.COOKED_DIMORPHODON, "cooked_dimorphodon_meat");
+    }
+
+    private void dimorphodonMeat(Holder<Item> holder, String textureName) {
+        withExistingParent(holder.unwrapKey().get().location().getPath(), mcLoc("item/generated"))
+                .texture("layer0", modLoc("item/dimorphodon/" + textureName));
     }
 
     private void kibble(Holder<Item> holder) {
