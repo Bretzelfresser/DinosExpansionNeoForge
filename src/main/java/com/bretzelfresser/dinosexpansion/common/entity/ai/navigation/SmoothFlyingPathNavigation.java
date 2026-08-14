@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.navigation;
 
+import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
@@ -21,8 +22,9 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         int currentIndex = this.path.getNextNodeIndex();
         int pathLength = this.path.getNodeCount();
 
-        // Calculate a dynamic acceptance threshold based on entity size
-        double threshold = Math.max(3.0D, this.mob.getBbWidth() * 2.0D);
+        // Calculate a dynamic acceptance threshold based on whether the entity is flying or walking
+        boolean isFlying = this.mob instanceof FlyingDinosaur<?> flyingDino && flyingDino.isFlying();
+        double threshold = isFlying ? Math.max(2.0D, this.mob.getBbWidth() * 1.5D) : Math.max(1.0D, this.mob.getBbWidth());
         double thresholdSqr = threshold * threshold;
 
         // Check if we are close enough to any of the upcoming nodes to skip them
