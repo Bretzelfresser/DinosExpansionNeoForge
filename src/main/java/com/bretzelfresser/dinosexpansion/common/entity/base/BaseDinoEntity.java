@@ -222,6 +222,7 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
                 .add(ModAttributes.STAMINA_REGENERATION, 0.2D)
                 .add(ModAttributes.SPRINT_STAMINA_COST, 0.02D)
                 .add(ModAttributes.HEALTH_REGEN_HUNGER_COST)
+                .add(ModAttributes.STAMINA_REGEN_HUNGER_COST)
                 ;
     }
 

@@ -1,9 +1,13 @@
 package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.Util;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
@@ -29,7 +33,7 @@ public class DimorphodonBrain {
 
     public static Brain<Dimorphodon> createBrain(Brain<Dimorphodon> brain) {
         DinoBrain.initCoreActivity(brain);
-        DinoBrain.initIdleAttackingActivity(brain);
+        initIdleActivity(brain);
         DinoBrain.initUnconsciousActivity(brain);
         DinoBrain.initSleepActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -40,6 +44,17 @@ public class DimorphodonBrain {
 
     public static void updateActivity(Dimorphodon entity) {
         entity.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+    }
+
+    private static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain) {
+        brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
+            builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
+                    Pair.of(RandomStroll.fly(1.0F), 2),
+                    Pair.of(SetEntityLookTarget.create(6.0F), 1),
+                    Pair.of(new DoNothing(60, 120), 1)
+            ))));
+            builder.add(Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget)));
+        }).build());
     }
 
 }
