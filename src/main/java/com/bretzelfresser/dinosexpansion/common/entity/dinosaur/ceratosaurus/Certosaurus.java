@@ -123,6 +123,11 @@ public class Certosaurus extends BaseDinoEntity {
     }
 
     @Override
+    public Brain<Certosaurus> getBrain() {
+        return (Brain<Certosaurus>) super.getBrain();
+    }
+
+    @Override
     protected void customServerAiStep() {
         this.level().getProfiler().push("certosaurusBrain");
         this.getBrain().tick((ServerLevel) this.level(), this);

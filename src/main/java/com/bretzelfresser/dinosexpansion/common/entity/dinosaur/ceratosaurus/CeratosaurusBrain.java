@@ -13,7 +13,7 @@ public class CeratosaurusBrain {
 
     public static Brain<Certosaurus> makeBrain(Brain<Certosaurus> brain){
         DinoBrain.initCoreActivity(brain);
-        DinoBrain.initIdleActivity(brain);
+        DinoBrain.initIdleAttackingActivity(brain);
         DinoBrain.initTamedIdleActivity(brain);
         DinoBrain.initFightActivity(brain);
         DinoBrain.initUnconsciousActivity(brain);

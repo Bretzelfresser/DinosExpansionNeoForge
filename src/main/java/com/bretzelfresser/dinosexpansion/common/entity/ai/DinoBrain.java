@@ -43,19 +43,6 @@ public class DinoBrain {
                 .add(ModMemoryModules.SLEEPING.get());
     }
 
-    public static <T extends BaseDinoEntity> Brain<T> makeBrain(Brain<T> brain) {
-        initCoreActivity(brain);
-        initIdleActivity(brain);
-        initTamedIdleActivity(brain);
-        initFightActivity(brain);
-        initUnconsciousActivity(brain);
-        initSleepActivity(brain);
-        brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        brain.setDefaultActivity(Activity.IDLE);
-        brain.useDefaultActivity();
-        return brain;
-    }
-
     public static void initCoreActivity(Brain<? extends BaseDinoEntity> brain) {
         brain.addActivityWithConditions(Activity.CORE, ImmutableList.of(
                         Pair.of(0, new Swim(0.8F)),
@@ -67,12 +54,21 @@ public class DinoBrain {
                 )
         );
     }
-
-    public static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain) {
+    /**
+     * will initialize the {@link Activity#IDLE} with searching for an attackable target vial {@link BaseDinoEntity#findAttackTarget()}
+     */
+    public static <T extends BaseDinoEntity> void initIdleAttackingActivity(Brain<T> brain) {
         initIdleActivity(brain, true);
     }
 
-    public static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain, boolean attacking) {
+    /**
+     * will initialize the {@link Activity#IDLE} without searching for an attackable target vial {@link BaseDinoEntity#findAttackTarget()}
+     */
+    public static <T extends BaseDinoEntity> void initIdlePassiveActivity(Brain<T> brain) {
+        initIdleActivity(brain, false);
+    }
+
+    private static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain, boolean attacking) {
         brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
             builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
                     Pair.of(RandomStroll.stroll(1.0F), 2),

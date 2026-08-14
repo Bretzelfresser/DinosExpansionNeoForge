@@ -5,6 +5,8 @@ import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.behaviours.*;
+import com.bretzelfresser.dinosexpansion.common.entity.dinosaur.ceratosaurus.CeratosaurusBrain;
+import com.bretzelfresser.dinosexpansion.common.entity.dinosaur.ceratosaurus.Certosaurus;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
@@ -671,7 +673,7 @@ public abstract class BaseDinoEntity extends Animal implements GeoEntity, Ownabl
     @SuppressWarnings("unchecked")
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
-        return DinoBrain.makeBrain((Brain<BaseDinoEntity>) this.brainProvider().makeBrain(dynamic));
+        return CeratosaurusBrain.makeBrain((Brain<Certosaurus>) this.brainProvider().makeBrain(dynamic));
     }
 
     @SuppressWarnings("unchecked")
