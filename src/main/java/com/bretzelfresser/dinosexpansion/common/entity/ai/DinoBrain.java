@@ -17,6 +17,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
+import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.schedule.Activity;
@@ -67,8 +68,12 @@ public class DinoBrain {
         );
     }
 
-    public static void initIdleActivity(Brain<? extends BaseDinoEntity> brain, boolean attacking) {
-        brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, Behavior<? extends BaseDinoEntity>>>builder(), builder-> {
+    public static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain) {
+        initIdleActivity(brain, true);
+    }
+
+    public static <T extends BaseDinoEntity> void initIdleActivity(Brain<T> brain, boolean attacking) {
+        brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
             builder.add(Pair.of(1, new RunOne<>(ImmutableList.of(
                     Pair.of(RandomStroll.stroll(1.0F), 2),
                     Pair.of(SetEntityLookTarget.create(6.0F), 1),
@@ -123,5 +128,22 @@ public class DinoBrain {
         ));
     }
 
-
+    public static void updateActivity(BaseDinoEntity dino) {
+        Brain<BaseDinoEntity> brain = dino.getBrain();
+        if (dino.isTamed()) {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(
+                    ModActivities.UNCONSCIOUS.get(),
+                    ModActivities.SLEEP.get(),
+                    Activity.FIGHT,
+                    ModActivities.TAMED_IDLE.get()
+            ));
+        } else {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(
+                    ModActivities.UNCONSCIOUS.get(),
+                    ModActivities.SLEEP.get(),
+                    Activity.FIGHT,
+                    Activity.IDLE
+            ));
+        }
+    }
 }
