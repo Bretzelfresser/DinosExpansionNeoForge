@@ -6,10 +6,10 @@ import net.minecraft.util.Mth;
 
 public class DinoStaminaBehaviour {
 
-    protected final BaseDinoEntity dino;
+    protected final BaseDinoEntity<?> dino;
     private boolean staminaConsumedThisTick = false;
 
-    public DinoStaminaBehaviour(BaseDinoEntity dino) {
+    public DinoStaminaBehaviour(BaseDinoEntity<?> dino) {
         this.dino = dino;
     }
 
