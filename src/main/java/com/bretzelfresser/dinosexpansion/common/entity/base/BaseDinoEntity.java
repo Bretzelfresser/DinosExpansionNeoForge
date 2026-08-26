@@ -219,8 +219,8 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
                 .add(ModAttributes.CARRYING_CAPACITY, 4.0D)
                 .add(ModAttributes.NATURAL_REGENERATION)
                 .add(ModAttributes.MAX_STAMINA, 100.0D)
-                .add(ModAttributes.STAMINA_REGENERATION, 0.2D)
-                .add(ModAttributes.SPRINT_STAMINA_COST, 0.02D)
+                .add(ModAttributes.STAMINA_REGENERATION, 0.01D)
+                .add(ModAttributes.SPRINT_STAMINA_COST, 0.05D)
                 .add(ModAttributes.HEALTH_REGEN_HUNGER_COST)
                 .add(ModAttributes.STAMINA_REGEN_HUNGER_COST)
                 ;
@@ -634,12 +634,12 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
             this.setRot(rider.getYRot(), rider.getXRot() * 0.5F);
             this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
         }
-        this.setSprinting(rider.isSprinting());
+        this.setSprinting(canSprint() && rider.isSprinting());
     }
 
     @Override
     public boolean canSprint() {
-        return this.getStamina() > 0 && super.canSprint();
+        return this.staminaBehaviour.canSprint();
     }
 
     @Override

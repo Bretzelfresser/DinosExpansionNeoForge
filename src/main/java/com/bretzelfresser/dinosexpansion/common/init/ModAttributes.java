@@ -40,7 +40,7 @@ public class ModAttributes {
             key -> new RangedAttribute(key, 100.0D, 1.0D, 100000.0D).setSyncable(true));
 
     public static final DeferredHolder<Attribute, Attribute> STAMINA_REGENERATION = register("stamina_regeneration",
-            key -> new RangedAttribute(key, 0.2D, 0.0D, 100000.0D).setSyncable(true));
+            key -> new RangedAttribute(key, 0.01D, 0.0D, 100000.0D).setSyncable(true));
 
     public static final DeferredHolder<Attribute, Attribute> SPRINT_STAMINA_COST = register("sprint_stamina_cost",
             key -> new RangedAttribute(key, 0.02D, 0.0D, 100000.0D).setSyncable(true));

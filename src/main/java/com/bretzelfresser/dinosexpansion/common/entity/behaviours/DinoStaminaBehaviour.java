@@ -39,13 +39,20 @@ public class DinoStaminaBehaviour {
         return false;
     }
 
+
+    public boolean canSprint(){
+        var sprintStaminaCost = this.dino.getAttributeValue(ModAttributes.SPRINT_STAMINA_COST);
+        return sprintStaminaCost <= dino.getStamina();
+    }
+
     public void tick() {
         if (this.dino.isSprinting() && !this.dino.isUnconscious() && !this.dino.isSleeping()) {
             float sprintStamina = (float) this.dino.getAttributeValue(ModAttributes.SPRINT_STAMINA_COST);
             if (!consumeStamina(sprintStamina)) {
                 this.dino.setSprinting(false);
             }
-        } else if (!this.staminaConsumedThisTick && !this.dino.isUnconscious() && !this.dino.isSleeping()) {
+        }
+        if (!this.staminaConsumedThisTick && !this.dino.isUnconscious() && !this.dino.isSleeping()) {
             float currentStamina = this.dino.getStamina();
             float maxStamina = (float) this.dino.getAttributeValue(ModAttributes.MAX_STAMINA);
             if (currentStamina < maxStamina) {
