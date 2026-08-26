@@ -2,11 +2,8 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 
 import com.bretzelfresser.dinosexpansion.DinosExpansion;
 import com.bretzelfresser.dinosexpansion.common.chest.DinoChestCache;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.behaviours.*;
-import com.bretzelfresser.dinosexpansion.common.entity.dinosaur.ceratosaurus.CeratosaurusBrain;
-import com.bretzelfresser.dinosexpansion.common.entity.dinosaur.ceratosaurus.Certosaurus;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoEquipmentInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DinoInventory;
 import com.bretzelfresser.dinosexpansion.common.entity.inventory.DynamicInventory;
@@ -465,7 +462,7 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
 
         // Resolve level configs
