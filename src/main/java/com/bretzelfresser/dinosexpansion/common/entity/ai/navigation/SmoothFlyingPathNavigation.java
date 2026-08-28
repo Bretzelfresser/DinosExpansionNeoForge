@@ -7,9 +7,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
-    
-    public SmoothFlyingPathNavigation(Mob mob, Level level) {
-        super(mob, level);
+
+    protected final FlyingDinosaur<?> dino;
+
+    public SmoothFlyingPathNavigation(FlyingDinosaur<?> dino, Level level) {
+        super(dino, level);
+        this.dino = dino;
     }
 
     @Override
@@ -23,8 +26,7 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         int pathLength = this.path.getNodeCount();
 
         // Calculate a dynamic acceptance threshold based on whether the entity is flying or walking
-        boolean isFlying = this.mob instanceof FlyingDinosaur<?> flyingDino && flyingDino.isFlying();
-        double threshold = isFlying ? Math.max(2.0D, this.mob.getBbWidth() * 1.5D) : Math.max(1.0D, this.mob.getBbWidth());
+        double threshold = dino.isFlying() ? Math.max(2.0D, this.mob.getBbWidth() * 1.5D) : Math.max(1.0D, this.mob.getBbWidth());
         double thresholdSqr = threshold * threshold;
 
         // Check if we are close enough to any of the upcoming nodes to skip them

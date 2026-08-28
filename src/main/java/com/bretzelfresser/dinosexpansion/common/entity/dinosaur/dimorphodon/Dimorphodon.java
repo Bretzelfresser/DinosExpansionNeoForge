@@ -152,10 +152,10 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
             if (this.isUnconscious()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("knockout"));
             }
-            if (this.getOrderMode() == DinoOrderMode.STAY && !this.isFlying()) {
+            if (this.getOrderMode() == DinoOrderMode.STAY && this.onGround()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("sit"));
             }
-            if (this.isFlying()) {
+            if (!this.onGround()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("fly"));
             }
             return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
@@ -163,7 +163,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
 
         registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
             if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && event.isMoving()) {
-                if (this.isFlying()) {
+                if (this.onGround()) {
                     return PlayState.STOP;
                 }
                 return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));

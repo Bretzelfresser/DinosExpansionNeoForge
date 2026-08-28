@@ -134,11 +134,6 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
         });
 
         this.lookControl = new DinoLookControl(this);
-
-        // Randomize gender on server spawn
-        if (!level.isClientSide()) {
-            this.setGender(level.random.nextBoolean() ? DinoGender.MALE : DinoGender.FEMALE);
-        }
     }
 
     /**
@@ -487,6 +482,7 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
         this.setHunger((float) this.getAttributeValue(ModAttributes.MAX_HUNGER));
         this.setStamina((float) this.getAttributeValue(ModAttributes.MAX_STAMINA));
         this.setTorpor(0.0f);
+        this.setGender(level.getRandom().nextBoolean() ? DinoGender.MALE : DinoGender.FEMALE);
 
         return spawnGroupData;
     }

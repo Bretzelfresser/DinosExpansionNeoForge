@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.base;
 
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.control.FlightMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.navigation.SmoothFlyingPathNavigation;
 import net.minecraft.nbt.CompoundTag;
@@ -18,13 +19,12 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
     private static final EntityDataAccessor<Boolean> FLYING = SynchedEntityData.defineId(FlyingDinosaur.class, EntityDataSerializers.BOOLEAN);
 
     protected FlyingDinosaur(EntityType<? extends BaseDinoEntity> entityType, Level level) {
-        super(entityType, level);
-        this.moveControl = new FlightMoveControl(this);
+        this(entityType, level, 2);
     }
 
     protected FlyingDinosaur(EntityType<? extends BaseDinoEntity> entityType, Level level, int baseInventorySize) {
         super(entityType, level, baseInventorySize);
-        this.moveControl = new FlightMoveControl(this);
+        this.moveControl = new ComposedMoveControl<>(this);
     }
 
     @Override
