@@ -129,11 +129,6 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
         super.aiStep();
         if (!this.level().isClientSide()) {
             // Land if we are on the ground and not actively wanting to move upwards
-            if (this.isFlying()) {
-                if (this.onGround() && (!this.moveControl.hasWanted() || this.moveControl.getWantedY() <= this.getY() + 0.5D)) {
-                    this.setFlying(false);
-                }
-            }
         }
     }
 

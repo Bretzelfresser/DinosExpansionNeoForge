@@ -35,7 +35,7 @@ public class ComposedMoveControl<T extends BaseDinoEntity<T>> extends MoveContro
     public void tick() {
         if (flyingPredicate.test(this.mob)) {
             flyingMoveControl.tick();
-        }
-        super.tick();
+        }else
+            super.tick();
     }
 }

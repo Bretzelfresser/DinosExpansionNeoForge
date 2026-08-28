@@ -1,6 +1,8 @@
 package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.FlightMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
@@ -14,6 +16,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -78,6 +81,22 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
     public Dimorphodon(EntityType<? extends Dimorphodon> entityType, Level level) {
         super(entityType, level);
         this.registerAttack(BITE);
+        this.moveControl = new ComposedMoveControl<>(this)
+                .withFlyingMoveControl(new FlightMoveControl(this))
+                .withFlyingPredicate(d -> isFlying());
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if(super.hurt(source, amount)){
+            if (!this.isFlying()) {
+                this.setFlying(true);
+            }
+            this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+            this.getNavigation().stop();
+            return true;
+        }
+        return false;
     }
 
     @Override

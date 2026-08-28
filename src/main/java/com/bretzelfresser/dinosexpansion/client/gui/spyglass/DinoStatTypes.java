@@ -36,20 +36,20 @@ public enum DinoStatTypes {
     TORPOR("Torpor", BaseDinoEntity::getTorpor, dino -> (float) dino.getAttributeValue(ModAttributes.MAX_TORPOR), 0xFFAA00AA),
     TAMING_PROGRESS("Taming_Progress", BaseDinoEntity::getTamingProgress, dino -> 1f, BaseDinoEntity::currentlyTaming, 0xFF9d7e38) {
         @Override
-        public Component getValueComponent(BaseDinoEntity dino) {
+        public Component getValueComponent(BaseDinoEntity<?> dino) {
             return Component.translatable("stat_type." + DinosExpansion.MODID + ".stat.label", getLabelTranslationComponent(), FormattingUtils.DEFAULT_FLOAT_FORMAT.format(getFloatValue(dino) * 100f) + "%");
         }
     };
 
     private final String labelName;
     private final boolean isBar;
-    private final Function<BaseDinoEntity, Component> textValGetter;
-    private final Function<BaseDinoEntity, Float> floatValGetter;
-    private final Function<BaseDinoEntity, Float> maxValGetter;
+    private final Function<BaseDinoEntity<?>, Component> textValGetter;
+    private final Function<BaseDinoEntity<?>, Float> floatValGetter;
+    private final Function<BaseDinoEntity<?>, Float> maxValGetter;
     private final int color;
-    private final Predicate<BaseDinoEntity> enabled;
+    private final Predicate<BaseDinoEntity<?>> enabled;
 
-    DinoStatTypes(String labelName, Function<BaseDinoEntity, Component> textValGetter, @NotNull Predicate<BaseDinoEntity> enabled) {
+    DinoStatTypes(String labelName, Function<BaseDinoEntity<?>, Component> textValGetter, @NotNull Predicate<BaseDinoEntity<?>> enabled) {
         this.labelName = labelName;
         this.isBar = false;
         this.textValGetter = textValGetter;
@@ -60,16 +60,16 @@ public enum DinoStatTypes {
     }
 
     // Constructor for text stats
-    DinoStatTypes(String labelName, Function<BaseDinoEntity, Component> textValGetter) {
+    DinoStatTypes(String labelName, Function<BaseDinoEntity<?>, Component> textValGetter) {
         this(labelName, textValGetter, d -> true);
     }
 
-    DinoStatTypes(String labelName, Function<BaseDinoEntity, Float> floatValGetter, Function<BaseDinoEntity, Float> maxValGetter, int color) {
+    DinoStatTypes(String labelName, Function<BaseDinoEntity<?>, Float> floatValGetter, Function<BaseDinoEntity<?>, Float> maxValGetter, int color) {
         this(labelName, floatValGetter, maxValGetter, d -> true, color);
     }
 
     // Constructor for progress bar stats
-    DinoStatTypes(String labelName, Function<BaseDinoEntity, Float> floatValGetter, Function<BaseDinoEntity, Float> maxValGetter, @NotNull Predicate<BaseDinoEntity> enabled, int color) {
+    DinoStatTypes(String labelName, Function<BaseDinoEntity<?>, Float> floatValGetter, Function<BaseDinoEntity<?>, Float> maxValGetter, @NotNull Predicate<BaseDinoEntity<?>> enabled, int color) {
         this.labelName = labelName;
         this.isBar = true;
         this.textValGetter = null;
@@ -91,7 +91,7 @@ public enum DinoStatTypes {
         return Component.translatable(getLabelTranslationKey());
     }
 
-    public boolean enabled(BaseDinoEntity dino) {
+    public boolean enabled(BaseDinoEntity<?> dino) {
         return this.enabled.test(dino);
     }
 
@@ -99,7 +99,7 @@ public enum DinoStatTypes {
         return isBar;
     }
 
-    public Component getValueComponent(BaseDinoEntity dino) {
+    public Component getValueComponent(BaseDinoEntity<?> dino) {
         if (isBar) {
             return Component.translatable("stat_type." + DinosExpansion.MODID + ".stat.bar", getLabelTranslationComponent(), getFormattedFloatValue(dino), getFormattedMaxValue(dino));
         }
@@ -107,7 +107,7 @@ public enum DinoStatTypes {
         return Component.translatable("stat_type." + DinosExpansion.MODID + ".stat.label", getLabelTranslationComponent(), this.textValGetter.apply(dino));
     }
 
-    public float getPercentage(BaseDinoEntity dino) {
+    public float getPercentage(BaseDinoEntity<?> dino) {
         if (!isBar)
             return 0f;
         var maxValue = getMaxValue(dino);
@@ -115,19 +115,19 @@ public enum DinoStatTypes {
         return maxValue > 0 ? (value / maxValue) : 0f;
     }
 
-    public float getFloatValue(BaseDinoEntity dino) {
+    public float getFloatValue(BaseDinoEntity<?> dino) {
         return isBar ? floatValGetter.apply(dino) : 0f;
     }
 
-    public String getFormattedFloatValue(BaseDinoEntity dino) {
+    public String getFormattedFloatValue(BaseDinoEntity<?> dino) {
         return FormattingUtils.DEFAULT_FLOAT_FORMAT.format(getFloatValue(dino));
     }
 
-    public String getFormattedMaxValue(BaseDinoEntity dino) {
+    public String getFormattedMaxValue(BaseDinoEntity<?> dino) {
         return FormattingUtils.DEFAULT_FLOAT_FORMAT.format(getMaxValue(dino));
     }
 
-    public float getMaxValue(BaseDinoEntity dino) {
+    public float getMaxValue(BaseDinoEntity<?> dino) {
         return isBar ? maxValGetter.apply(dino) : 0f;
     }
 
