@@ -20,38 +20,12 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         if (this.path == null || this.path.isDone()) {
             return;
         }
-
-        Vec3 pos = this.mob.position();
-        int currentIndex = this.path.getNextNodeIndex();
-        int pathLength = this.path.getNodeCount();
-
-        // Calculate a dynamic acceptance threshold based on whether the entity is flying or walking
-        double threshold = dino.isFlying() ? Math.max(2.0D, this.mob.getBbWidth() * 1.5D) : Math.max(1.0D, this.mob.getBbWidth());
-        double thresholdSqr = threshold * threshold;
-
-        // Check if we are close enough to any of the upcoming nodes to skip them
-        int lookAheadIndex = currentIndex;
-        for (int i = currentIndex; i < Math.min(currentIndex + 3, pathLength); i++) {
-            Vec3 nodePos = this.path.getEntityPosAtNode(this.mob, i);
-            if (pos.distanceToSqr(nodePos) < thresholdSqr) {
-                lookAheadIndex = i + 1;
-            }
+        //directly advancing to the last node
+        if (path.getNextNodeIndex() < path.getNodeCount() - 1){
+            path.setNextNodeIndex(path.getNodeCount() - 1);
         }
+        var currNode = this.path.getNextEntityPos(dino);
 
-        // Advance the path index
-        if (lookAheadIndex > currentIndex) {
-            if (lookAheadIndex >= pathLength) {
-                lookAheadIndex = pathLength - 1;
-            }
-            while (this.path.getNextNodeIndex() < lookAheadIndex) {
-                this.path.advance();
-            }
-        }
-
-        // Feed the target waypoint to the move control
-        if (!this.path.isDone()) {
-            Vec3 targetNodePos = this.path.getEntityPosAtNode(this.mob, this.path.getNextNodeIndex());
-            this.mob.getMoveControl().setWantedPosition(targetNodePos.x, targetNodePos.y, targetNodePos.z, this.speedModifier);
-        }
+        this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, speedModifier);
     }
 }
