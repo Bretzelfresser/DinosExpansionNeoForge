@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.chest.DinoChestEntry;
 import com.bretzelfresser.dinosexpansion.common.command.KnockoutCommand;
 import com.bretzelfresser.dinosexpansion.common.command.TameCommand;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
+import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.network.DinoChangeAggressionPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoChangeOrderPayload;
 import com.bretzelfresser.dinosexpansion.common.network.DinoEquipmentSyncPayload;
@@ -138,9 +139,7 @@ public class DinosExpansion {
 
     private void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.CERATOSAURS.get(), BaseDinoEntity.createDinoDefaultAttributes().build());
-        event.put(ModEntities.DIMORPHODON.get(), BaseDinoEntity.createDinoDefaultAttributes()
-                .add(Attributes.FLYING_SPEED, 0.25D)
-                .build());
+        event.put(ModEntities.DIMORPHODON.get(), FlyingDinosaur.createDinoDefaultAttributes().build());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

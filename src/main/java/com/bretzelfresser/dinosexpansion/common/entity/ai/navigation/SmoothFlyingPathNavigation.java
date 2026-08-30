@@ -27,5 +27,10 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         var currNode = this.path.getNextEntityPos(dino);
 
         this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, speedModifier);
+
+        if (this.mob.distanceToSqr(currNode) <= 1){
+            //ensure the path is finished
+            this.path.setNextNodeIndex(path.getNodeCount());
+        }
     }
 }

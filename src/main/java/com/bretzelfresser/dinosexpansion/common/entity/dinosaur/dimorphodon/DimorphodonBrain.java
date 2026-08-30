@@ -48,7 +48,7 @@ public class DimorphodonBrain {
 
     private static <T extends BaseDinoEntity<T>> void initIdleActivity(Brain<T> brain) {
         brain.addActivity(Activity.IDLE, Util.make(ImmutableList.<Pair<Integer, ? extends BehaviorControl<? super T>>>builder(), builder-> {
-            builder.add(Pair.of(1, RandomStroll.fly(1.0F)));
+            //builder.add(Pair.of(1, RandomStroll.fly(1.0F)));
             builder.add(Pair.of(1, StartAttacking.create(BaseDinoEntity::findAttackTarget)));
         }).build());
     }

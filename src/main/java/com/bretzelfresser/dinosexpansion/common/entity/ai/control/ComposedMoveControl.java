@@ -30,6 +30,16 @@ public class ComposedMoveControl<T extends BaseDinoEntity<T>> extends MoveContro
         return this;
     }
 
+    @Override
+    public void setWantedPosition(double x, double y, double z, double speed) {
+        super.setWantedPosition(x, y, z, speed);
+        flyingMoveControl.setWantedPosition(x, y, z, speed);
+    }
+
+    @Override
+    public boolean hasWanted() {
+        return flyingPredicate.test(this.mob) ? flyingMoveControl.hasWanted() : super.hasWanted();
+    }
 
     @Override
     public void tick() {

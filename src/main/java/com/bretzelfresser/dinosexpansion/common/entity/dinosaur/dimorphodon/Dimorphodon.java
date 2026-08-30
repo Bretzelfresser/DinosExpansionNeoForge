@@ -1,14 +1,12 @@
 package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
-import com.bretzelfresser.dinosexpansion.common.entity.ai.DinoBrain;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.control.FlightMoveControl;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SmoothFlyingMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttackBuilder;
 import com.mojang.serialization.Dynamic;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -22,7 +20,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jetbrains.annotations.NotNull;
@@ -82,7 +79,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
         super(entityType, level);
         this.registerAttack(BITE);
         this.moveControl = new ComposedMoveControl<>(this)
-                .withFlyingMoveControl(new FlightMoveControl(this))
+                .withFlyingMoveControl(new SmoothFlyingMoveControl(this))
                 .withFlyingPredicate(d -> isFlying());
     }
 
