@@ -43,9 +43,11 @@ public class ComposedMoveControl<T extends BaseDinoEntity<T>> extends MoveContro
 
     @Override
     public void tick() {
+        if (!this.mob.canMove())
+            return;
         if (flyingPredicate.test(this.mob)) {
             flyingMoveControl.tick();
-        }else
+        } else
             super.tick();
     }
 }

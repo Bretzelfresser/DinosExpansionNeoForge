@@ -74,7 +74,7 @@ public class SmoothFlyingMoveControl extends MoveControl {
 
         // Interpolate velocity smoothly for realistic flight momentum
         double steering = this.dinosaur.getSteeringForce();
-        Vec3 newMovement = currentMovement.lerp(targetDir, Mth.clamp(steering, 0.05D, 0.3D));
+        Vec3 newMovement = currentMovement.lerp(targetDir, Mth.clamp(steering, 0.01D, 0.8D));
 
         this.mob.setDeltaMovement(newMovement);
 

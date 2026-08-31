@@ -102,7 +102,7 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
     }
 
     public double getSteeringForce() {
-        return 0.05D;
+        return 0.02D;
     }
 
     public double getSlowingRadius() {
