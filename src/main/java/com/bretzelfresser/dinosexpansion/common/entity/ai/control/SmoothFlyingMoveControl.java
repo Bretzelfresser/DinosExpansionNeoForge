@@ -29,7 +29,7 @@ public class SmoothFlyingMoveControl extends MoveControl {
     @Override
     public void tick() {
         double baseSpeed = this.mob.getAttributeValue(Attributes.FLYING_SPEED);
-        double flySpeed = baseSpeed * this.speedModifier;
+        double flySpeed = baseSpeed * this.speedModifier == 0 ? 1 : this.speedModifier;
 
         Vec3 currentPos = this.mob.position();
         Vec3 currentMovement = this.mob.getDeltaMovement();
@@ -50,8 +50,8 @@ public class SmoothFlyingMoveControl extends MoveControl {
         } else {
             // Idle wandering flight behavior
             if (--this.wanderTimer <= 0) {
-                this.wanderTimer = 40 + this.mob.getRandom().nextInt(40); // Change direction every 2-4 seconds
-                float angleChange = (this.mob.getRandom().nextFloat() - 0.5F) * 90.0F; // Smooth angle change (-45 to +45 deg)
+                this.wanderTimer = 20 + this.mob.getRandom().nextInt(40); // Change direction every 2-4 seconds
+                float angleChange = (this.mob.getRandom().nextFloat() - 0.5F) * 180.0F; // Smooth angle change (-45 to +45 deg)
                 this.wanderHeading = Mth.wrapDegrees(this.wanderHeading + angleChange);
             }
 
@@ -69,7 +69,7 @@ public class SmoothFlyingMoveControl extends MoveControl {
         }
 
         // Add block collision repulsion
-        Vec3 repulsion = calculateRepulsionVector(this.mob, 3.0D);
+        Vec3 repulsion = calculateRepulsionVector(this.mob, 4.0D);
         targetDir = targetDir.add(repulsion);
 
         // Interpolate velocity smoothly for realistic flight momentum
@@ -97,6 +97,12 @@ public class SmoothFlyingMoveControl extends MoveControl {
 
     private double getTargetHeightY() {
         double floorHeight = this.mob.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.getBlockX(), this.mob.getBlockZ());
+        for (int y = this.mob.getBlockY(); y > this.mob.level().getMinBuildHeight(); y--) {
+            var state = this.mob.level().getBlockState(this.mob.blockPosition().above(y));
+            if (!state.getFluidState().isEmpty() || !state.getCollisionShape(this.mob.level(), this.mob.blockPosition().above(y)).isEmpty()) {
+                return this.mob.blockPosition().getY() + y + this.flightHeight;
+            }
+        }
         return floorHeight + this.flightHeight;
     }
 
@@ -120,7 +126,7 @@ public class SmoothFlyingMoveControl extends MoveControl {
                 if (distSq > 0.0001 && distSq < radius * radius) {
                     double dist = Math.sqrt(distSq);
                     double strength = (radius - dist) / radius;
-                    Vec3 pushDir = awayFromBlock.normalize().scale(strength * 0.1D);
+                    Vec3 pushDir = awayFromBlock.normalize().scale(strength);
                     totalPush = totalPush.add(pushDir);
                 }
             }
