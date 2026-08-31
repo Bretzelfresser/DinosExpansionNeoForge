@@ -1,7 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.navigation;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -20,17 +19,14 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         if (this.path == null || this.path.isDone()) {
             return;
         }
-        //directly advancing to the last node
-        if (path.getNextNodeIndex() < path.getNodeCount() - 1){
-            path.setNextNodeIndex(path.getNodeCount() - 1);
-        }
-        var currNode = this.path.getNextEntityPos(dino);
 
-        this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, speedModifier);
+        Vec3 currNode = this.path.getNextEntityPos(this.dino);
+        this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, this.speedModifier);
 
-        if (this.mob.distanceToSqr(currNode) <= 1){
-            //ensure the path is finished
-            this.path.setNextNodeIndex(path.getNodeCount());
+        // Advance to next waypoint when close enough to current node
+        double reachDistance = Math.max(1.2D, this.dino.getBbWidth() * 1.2D);
+        if (this.dino.distanceToSqr(currNode) <= reachDistance * reachDistance) {
+            this.path.advance();
         }
     }
 }

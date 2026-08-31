@@ -68,8 +68,9 @@ public class SmoothFlyingMoveControl extends MoveControl {
             targetDir = new Vec3(dx, targetY, dz);
         }
 
-        // Add block collision repulsion
-        Vec3 repulsion = calculateRepulsionVector(this.mob, 4.0D);
+        // Add mild block collision repulsion (smaller radius during pathfinding to avoid fighting path waypoints)
+        double repulsionRadius = (this.operation == Operation.MOVE_TO) ? 1.5D : 2.0D;
+        Vec3 repulsion = calculateRepulsionVector(this.mob, repulsionRadius);
         targetDir = targetDir.add(repulsion);
 
         // Interpolate velocity smoothly for realistic flight momentum
@@ -96,14 +97,22 @@ public class SmoothFlyingMoveControl extends MoveControl {
     }
 
     private double getTargetHeightY() {
-        double floorHeight = this.mob.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.getBlockX(), this.mob.getBlockZ());
-        for (int y = this.mob.getBlockY(); y > this.mob.level().getMinBuildHeight(); y--) {
-            var state = this.mob.level().getBlockState(this.mob.blockPosition().above(y));
-            if (!state.getFluidState().isEmpty() || !state.getCollisionShape(this.mob.level(), this.mob.blockPosition().above(y)).isEmpty()) {
-                return this.mob.blockPosition().getY() + y + this.flightHeight;
+        Level level = this.mob.level();
+        BlockPos pos = this.mob.blockPosition();
+        double floorHeight = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
+        double desiredY = floorHeight + this.flightHeight;
+
+        // Check for indoor/cave ceiling above entity to prevent getting pushed into roof blocks
+        int maxScan = (int) Math.ceil(this.flightHeight);
+        for (int i = 1; i <= maxScan; i++) {
+            BlockPos checkPos = pos.above(i);
+            if (!level.getBlockState(checkPos).getCollisionShape(level, checkPos).isEmpty()) {
+                double ceilingY = checkPos.getY() - 0.5D;
+                desiredY = Math.min(desiredY, ceilingY - 1.2D);
+                break;
             }
         }
-        return floorHeight + this.flightHeight;
+        return Math.max(pos.getY(), desiredY);
     }
 
     public static Vec3 calculateRepulsionVector(Entity entity, double radius) {
@@ -126,10 +135,15 @@ public class SmoothFlyingMoveControl extends MoveControl {
                 if (distSq > 0.0001 && distSq < radius * radius) {
                     double dist = Math.sqrt(distSq);
                     double strength = (radius - dist) / radius;
-                    Vec3 pushDir = awayFromBlock.normalize().scale(strength);
+                    Vec3 pushDir = awayFromBlock.normalize().scale(strength * 0.05D);
                     totalPush = totalPush.add(pushDir);
                 }
             }
+        }
+
+        // Cap total repulsion force magnitude so it never cancels out target movement
+        if (totalPush.lengthSqr() > 0.04D) {
+            totalPush = totalPush.normalize().scale(0.2D);
         }
 
         return totalPush;
