@@ -1,104 +1,103 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.control;
 
-import com.bretzelfresser.dinosexpansion.DinosExpansion;
-import com.bretzelfresser.dinosexpansion.client.event.ClientRenderingEvents;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 
 public class SmoothFlyingMoveControl extends MoveControl {
     private final FlyingDinosaur<?> dinosaur;
-    protected double flightHeight = 10;
-    protected long randomPrevTick = 0;
-    protected Vec3 randomMoveVec = new  Vec3(1.0D, 0.0D, 0.0D);
+    protected double flightHeight = 10.0D;
+    protected float wanderHeading;
+    protected int wanderTimer = 0;
 
     public SmoothFlyingMoveControl(FlyingDinosaur<?> dinosaur) {
         super(dinosaur);
         this.dinosaur = dinosaur;
+        this.wanderHeading = dinosaur.getYRot();
     }
 
-
-    public void setPreferredFlightHeight(double flightHeight){
+    public void setPreferredFlightHeight(double flightHeight) {
         this.flightHeight = flightHeight;
     }
 
     @Override
     public void tick() {
+        double baseSpeed = this.mob.getAttributeValue(Attributes.FLYING_SPEED);
+        double flySpeed = baseSpeed * this.speedModifier;
 
-        double flySpeed = this.mob.getAttributeValue(Attributes.FLYING_SPEED);
+        Vec3 currentPos = this.mob.position();
+        Vec3 currentMovement = this.mob.getDeltaMovement();
 
-        this.mob.setSpeed((float) (flySpeed * this.speedModifier));
-
-        var currentMovement = mob.getDeltaMovement();
-
-        var collisionPreventing = calculateRepulsionVector(this.mob, 4);
-
-        Vec3 current = Vec3.ZERO;
-        current = current.add(collisionPreventing);
-        current = current.add(flightHeightNudging());
+        Vec3 targetDir;
 
         if (this.operation == Operation.MOVE_TO) {
-            Vec3 target = new Vec3(this.wantedX, this.wantedY, this.wantedZ);
-            Vec3 currentPos = this.dinosaur.position();
-            Vec3 toTarget = target.subtract(currentPos);
+            Vec3 targetPos = new Vec3(this.wantedX, this.wantedY, this.wantedZ);
+            Vec3 toTarget = targetPos.subtract(currentPos);
             double distance = toTarget.length();
 
             if (distance < 0.5D) {
                 this.operation = Operation.WAIT;
                 return;
-
             }
-            current = current.add(toTarget);
 
-        }else {
-
-            if (this.mob.level().getGameTime() - randomPrevTick > 4){
-                currentMovement = current.multiply(1, 0, 1);
-                if (currentMovement.length() <= 0.001){
-                    currentMovement = new Vec3(1, 0, 0);
-                }
-                //randomVector = randomVector.yRot((this.mob.getRandom().nextFloat() * Mth.PI  / 2) - Mth.PI / 4);
-                this.randomMoveVec = currentMovement.yRot((this.mob.getRandom().nextFloat() * Mth.PI  / 2) - Mth.PI / 4);
-                randomPrevTick = this.mob.level().getGameTime();
+            targetDir = toTarget.normalize().scale(flySpeed);
+        } else {
+            // Idle wandering flight behavior
+            if (--this.wanderTimer <= 0) {
+                this.wanderTimer = 40 + this.mob.getRandom().nextInt(40); // Change direction every 2-4 seconds
+                float angleChange = (this.mob.getRandom().nextFloat() - 0.5F) * 90.0F; // Smooth angle change (-45 to +45 deg)
+                this.wanderHeading = Mth.wrapDegrees(this.wanderHeading + angleChange);
             }
-            current = current.add(randomMoveVec);
+
+            // Compute target horizontal direction from wanderHeading
+            float rad = this.wanderHeading * (float) (Math.PI / 180.0);
+            double dx = -Mth.sin(rad) * flySpeed;
+            double dz = Mth.cos(rad) * flySpeed;
+
+            // Smooth height adjustment during wandering
+            double desiredY = getTargetHeightY();
+            double heightDiff = desiredY - currentPos.y;
+            double targetY = Mth.clamp(heightDiff * 0.05D, -flySpeed * 0.5D, flySpeed * 0.5D);
+
+            targetDir = new Vec3(dx, targetY, dz);
         }
 
-        DinosExpansion.LOGGER.debug("current move vector: {}", current);
-        this.mob.setXxa((float) current.x);
-        this.mob.setZza((float) current.z);
-        this.mob.setYya((float) current.y);
+        // Add block collision repulsion
+        Vec3 repulsion = calculateRepulsionVector(this.mob, 3.0D);
+        targetDir = targetDir.add(repulsion);
 
+        // Interpolate velocity smoothly for realistic flight momentum
+        double steering = this.dinosaur.getSteeringForce();
+        Vec3 newMovement = currentMovement.lerp(targetDir, Mth.clamp(steering, 0.05D, 0.3D));
 
-        float yRotFromMovementVector = (float)(Mth.atan2(current.z, current.x) * 180.0F / (float)Math.PI) + 90;
+        this.mob.setDeltaMovement(newMovement);
 
-        this.mob.setYRot(this.rotlerp(this.mob.getYRot(), yRotFromMovementVector, 90.0F));
+        // Calculate and update Yaw and Pitch from actual movement velocity
+        if (newMovement.horizontalDistanceSqr() > 1.0E-4D) {
+            // Correct Minecraft Yaw: atan2(z, x) * 180 / PI - 90
+            float targetYaw = (float) (Mth.atan2(newMovement.z, newMovement.x) * (180.0D / Math.PI)) - 90.0F;
+            float lerpedYaw = rotlerp(this.mob.getYRot(), targetYaw, 10.0F);
+
+            this.mob.setYRot(lerpedYaw);
+            this.mob.yBodyRot = lerpedYaw;
+            this.mob.yHeadRot = lerpedYaw;
+
+            // Pitch from vertical movement component
+            double horizontalDistance = Math.sqrt(newMovement.x * newMovement.x + newMovement.z * newMovement.z);
+            float targetPitch = (float) (-(Mth.atan2(newMovement.y, horizontalDistance) * (180.0D / Math.PI)));
+            this.mob.setXRot(rotlerp(this.mob.getXRot(), targetPitch, 10.0F));
+        }
     }
 
-
-
-
-    public Vec3 flightHeightNudging(){
+    private double getTargetHeightY() {
         double floorHeight = this.mob.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.getBlockX(), this.mob.getBlockZ());
-        double currentEntityHeightAboveSurface = Math.max(0, this.mob.getY() - floorHeight);
-
-        return new Vec3(0, this.flightHeight - currentEntityHeightAboveSurface, 0);
-    }
-
-    public Vec3 calculateTargetVector() {
-        Vec3 target = new Vec3(this.wantedX, this.wantedY, this.wantedZ);
-        Vec3 currentPos = this.dinosaur.position();
-        Vec3 toTarget = target.subtract(currentPos);
-        double distance = toTarget.length();
-
-        return toTarget;
-
+        return floorHeight + this.flightHeight;
     }
 
     public static Vec3 calculateRepulsionVector(Entity entity, double radius) {
@@ -113,25 +112,20 @@ public class SmoothFlyingMoveControl extends MoveControl {
                 center.offset(-blockRadius, -blockRadius, -blockRadius),
                 center.offset(blockRadius, blockRadius, blockRadius)
         )) {
-            // Only push away from solid / collision blocks
             if (!level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()) {
                 Vec3 blockCenter = Vec3.atCenterOf(pos);
                 Vec3 awayFromBlock = entityPos.subtract(blockCenter);
                 double distSq = awayFromBlock.lengthSqr();
 
-                // Ignore blocks outside the desired push radius
                 if (distSq > 0.0001 && distSq < radius * radius) {
                     double dist = Math.sqrt(distSq);
-
-                    // Weight: Closer blocks push stronger (linear falloff)
                     double strength = (radius - dist) / radius;
-                    Vec3 pushDir = awayFromBlock.normalize().scale(strength * 2);
-
+                    Vec3 pushDir = awayFromBlock.normalize().scale(strength * 0.1D);
                     totalPush = totalPush.add(pushDir);
                 }
             }
         }
 
-        return totalPush; // Add this vector to the entity's deltaMovement or goal direction
+        return totalPush;
     }
 }
