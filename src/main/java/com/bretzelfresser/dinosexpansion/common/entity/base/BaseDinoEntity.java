@@ -582,7 +582,7 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
 
     @Override
     public boolean isSaddleable() {
-        return this.isAlive() && !this.isBaby() && this.isTamed();
+        return this.getEquipments().containsKey(DinoEquipment.SADDLE) && this.isAlive() && !this.isBaby() && this.isTamed();
     }
 
     @Override
