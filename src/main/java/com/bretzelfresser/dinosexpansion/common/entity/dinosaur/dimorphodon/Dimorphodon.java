@@ -79,7 +79,6 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
         super(entityType, level);
         this.registerAttack(BITE);
         this.moveControl = new ComposedMoveControl<>(this)
-                .withFlyingMoveControl(new SmoothFlyingMoveControl(this))
                 .withFlyingPredicate(d -> isFlying());
     }
 
