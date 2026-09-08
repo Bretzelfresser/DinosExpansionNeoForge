@@ -1,5 +1,6 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.control;
 
+import com.bretzelfresser.dinosexpansion.common.entity.ai.navigation.ParametricSpline;
 import com.bretzelfresser.dinosexpansion.common.entity.base.BaseDinoEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -28,6 +29,43 @@ public class ComposedMoveControl<T extends BaseDinoEntity<T>> extends MoveContro
     public ComposedMoveControl<T> withFlyingMoveControl(MoveControl flyingMoveControl) {
         this.flyingMoveControl = flyingMoveControl;
         return this;
+    }
+
+    public MoveControl getFlyingMoveControl() {
+        return this.flyingMoveControl;
+    }
+
+    public void followSpline(ParametricSpline spline, double speed) {
+        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
+            smooth.followSpline(spline, speed);
+        }
+    }
+
+    public void clearSpline() {
+        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
+            smooth.clearSpline();
+        }
+    }
+
+    public boolean isSplineDone() {
+        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
+            return smooth.isSplineDone();
+        }
+        return true;
+    }
+
+    public boolean isStuck() {
+        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
+            return smooth.isStuck();
+        }
+        return false;
+    }
+
+    public boolean hasActiveSpline() {
+        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
+            return smooth.hasActiveSpline();
+        }
+        return false;
     }
 
     @Override

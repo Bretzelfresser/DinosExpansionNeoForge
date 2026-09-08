@@ -43,6 +43,52 @@ public class ParametricSpline {
         return controlPoints.size() < 2;
     }
 
+    public Vec3 getStartPosition() {
+        return isEmpty() ? Vec3.ZERO : controlPoints.get(0);
+    }
+
+    public Vec3 getEndPosition() {
+        return isEmpty() ? Vec3.ZERO : controlPoints.get(controlPoints.size() - 1);
+    }
+
+    /**
+     * Projects a 3D position onto the curve within a local search window, returning the closest arc-length distance s.
+     */
+    public double findClosestDistance(Vec3 point, double searchStart, double searchWindow) {
+        if (isEmpty()) return 0.0D;
+
+        double minS = Math.max(0.0D, searchStart - 1.0D);
+        double maxS = Math.min(totalLength, searchStart + searchWindow);
+
+        double bestS = searchStart;
+        double bestDistSq = Double.MAX_VALUE;
+
+        // Step 1: coarse scan (0.25 block steps)
+        double step = 0.25D;
+        for (double s = minS; s <= maxS; s += step) {
+            Vec3 curvePos = getPositionAtDistance(s);
+            double distSq = curvePos.distanceToSqr(point);
+            if (distSq < bestDistSq) {
+                bestDistSq = distSq;
+                bestS = s;
+            }
+        }
+
+        // Step 2: fine refinement (+-0.25 blocks around bestS)
+        double fineMin = Math.max(minS, bestS - step);
+        double fineMax = Math.min(maxS, bestS + step);
+        for (double s = fineMin; s <= fineMax; s += 0.05D) {
+            Vec3 curvePos = getPositionAtDistance(s);
+            double distSq = curvePos.distanceToSqr(point);
+            if (distSq < bestDistSq) {
+                bestDistSq = distSq;
+                bestS = s;
+            }
+        }
+
+        return bestS;
+    }
+
     /**
      * Evaluates continuous 3D position P(s) along the curve at total arc-length distance s.
      */

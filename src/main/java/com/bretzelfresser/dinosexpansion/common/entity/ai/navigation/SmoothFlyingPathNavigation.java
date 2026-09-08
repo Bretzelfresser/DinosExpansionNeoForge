@@ -1,8 +1,9 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.navigation;
 
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SmoothFlyingMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
@@ -17,7 +18,6 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
 
     protected final FlyingDinosaur<?> dino;
     protected ParametricSpline activeSpline = null;
-    protected double currentSplineDistance = 0.0D;
 
     public SmoothFlyingPathNavigation(FlyingDinosaur<?> dino, Level level) {
         super(dino, level);
@@ -28,9 +28,10 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     protected @Nullable Path createPath(Set<BlockPos> targets, int distance, boolean reachTarget, int maxVisitedNodes) {
         Path path = super.createPath(targets, distance, reachTarget, maxVisitedNodes);
         if (path != null && this.dino.isFlying()) {
-            buildSplineFromPath(path);
+            buildSplineFromPath(path, this.speedModifier);
         } else {
             this.activeSpline = null;
+            clearSplineFromMoveControl();
         }
         return path;
     }
@@ -39,9 +40,10 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     public boolean moveTo(@Nullable Path path, double speed) {
         boolean success = super.moveTo(path, speed);
         if (success && path != null && this.dino.isFlying()) {
-            buildSplineFromPath(path);
+            buildSplineFromPath(path, speed);
         } else if (!this.dino.isFlying()) {
             this.activeSpline = null;
+            clearSplineFromMoveControl();
         }
         return success;
     }
@@ -50,13 +52,21 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     public void stop() {
         super.stop();
         this.activeSpline = null;
-        this.currentSplineDistance = 0.0D;
+        clearSplineFromMoveControl();
     }
 
-    protected void buildSplineFromPath(Path path) {
+    @Override
+    public boolean isDone() {
+        if (this.dino.isFlying() && this.activeSpline != null) {
+            return isMoveControlSplineDone() || super.isDone();
+        }
+        return super.isDone();
+    }
+
+    protected void buildSplineFromPath(Path path, double speed) {
         if (path == null || path.getNodeCount() == 0) {
             this.activeSpline = null;
-            this.currentSplineDistance = 0.0D;
+            clearSplineFromMoveControl();
             return;
         }
 
@@ -69,7 +79,7 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
 
         if (rawPoints.size() <= 1) {
             this.activeSpline = null;
-            this.currentSplineDistance = 0.0D;
+            clearSplineFromMoveControl();
             return;
         }
 
@@ -78,37 +88,36 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
 
         // 2. Build Continuous Parametric Spline P(s)
         this.activeSpline = new ParametricSpline(prunedKeypoints);
-        this.currentSplineDistance = 0.0D;
+
+        // 3. Delegate execution directly to MoveControl
+        assignSplineToMoveControl(this.activeSpline, speed);
     }
 
     @Override
     protected void followThePath() {
         if (this.path == null || this.path.isDone()) {
-            this.activeSpline = null;
+            this.stop();
             return;
         }
 
-        // When flying, evaluate continuous parametric spline function P(s) directly
-        if (this.dino.isFlying() && this.activeSpline != null && !this.activeSpline.isEmpty()) {
-            double flySpeed = this.dino.getAttributeValue(Attributes.FLYING_SPEED) * this.speedModifier;
-            double step = Math.max(0.1D, flySpeed);
-
-            // Advance distance parameter s along the curve
-            this.currentSplineDistance += step;
-
-            if (this.currentSplineDistance >= this.activeSpline.getTotalLength()) {
+        // When flying, delegate spline progression to closed-loop MoveControl
+        if (this.dino.isFlying() && this.activeSpline != null) {
+            if (isMoveControlStuck()) {
+                // If dinosaur gets physically stuck against an obstacle, abort and recalculate
                 this.stop();
+                this.recomputePath();
                 return;
             }
 
-            // Look-ahead distance to steer smoothly along curve tangent
-            double lookAheadDistance = Math.min(this.activeSpline.getTotalLength(), this.currentSplineDistance + 1.5D);
-            Vec3 targetPos = this.activeSpline.getPositionAtDistance(lookAheadDistance);
-
-            this.mob.getMoveControl().setWantedPosition(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
+            if (isMoveControlSplineDone()) {
+                this.stop();
+                return;
+            }
         } else {
-            // Grounded mode: Fallback to standard ground node pathing (no airborne 3D splines)
+            // Grounded mode: Fallback to standard ground node pathing
+            clearSplineFromMoveControl();
             this.activeSpline = null;
+
             Vec3 currNode = this.path.getNextEntityPos(this.dino);
             this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, this.speedModifier);
 
@@ -117,5 +126,39 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
                 this.path.advance();
             }
         }
+    }
+
+    protected void assignSplineToMoveControl(ParametricSpline spline, double speed) {
+        if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
+            composed.followSpline(spline, speed);
+        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
+            smooth.followSpline(spline, speed);
+        }
+    }
+
+    protected void clearSplineFromMoveControl() {
+        if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
+            composed.clearSpline();
+        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
+            smooth.clearSpline();
+        }
+    }
+
+    protected boolean isMoveControlSplineDone() {
+        if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
+            return composed.isSplineDone();
+        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
+            return smooth.isSplineDone();
+        }
+        return true;
+    }
+
+    protected boolean isMoveControlStuck() {
+        if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
+            return composed.isStuck();
+        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
+            return smooth.isStuck();
+        }
+        return false;
     }
 }
