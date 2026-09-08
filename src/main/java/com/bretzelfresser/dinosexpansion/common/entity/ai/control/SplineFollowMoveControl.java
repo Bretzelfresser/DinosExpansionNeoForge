@@ -42,6 +42,9 @@ public class SplineFollowMoveControl extends MoveControl {
         this.splineDone = false;
         this.stuck = false;
         this.stuckTicks = 0;
+        this.mob.setZza(0.0F);
+        this.mob.setXxa(0.0F);
+        this.mob.setYya(0.0F);
         if (this.operation == Operation.MOVE_TO) {
             this.operation = Operation.WAIT;
         }
@@ -61,8 +64,11 @@ public class SplineFollowMoveControl extends MoveControl {
 
     @Override
     public void tick() {
-        // If there is no active spline, do nothing
+        // If there is no active spline, do nothing and clear inputs
         if (!hasActiveSpline()) {
+            this.mob.setZza(0.0F);
+            this.mob.setXxa(0.0F);
+            this.mob.setYya(0.0F);
             return;
         }
 
@@ -70,7 +76,6 @@ public class SplineFollowMoveControl extends MoveControl {
         double flySpeed = baseSpeed * (this.speedModifier <= 0.0D ? 1.0D : this.speedModifier);
 
         Vec3 currentPos = this.mob.position();
-        Vec3 currentMovement = this.mob.getDeltaMovement();
 
         // Stuck detection: verify physical movement progress over time
         double movedDistSq = currentPos.distanceToSqr(this.lastPosition);
@@ -78,6 +83,9 @@ public class SplineFollowMoveControl extends MoveControl {
             this.stuckTicks++;
             if (this.stuckTicks > 25) { // Stuck for > 1.25 seconds
                 this.stuck = true;
+                this.mob.setZza(0.0F);
+                this.mob.setXxa(0.0F);
+                this.mob.setYya(0.0F);
                 return;
             }
         } else {
@@ -97,6 +105,9 @@ public class SplineFollowMoveControl extends MoveControl {
         if (this.currentSplineProgress >= totalLen - 0.5D && distToEnd <= 1.5D) {
             this.splineDone = true;
             this.operation = Operation.WAIT;
+            this.mob.setZza(0.0F);
+            this.mob.setXxa(0.0F);
+            this.mob.setYya(0.0F);
             return;
         }
 
@@ -108,30 +119,41 @@ public class SplineFollowMoveControl extends MoveControl {
 
         // Blend direction to target with curve tangent for smooth banking
         Vec3 dirToTarget = toTarget.lengthSqr() > 1.0E-4D ? toTarget.normalize() : tangent;
-        Vec3 targetDir = dirToTarget.scale(flySpeed).lerp(tangent.scale(flySpeed), 0.35D);
+        Vec3 targetDir = dirToTarget.lerp(tangent, 0.35D);
 
         // Mild collision repulsion
         Vec3 repulsion = calculateRepulsionVector(this.mob, 1.5D);
         targetDir = targetDir.add(repulsion);
 
-        // Interpolate velocity smoothly for realistic flight momentum
-        double steering = this.dinosaur.getSteeringForce();
-        Vec3 newMovement = currentMovement.lerp(targetDir, Mth.clamp(steering, 0.01D, 0.8D));
-        this.mob.setDeltaMovement(newMovement);
-
-        // Calculate and update Yaw and Pitch from actual movement velocity
-        if (newMovement.horizontalDistanceSqr() > 1.0E-4D) {
-            float targetYaw = (float) (Mth.atan2(newMovement.z, newMovement.x) * (180.0D / Math.PI)) - 90.0F;
-            float lerpedYaw = rotlerp(this.mob.getYRot(), targetYaw, 10.0F);
+        // 1. Calculate and update entity Yaw and Pitch rotation from target direction
+        if (targetDir.horizontalDistanceSqr() > 1.0E-4D) {
+            float targetYaw = (float) (Mth.atan2(targetDir.z, targetDir.x) * (180.0D / Math.PI)) - 90.0F;
+            float turnSpeed = this.dinosaur.getMaxTurnSpeed();
+            float lerpedYaw = rotlerp(this.mob.getYRot(), targetYaw, turnSpeed);
 
             this.mob.setYRot(lerpedYaw);
             this.mob.yBodyRot = lerpedYaw;
             this.mob.yHeadRot = lerpedYaw;
 
-            double horizontalDistance = Math.sqrt(newMovement.x * newMovement.x + newMovement.z * newMovement.z);
-            float targetPitch = (float) (-(Mth.atan2(newMovement.y, horizontalDistance) * (180.0D / Math.PI)));
-            this.mob.setXRot(rotlerp(this.mob.getXRot(), targetPitch, 10.0F));
+            double horizontalDistance = Math.sqrt(targetDir.x * targetDir.x + targetDir.z * targetDir.z);
+            float targetPitch = (float) (-(Mth.atan2(targetDir.y, horizontalDistance) * (180.0D / Math.PI)));
+            this.mob.setXRot(rotlerp(this.mob.getXRot(), targetPitch, turnSpeed));
         }
+
+        // 2. Project targetDir onto entity's local body axes to compute zza (forward) and xxa (strafe)
+        float yawRad = this.mob.getYRot() * (float) (Math.PI / 180.0);
+        float sin = Mth.sin(yawRad);
+        float cos = Mth.cos(yawRad);
+
+        float forward = (float) (-targetDir.x * sin + targetDir.z * cos);
+        float strafe  = (float) ( targetDir.x * cos + targetDir.z * sin);
+        float vertical = (float) Mth.clamp(targetDir.y, -1.0D, 1.0D);
+
+        // 3. Set speed and inputs for LivingEntity.travel()
+        this.mob.setSpeed((float) flySpeed);
+        this.mob.setZza(forward);
+        this.mob.setXxa(strafe);
+        this.mob.setYya(vertical);
     }
 
     public static Vec3 calculateRepulsionVector(Entity entity, double radius) {

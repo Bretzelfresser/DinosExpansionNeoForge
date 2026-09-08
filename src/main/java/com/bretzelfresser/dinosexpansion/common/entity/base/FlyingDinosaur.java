@@ -15,11 +15,12 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDinoEntity<T> {
+public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDinoEntity<T> implements FlyingAnimal {
 
     public static AttributeSupplier.Builder createDinoDefaultAttributes() {
         return BaseDinoEntity.createDinoDefaultAttributes()
@@ -76,7 +77,12 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
 
     @Override
     public void travel(@NotNull Vec3 travelVector) {
-        this.setNoGravity(this.isFlying());
+        if (this.isFlying()) {
+            this.moveRelative((float) this.getAttributeValue(Attributes.FLYING_SPEED), travelVector);
+            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.91D));
+            return;
+        }
         super.travel(travelVector);
     }
 
@@ -99,8 +105,10 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
         return current + f;
     }
 
-    // Default physical flight configuration parameters (override in concrete dinosaur classes)
-    
+    public float getMaxTurnSpeed() {
+        return 10.0F;
+    }
+
     public double getMaxFlyingSpeed() {
         return 0.6D;
     }
