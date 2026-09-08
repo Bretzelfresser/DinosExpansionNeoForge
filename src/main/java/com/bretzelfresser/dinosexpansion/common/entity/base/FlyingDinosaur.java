@@ -62,7 +62,11 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
     }
 
     public void setFlying(boolean flying) {
+        boolean wasFlying = this.isFlying();
         this.entityData.set(FLYING, flying);
+        if (wasFlying != flying && this.getNavigation() != null) {
+            this.getNavigation().stop();
+        }
     }
 
     @Override
