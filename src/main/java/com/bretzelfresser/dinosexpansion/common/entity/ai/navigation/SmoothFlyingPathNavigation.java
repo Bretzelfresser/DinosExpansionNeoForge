@@ -4,6 +4,8 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveCo
 import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SplineFollowMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
@@ -61,6 +63,22 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
             return isMoveControlSplineDone() || super.isDone();
         }
         return super.isDone();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        // Debug visualization: trace active spline with particles on the server
+        if (this.dino.isFlying() && this.activeSpline != null && !this.activeSpline.isEmpty() && this.level instanceof ServerLevel serverLevel) {
+            if (this.level.getGameTime() % 4 == 0) {
+                double total = this.activeSpline.getTotalLength();
+                for (double s = 0.0D; s <= total; s += 0.5D) {
+                    Vec3 p = this.activeSpline.getPositionAtDistance(s);
+                    serverLevel.sendParticles(DustParticleOptions.REDSTONE, p.x, p.y, p.z, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+                }
+            }
+        }
     }
 
     protected void buildSplineFromPath(Path path, double speed) {
