@@ -2,6 +2,7 @@ package com.bretzelfresser.dinosexpansion.common.entity.ai.navigation;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.Path;
@@ -15,8 +16,8 @@ import java.util.Set;
 public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
 
     protected final FlyingDinosaur<?> dino;
-    protected List<Vec3> splineWaypoints = null;
-    protected int splineIndex = 0;
+    protected ParametricSpline activeSpline = null;
+    protected double currentSplineDistance = 0.0D;
 
     public SmoothFlyingPathNavigation(FlyingDinosaur<?> dino, Level level) {
         super(dino, level);
@@ -29,7 +30,7 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         if (path != null && this.dino.isFlying()) {
             buildSplineFromPath(path);
         } else {
-            this.splineWaypoints = null;
+            this.activeSpline = null;
         }
         return path;
     }
@@ -40,7 +41,7 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         if (success && path != null && this.dino.isFlying()) {
             buildSplineFromPath(path);
         } else if (!this.dino.isFlying()) {
-            this.splineWaypoints = null;
+            this.activeSpline = null;
         }
         return success;
     }
@@ -48,14 +49,14 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     @Override
     public void stop() {
         super.stop();
-        this.splineWaypoints = null;
-        this.splineIndex = 0;
+        this.activeSpline = null;
+        this.currentSplineDistance = 0.0D;
     }
 
     protected void buildSplineFromPath(Path path) {
         if (path == null || path.getNodeCount() == 0) {
-            this.splineWaypoints = null;
-            this.splineIndex = 0;
+            this.activeSpline = null;
+            this.currentSplineDistance = 0.0D;
             return;
         }
 
@@ -67,46 +68,47 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
         }
 
         if (rawPoints.size() <= 1) {
-            this.splineWaypoints = rawPoints;
-            this.splineIndex = 0;
+            this.activeSpline = null;
+            this.currentSplineDistance = 0.0D;
             return;
         }
 
         // 1. Line-of-Sight Pruning (String-Pulling)
         List<Vec3> prunedKeypoints = PathStringPuller.stringPull(this.level, this.dino, rawPoints);
 
-        // 2. Catmull-Rom Spline Interpolation
-        this.splineWaypoints = CatmullRomSpline.generateSpline(prunedKeypoints, 4);
-        this.splineIndex = 0;
+        // 2. Build Continuous Parametric Spline P(s)
+        this.activeSpline = new ParametricSpline(prunedKeypoints);
+        this.currentSplineDistance = 0.0D;
     }
 
     @Override
     protected void followThePath() {
         if (this.path == null || this.path.isDone()) {
-            this.splineWaypoints = null;
+            this.activeSpline = null;
             return;
         }
 
-        // When flying, follow the smooth Catmull-Rom spline waypoints
-        if (this.dino.isFlying() && this.splineWaypoints != null && !this.splineWaypoints.isEmpty()) {
-            if (this.splineIndex >= this.splineWaypoints.size()) {
+        // When flying, evaluate continuous parametric spline function P(s) directly
+        if (this.dino.isFlying() && this.activeSpline != null && !this.activeSpline.isEmpty()) {
+            double flySpeed = this.dino.getAttributeValue(Attributes.FLYING_SPEED) * this.speedModifier;
+            double step = Math.max(0.1D, flySpeed);
+
+            // Advance distance parameter s along the curve
+            this.currentSplineDistance += step;
+
+            if (this.currentSplineDistance >= this.activeSpline.getTotalLength()) {
                 this.stop();
                 return;
             }
 
-            Vec3 currWay = this.splineWaypoints.get(this.splineIndex);
-            this.mob.getMoveControl().setWantedPosition(currWay.x, currWay.y, currWay.z, this.speedModifier);
+            // Look-ahead distance to steer smoothly along curve tangent
+            double lookAheadDistance = Math.min(this.activeSpline.getTotalLength(), this.currentSplineDistance + 1.5D);
+            Vec3 targetPos = this.activeSpline.getPositionAtDistance(lookAheadDistance);
 
-            double reachDistance = Math.max(1.0D, this.dino.getBbWidth() * 1.0D);
-            if (this.dino.distanceToSqr(currWay) <= reachDistance * reachDistance) {
-                this.splineIndex++;
-                if (this.splineIndex >= this.splineWaypoints.size()) {
-                    this.stop();
-                }
-            }
+            this.mob.getMoveControl().setWantedPosition(targetPos.x, targetPos.y, targetPos.z, this.speedModifier);
         } else {
             // Grounded mode: Fallback to standard ground node pathing (no airborne 3D splines)
-            this.splineWaypoints = null;
+            this.activeSpline = null;
             Vec3 currNode = this.path.getNextEntityPos(this.dino);
             this.mob.getMoveControl().setWantedPosition(currNode.x, currNode.y, currNode.z, this.speedModifier);
 
