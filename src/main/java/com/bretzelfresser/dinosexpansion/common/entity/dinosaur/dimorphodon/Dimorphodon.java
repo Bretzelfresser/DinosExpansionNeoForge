@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SmoothFlyingMoveControl;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SplineFollowMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
@@ -79,6 +79,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
         super(entityType, level);
         this.registerAttack(BITE);
         this.moveControl = new ComposedMoveControl<>(this)
+                .withFlyingMoveControl(new SplineFollowMoveControl(this))
                 .withFlyingPredicate(d -> isFlying());
     }
 

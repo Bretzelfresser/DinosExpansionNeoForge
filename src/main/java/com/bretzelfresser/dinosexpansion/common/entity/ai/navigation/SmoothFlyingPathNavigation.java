@@ -1,7 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity.ai.navigation;
 
 import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SmoothFlyingMoveControl;
+import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SplineFollowMoveControl;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
@@ -131,24 +131,24 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     protected void assignSplineToMoveControl(ParametricSpline spline, double speed) {
         if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
             composed.followSpline(spline, speed);
-        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
-            smooth.followSpline(spline, speed);
+        } else if (this.mob.getMoveControl() instanceof SplineFollowMoveControl splineMove) {
+            splineMove.followSpline(spline, speed);
         }
     }
 
     protected void clearSplineFromMoveControl() {
         if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
             composed.clearSpline();
-        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
-            smooth.clearSpline();
+        } else if (this.mob.getMoveControl() instanceof SplineFollowMoveControl splineMove) {
+            splineMove.clearSpline();
         }
     }
 
     protected boolean isMoveControlSplineDone() {
         if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
             return composed.isSplineDone();
-        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
-            return smooth.isSplineDone();
+        } else if (this.mob.getMoveControl() instanceof SplineFollowMoveControl splineMove) {
+            return splineMove.isSplineDone();
         }
         return true;
     }
@@ -156,8 +156,8 @@ public class SmoothFlyingPathNavigation extends FlyingPathNavigation {
     protected boolean isMoveControlStuck() {
         if (this.mob.getMoveControl() instanceof ComposedMoveControl<?> composed) {
             return composed.isStuck();
-        } else if (this.mob.getMoveControl() instanceof SmoothFlyingMoveControl smooth) {
-            return smooth.isStuck();
+        } else if (this.mob.getMoveControl() instanceof SplineFollowMoveControl splineMove) {
+            return splineMove.isStuck();
         }
         return false;
     }

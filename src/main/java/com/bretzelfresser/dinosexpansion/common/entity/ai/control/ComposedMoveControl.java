@@ -36,34 +36,34 @@ public class ComposedMoveControl<T extends BaseDinoEntity<T>> extends MoveContro
     }
 
     public void followSpline(ParametricSpline spline, double speed) {
-        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
-            smooth.followSpline(spline, speed);
+        if (this.flyingMoveControl instanceof SplineFollowMoveControl splineMove) {
+            splineMove.followSpline(spline, speed);
         }
     }
 
     public void clearSpline() {
-        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
-            smooth.clearSpline();
+        if (this.flyingMoveControl instanceof SplineFollowMoveControl splineMove) {
+            splineMove.clearSpline();
         }
     }
 
     public boolean isSplineDone() {
-        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
-            return smooth.isSplineDone();
+        if (this.flyingMoveControl instanceof SplineFollowMoveControl splineMove) {
+            return splineMove.isSplineDone();
         }
         return true;
     }
 
     public boolean isStuck() {
-        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
-            return smooth.isStuck();
+        if (this.flyingMoveControl instanceof SplineFollowMoveControl splineMove) {
+            return splineMove.isStuck();
         }
         return false;
     }
 
     public boolean hasActiveSpline() {
-        if (this.flyingMoveControl instanceof SmoothFlyingMoveControl smooth) {
-            return smooth.hasActiveSpline();
+        if (this.flyingMoveControl instanceof SplineFollowMoveControl splineMove) {
+            return splineMove.hasActiveSpline();
         }
         return false;
     }
