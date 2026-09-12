@@ -4,6 +4,7 @@ import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttackBuilder;
 import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
+import com.bretzelfresser.dinosexpansion.common.entity.util.EntityUtils;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -187,7 +189,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
         }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
 
         registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
-            if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && event.isMoving()) {
+            if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && EntityUtils.isMovingVertically(this)) {
                 if (this.isFlying()) {
                     return PlayState.STOP;
                 }
@@ -198,6 +200,11 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
 
         registrar.add(new AnimationController<>(this, DINO_ATTACK_CONTROLLER_NAME, 2, event -> PlayState.STOP)
                 .triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
+    }
+
+    @Override
+    protected Vec3 sleepParticlesRelative() {
+        return new Vec3(0f, 0.6f, 0.2f);
     }
 
     @Override
