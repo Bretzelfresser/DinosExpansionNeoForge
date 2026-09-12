@@ -118,7 +118,7 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
         for (DinoStat stat : DinoStat.values()) {
             this.statPoints.put(stat, 0);
         }
-        this.sleepBehaviour = new SleepBehaviour(this, SleepRhythm.DIURNAL);
+        this.sleepBehaviour = createSleepBehaviour();
         this.tamingBehaviour = new TamingBehaviour(this);
         this.survivalBehaviour = new SurvivalBehaviour(this);
         this.foodBehaviour = new DinoFoodBehaviour(this);
@@ -160,6 +160,10 @@ public abstract class BaseDinoEntity<T extends BaseDinoEntity<T>> extends Animal
     public int getChestSize(ItemStack stack) {
         return Math.round((float) this.getAttributeValue(ModAttributes.CARRYING_CAPACITY)) +
                 DinoChestCache.getSlotsFor(this.getType(), stack, this.level().registryAccess()).orElse(0);
+    }
+
+    protected SleepBehaviour createSleepBehaviour() {
+        return new SleepBehaviour(this, SleepRhythm.DIURNAL);
     }
 
     public SleepBehaviour getSleepBehaviour() {

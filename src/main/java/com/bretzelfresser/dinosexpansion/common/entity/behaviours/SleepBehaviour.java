@@ -26,21 +26,21 @@ public class SleepBehaviour {
      * @return whether this entity sleeps, forceAwake just works on the server side cause its linked to the brain
      * simply checking whether the time of day is right so sleep also works on the client side
      */
+    public boolean isSleepTime() {
+        if (this.rhythm == SleepRhythm.DIURNAL) {
+            return !this.dino.level().isDay();
+        } else if (this.rhythm == SleepRhythm.NOCTURNAL) {
+            return this.dino.level().isDay();
+        }
+        return false;
+    }
+
     public boolean shouldSleep() {
         if (this.dino.isUnconscious())
             return false;
         if (!canSleep())
             return false;
-        boolean shouldSleep = false;
-        if (this.rhythm == SleepRhythm.DIURNAL) {
-            // Diurnal dinos sleep during the night
-            shouldSleep = !dino.level().isDay();
-        } else if (this.rhythm == SleepRhythm.NOCTURNAL) {
-            // Nocturnal dinos sleep during the day
-            shouldSleep = dino.level().isDay();
-        }
-
-        return shouldSleep;
+        return isSleepTime();
     }
 
 

@@ -1,11 +1,9 @@
 package com.bretzelfresser.dinosexpansion.common.entity.dinosaur.dimorphodon;
 
-import com.bretzelfresser.dinosexpansion.common.entity.ai.control.ComposedMoveControl;
-import com.bretzelfresser.dinosexpansion.common.entity.ai.control.SplineFollowMoveControl;
-import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
-import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttack;
 import com.bretzelfresser.dinosexpansion.common.entity.ai.attack.DinoAttackBuilder;
+import com.bretzelfresser.dinosexpansion.common.entity.base.DinoOrderMode;
+import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -20,6 +18,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -42,6 +42,12 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
             .selectionWeight(10)
             .range(1.5d)
             .build("Bite");
+
+    public static AttributeSupplier.Builder createDinoDefaultAttributes() {
+        return FlyingDinosaur.createDinoDefaultAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.12D)
+                .add(Attributes.FLYING_SPEED, 0.6D);
+    }
 
     public enum Variant {
         COMMON((byte) 0, "common"),
@@ -79,16 +85,13 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
     public Dimorphodon(EntityType<? extends Dimorphodon> entityType, Level level) {
         super(entityType, level);
         this.registerAttack(BITE);
-        this.moveControl = new ComposedMoveControl<>(this)
-                .withFlyingMoveControl(new SplineFollowMoveControl(this))
-                .withFlyingPredicate(d -> isFlying());
     }
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if(super.hurt(source, amount)){
-            if (!this.isFlying()) {
-                this.setFlying(true);
+        if (super.hurt(source, amount)) {
+            if (!this.isFlying() && this.flightBehaviour != null) {
+                this.flightBehaviour.takeOff();
             }
             this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
             this.getNavigation().stop();
@@ -129,6 +132,9 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
         this.setVariant(getRandomVariant(level.getRandom()));
+        if (!this.onGround()) {
+            this.setFlying(true);
+        }
         return spawnGroupData;
     }
 
@@ -174,7 +180,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
             if (this.getOrderMode() == DinoOrderMode.STAY && this.onGround()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("sit"));
             }
-            if (!this.onGround() && this.isFlying()) {
+            if (this.isFlying()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("fly"));
             }
             return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
@@ -182,7 +188,7 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
 
         registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
             if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && event.isMoving()) {
-                if (this.onGround() || this.isFlying()) {
+                if (this.isFlying()) {
                     return PlayState.STOP;
                 }
                 return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
