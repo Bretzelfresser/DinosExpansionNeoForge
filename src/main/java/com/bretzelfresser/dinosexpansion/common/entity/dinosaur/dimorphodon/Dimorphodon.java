@@ -182,18 +182,17 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantH
             if (this.getOrderMode() == DinoOrderMode.STAY && this.onGround()) {
                 return event.setAndContinue(RawAnimation.begin().thenLoop("sit"));
             }
-            if (this.isFlying()) {
-                return event.setAndContinue(RawAnimation.begin().thenLoop("fly"));
-            }
-            return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
+            if(!EntityUtils.isMovingVertically(this) && !isFlying())
+                return event.setAndContinue(RawAnimation.begin().thenLoop("idle"));
+            return PlayState.STOP;
         }).triggerableAnim("attack", RawAnimation.begin().thenPlay("attack")));
 
         registrar.add(new AnimationController<>(this, "dino_move_controller", 5, event -> {
-            if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious() && EntityUtils.isMovingVertically(this)) {
+            if (!this.getSleepBehaviour().isSleeping() && !this.isUnconscious()) {
                 if (this.isFlying()) {
-                    return PlayState.STOP;
-                }
-                return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
+                    return event.setAndContinue(RawAnimation.begin().thenLoop("fly"));
+                }else if(EntityUtils.isMovingVertically(this))
+                    return event.setAndContinue(RawAnimation.begin().thenLoop("walk"));
             }
             return PlayState.STOP;
         }));

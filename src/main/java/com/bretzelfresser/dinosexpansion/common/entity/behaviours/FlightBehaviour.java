@@ -43,7 +43,7 @@ public class FlightBehaviour {
         this.groundNavigation = new GroundPathNavigation(dino, level);
         this.flyingNavigation = new FlyingPathNavigation(dino, level);
         this.groundMoveControl = new MoveControl(dino);
-        this.flyingMoveControl = new FlyingMoveControl(dino, 10, false);
+        this.flyingMoveControl = new FlyingMoveControl(dino, 10, true);
 
         this.groundNavigation.setCanFloat(true);
         this.flyingNavigation.setCanFloat(true);
