@@ -18,6 +18,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.level.Level;
@@ -29,7 +30,7 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 
-public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
+public class Dimorphodon extends FlyingDinosaur<Dimorphodon> implements VariantHolder<Dimorphodon.Variant> {
     private static final EntityDataAccessor<Byte> VARIANT = SynchedEntityData.defineId(Dimorphodon.class, EntityDataSerializers.BYTE);
 
     public static final DinoAttack BITE = new DinoAttackBuilder()
@@ -114,16 +115,18 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
         this.setVariant(Variant.byId(tag.getByte("Variant")));
     }
 
-    public Variant getVariant() {
+    @Override
+    public @NotNull Variant getVariant() {
         return Variant.byId(this.entityData.get(VARIANT));
     }
 
+    @Override
     public void setVariant(Variant variant) {
         this.entityData.set(VARIANT, variant.getId());
     }
 
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         spawnGroupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
         this.setVariant(getRandomVariant(level.getRandom()));
         return spawnGroupData;
@@ -194,15 +197,5 @@ public class Dimorphodon extends FlyingDinosaur<Dimorphodon> {
     @Override
     public void playerTriggerAttack() {
         this.playerTriggerAttack(BITE);
-    }
-
-    @Override
-    public double getMaxFlyingSpeed() {
-        return 0.5D;
-    }
-
-    @Override
-    public double getSteeringForce() {
-        return 0.08D;
     }
 }

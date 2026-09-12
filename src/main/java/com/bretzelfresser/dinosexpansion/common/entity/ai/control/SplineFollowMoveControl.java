@@ -71,6 +71,7 @@ public class SplineFollowMoveControl extends MoveControl {
             this.mob.setYya(0.0F);
             return;
         }
+        this.mob.setNoGravity(true);
 
         double baseSpeed = this.mob.getAttributeValue(Attributes.FLYING_SPEED);
         double flySpeed = baseSpeed * (this.speedModifier <= 0.0D ? 1.0D : this.speedModifier);
