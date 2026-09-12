@@ -1,6 +1,7 @@
 package com.bretzelfresser.dinosexpansion.common.entity.behaviours;
 
 import com.bretzelfresser.dinosexpansion.common.entity.base.FlyingDinosaur;
+import com.bretzelfresser.dinosexpansion.common.init.ModMemoryModules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -63,8 +64,16 @@ public class FlightBehaviour {
         return this.flightState;
     }
 
+    public void setFlightState(FlightState flightState) {
+        this.flightState = flightState;
+    }
+
     public @Nullable BlockPos getPerchTarget() {
         return this.perchTarget;
+    }
+
+    public void setPerchTarget(@Nullable BlockPos perchTarget) {
+        this.perchTarget = perchTarget;
     }
 
     public PathNavigation getGroundNavigation() {
@@ -267,21 +276,14 @@ public class FlightBehaviour {
                 return;
             }
 
-            // Daytime occasional takeoff after walking/resting for a while
-            if (!this.dino.isSleeping() && !this.dino.isUnconscious() && this.groundTicks > 300) {
+            // Daytime occasional takeoff after walking/resting for a while, only when not supposed to sleep
+            if (!this.dino.isSleeping() && !this.dino.isUnconscious() && !this.dino.getBrain().hasMemoryValue(ModMemoryModules.SHOULD_SLEEP.get()) && this.groundTicks > 300) {
                 if (this.dino.getRandom().nextFloat() < 0.008F) {
                     takeOff();
                 }
             }
         } else if (this.flightState == FlightState.FLYING) {
             this.flightTicks++;
-
-            // Daytime occasional perch after flying for a long time
-            if (!this.dino.isSleeping() && !this.dino.isUnconscious() && this.flightTicks > 800) {
-                if (this.dino.getRandom().nextFloat() < 0.004F) {
-                    startLanding();
-                }
-            }
         }
     }
 }

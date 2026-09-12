@@ -40,7 +40,8 @@ public class DinoBrain {
                 .add(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
                 .add(MemoryModuleType.PATH)
                 .add(ModMemoryModules.UNCONSCIOUS.get())
-                .add(ModMemoryModules.SLEEPING.get());
+                .add(ModMemoryModules.SLEEPING.get())
+                .add(ModMemoryModules.SHOULD_SLEEP.get());
     }
 
     /**

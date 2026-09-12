@@ -19,21 +19,4 @@ public class FlyingSleepBehaviour extends SleepBehaviour {
         }
         return super.canSleep();
     }
-
-    @Override
-    public void tick() {
-        if (this.rhythm == SleepRhythm.NONE) {
-            return;
-        }
-        if (this.dino.level().isClientSide()) {
-            return;
-        }
-
-        // If it is time to sleep and we are flying, request landing (e.g. in trees)
-        if (isSleepTime() && this.flyingDino.isFlying() && this.flyingDino.getFlightBehaviour() != null) {
-            this.flyingDino.getFlightBehaviour().startLandingForSleep();
-        }
-
-        super.tick();
-    }
 }

@@ -91,13 +91,19 @@ public class SleepBehaviour {
         this.sleepCooldown += ticks;
     }
 
-    public boolean canSleep() {
+    public boolean canSleepConditionsMet() {
+        if (this.dino.isUnconscious())
+            return false;
         if (dino.getBrain().checkMemory(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT))
             return false;
         //ensure when the entity might find another target that it doesnt fall asleep
-        if(dino.findAttackTarget().map(dino::canAttack).orElse(false))
+        if (dino.findAttackTarget().map(dino::canAttack).orElse(false))
             return false;
         return this.sleepCooldown <= 0 && !dino.isVehicle() && dino.getLastHurtByMob() == null && dino.getTarget() == null;
+    }
+
+    public boolean canSleep() {
+        return canSleepConditionsMet();
     }
 
     public SleepRhythm getRhythm() {
