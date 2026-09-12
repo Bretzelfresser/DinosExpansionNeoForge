@@ -3,6 +3,7 @@ package com.bretzelfresser.dinosexpansion.common.entity.base;
 import com.bretzelfresser.dinosexpansion.common.entity.behaviours.FlightBehaviour;
 import com.bretzelfresser.dinosexpansion.common.entity.behaviours.FlyingSleepBehaviour;
 import com.bretzelfresser.dinosexpansion.common.entity.behaviours.SleepBehaviour;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathType;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,6 +65,16 @@ public abstract class FlyingDinosaur<T extends FlyingDinosaur<T>> extends BaseDi
 
     public void setMoveControl(MoveControl moveControl) {
         this.moveControl = moveControl;
+    }
+
+    @Override
+    protected int calculateFallDamage(float fallDistance, float damageMultiplier) {
+        return isFlying() ? 0 : super.calculateFallDamage(fallDistance, damageMultiplier);
+    }
+
+    @Override
+    public boolean canTrample(BlockState state, BlockPos pos, float fallDistance) {
+        return !isFlying() && super.canTrample(state, pos, fallDistance);
     }
 
     @Override
